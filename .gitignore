@@ -14,6 +14,8 @@ app/home/*
 app/logs/*
 app/Resources/translations/*
 app/Resources/views/*
+**/.sass-cache/*
+**/.default.css.map
 
 # Upload content
 app/upload/*

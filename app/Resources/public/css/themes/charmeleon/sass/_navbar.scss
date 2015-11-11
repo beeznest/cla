@@ -1,0 +1,14 @@
+//Navbar
+.navbar-default{
+    background: $colorPrimary;
+    border: $noBorder;
+    border-radius: $radius - $radius;
+    .navbar-nav{
+        margin: 0px;
+        .active{
+            a{
+              background: transparent;
+            }          
+        }
+    }
+}

@@ -1,0 +1,14 @@
+//== General Mixin
+//-----------------------
+
+@mixin font-face($fontsFamily, $fontsFile, $type:"", $weight: 300, $style: "") {
+    $filepath: "fonts/" + $fontsFile + "-" +$type;
+    $file: $fontsFile + "-" +$type;
+   
+    @font-face {
+        font-family: "#{$fontsFamily}";
+        font-weight: $weight;
+        font-style: $style;
+        src: local("#{$fontsFamily}"), local("#{$file}"), url($filepath + ".woff2") format('woff2');
+    }
+}

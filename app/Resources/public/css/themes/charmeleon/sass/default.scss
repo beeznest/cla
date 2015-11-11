@@ -1,0 +1,27 @@
+/*!
+* Charmeleon Theme for Chamila Project
+* 2015 - Alex Aragón (alex.aragon@beeznest.com)
+*/
+
+//Variables
+
+@import "_variables.scss";
+
+//Mixins
+
+@import "_mixin.scss";
+
+//Fonts
+@include font-face($fontsFamily,$fontsFile,'Ligth', 300, 'normal');
+@include font-face($fontsFamily,$fontsFile,'Regular', 400, 'normal' );
+@include font-face($fontsFamily,$fontsFile,'Bold', 700, 'normal');
+@include font-face($fontsFamily,$fontsFile,'LightItalic', 300, 'italic');
+@include font-face($fontsFamily,$fontsFile,'Italic', 400, 'italic');
+@include font-face($fontsFamily,$fontsFile,'BoldItalic', 700, 'italic');
+//Navbar
+@import "navbar.scss";
+
+body{
+    font-family: $fontsFamily;
+    font-size: $fontSize;
+}
