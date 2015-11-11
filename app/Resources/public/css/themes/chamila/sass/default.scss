@@ -5,11 +5,11 @@
 
 //Variables
 
-@import "_variables.scss";
+@import "//var/www/chamilo/app/Resources/public/css/themes/chamila/sass/_variables.scss";
 
 //Mixins
 
-@import "_mixin.scss";
+@import "//var/www/chamilo/app/Resources/public/css/themes/chamila/sass/_mixin.scss";
 
 //Fonts
 @include font-face($fontsFamily,$fontsFile,'Ligth', 300, 'normal');
