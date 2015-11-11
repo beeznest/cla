@@ -7,13 +7,20 @@ $folderImage: "/images";
 //Fonts
 $fontsFamily:"Roboto Condensed";
 $fontsFile: "RobotoCondensed";
-$fontSize: 14px;
+$fontBody: 14px;
+$fontMenu: 22px;
 
 //Options
 $noBorder : none;
 $radius: 5px;
+$padding: 5px;
 
 
 //Colors
 
 $colorPrimary : #FFCC00;
+$colorSecundary: #1A1A1A;
+$colorFontsBody: #808080;
+$colorFontsFooter: #FFFFFF;
+$colorTitle: #000000;
+$colorFix: #E6E6E6;

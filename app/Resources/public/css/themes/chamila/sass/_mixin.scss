@@ -9,6 +9,6 @@
         font-family: "#{$fontsFamily}";
         font-weight: $weight;
         font-style: $style;
-        src: local("#{$fontsFamily}"), local("#{$file}"), url($filepath + ".woff2") format('woff2');
+        src: local("#{$fontsFamily} #{$type}"), local("#{$file}"), url($filepath + ".woff2") format('woff2');
     }
 }

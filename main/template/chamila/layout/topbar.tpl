@@ -11,7 +11,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="{{ _p.web }}">
-                    {{ "siteName" | get_setting }}
+                    <img src="{{ _p.web_css_theme }}images/badge.png"/>
                 </a>
             </div>
 

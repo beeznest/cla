@@ -12,3 +12,12 @@
         }
     }
 }
+.nav{
+    li{
+        font-weight: 700;
+        font-size: $fontMenu;
+    }
+}
+.navbar-brand{
+    padding: $padding + 5;
+}

@@ -12,7 +12,10 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="menuone">
             <ul class="nav navbar-nav">
-                {{ menu }}
+                <li><a href="#">Aprende</a></li>
+                <li><a href="#">Enseña</a></li>
+                <li><a href="#">Comunidad</a></li>
+                <li><a href="#">Blog</a></li>
             </ul>
            {% if _u.logged == 1 %}
            <ul class="nav navbar-nav navbar-right">

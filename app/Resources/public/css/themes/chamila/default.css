@@ -1,64 +1,61 @@
-/*
-Error: Undefined mixin 'font-face'.
-        on line 15 of sass/default.scss, in `font-face'
-        from line 15 of sass/default.scss
-
-10: //Mixins
-11: 
-12: @import "//var/www/chamilo/app/Resources/public/css/themes/chamila/sass/_mixin.scss";
-13: 
-14: //Fonts
-15: @include font-face($fontsFamily,$fontsFile,'Ligth', 300, 'normal');
-16: @include font-face($fontsFamily,$fontsFile,'Regular', 400, 'normal' );
-17: @include font-face($fontsFamily,$fontsFile,'Bold', 700, 'normal');
-18: @include font-face($fontsFamily,$fontsFile,'LightItalic', 300, 'italic');
-19: @include font-face($fontsFamily,$fontsFile,'Italic', 400, 'italic');
-20: @include font-face($fontsFamily,$fontsFile,'BoldItalic', 700, 'italic');
-
-Backtrace:
-sass/default.scss:15:in `font-face'
-sass/default.scss:15
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:349:in `block in visit_mixin'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/stack.rb:98:in `block in with_mixin'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/stack.rb:115:in `with_frame'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/stack.rb:98:in `with_mixin'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:347:in `visit_mixin'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/base.rb:36:in `visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:158:in `block in visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/stack.rb:79:in `block in with_base'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/stack.rb:115:in `with_frame'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/stack.rb:79:in `with_base'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:158:in `visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/base.rb:52:in `map'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/base.rb:52:in `visit_children'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:167:in `block in visit_children'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:179:in `with_environment'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:166:in `visit_children'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/base.rb:36:in `block in visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:186:in `visit_root'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/base.rb:36:in `visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:157:in `visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/visitors/perform.rb:8:in `visit'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/root_node.rb:36:in `css_tree'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/engine.rb:378:in `_render_with_sourcemap'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/engine.rb:295:in `render_with_sourcemap'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:490:in `update_stylesheet'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:209:in `each'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:470:in `on_file_changed'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:328:in `block in watch'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/listener.rb:252:in `call'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/listener.rb:252:in `on_change'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/listener.rb:290:in `block in initialize_adapter'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/adapter.rb:254:in `call'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/adapter.rb:254:in `report_changes'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/adapter.rb:323:in `poll_changed_directories'
-/var/lib/gems/1.9.1/gems/sass-3.4.19/vendor/listen/lib/listen/adapter.rb:299:in `block in start_poller'
+@charset "UTF-8";
+/*!
+* Charmeleon Theme for Chamila Project
+* 2015 - Alex Aragón (alex.aragon@beeznest.com)
 */
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Error: Undefined mixin 'font-face'.\A         on line 15 of sass/default.scss, in `font-face'\A         from line 15 of sass/default.scss\A \A 10: //Mixins\A 11: \A 12: @import \"//var/www/chamilo/app/Resources/public/css/themes/chamila/sass/_mixin.scss\";\A 13: \A 14: //Fonts\A 15: @include font-face($fontsFamily,$fontsFile,'Ligth', 300, 'normal');\A 16: @include font-face($fontsFamily,$fontsFile,'Regular', 400, 'normal' );\A 17: @include font-face($fontsFamily,$fontsFile,'Bold', 700, 'normal');\A 18: @include font-face($fontsFamily,$fontsFile,'LightItalic', 300, 'italic');\A 19: @include font-face($fontsFamily,$fontsFile,'Italic', 400, 'italic');\A 20: @include font-face($fontsFamily,$fontsFile,'BoldItalic', 700, 'italic');"; }
+@font-face {
+  font-family: "Roboto Condensed";
+  font-weight: 300;
+  font-style: "normal";
+  src: local("Roboto Condensed Ligth"), local("RobotoCondensed-Ligth"), url("fonts/RobotoCondensed-Ligth.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-weight: 400;
+  font-style: "normal";
+  src: local("Roboto Condensed Regular"), local("RobotoCondensed-Regular"), url("fonts/RobotoCondensed-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-weight: 700;
+  font-style: "normal";
+  src: local("Roboto Condensed Bold"), local("RobotoCondensed-Bold"), url("fonts/RobotoCondensed-Bold.woff2") format("woff2");
+}
+.navbar-default {
+  background: #FFCC00;
+  border: none;
+  border-radius: 0px;
+}
+.navbar-default .navbar-nav {
+  margin: 0px;
+}
+.navbar-default .navbar-nav .active a {
+  background: transparent;
+}
+
+.nav li {
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.navbar-brand {
+  padding: 10px;
+}
+
+body {
+  font-family: "Roboto Condensed";
+  font-size: 14px;
+}
+
+footer {
+  background: #1A1A1A;
+  color: #FFFFFF;
+}
+footer a {
+  color: #E6E6E6;
+}
+footer a:hover {
+  color: #FFCC00;
+}
+
+/*# sourceMappingURL=default.css.map */
