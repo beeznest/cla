@@ -12,11 +12,11 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="menuone">
             <ul class="nav navbar-nav">
-                <li><a href="{{ _p.web }}">Aprende</a></li>
-                <li><a href="#">Enseña</a></li>
-                <li><a href="#">Comunidad</a></li>
-                <li><a href="#">Blog</a></li>
-                {{ menu }}
+                {% for item in list %}
+                {% if item['key'] != 'agenda' and item['key'] != 'my-space' and item['key'] != 'profile' and item['key'] != 'dashboard' %}
+                    <li class="{{ item['current'] }} {{ item['key'] }}"><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+                {% endif %}    
+                {% endfor %}
             </ul>
            
         </div><!-- /.navbar-collapse -->

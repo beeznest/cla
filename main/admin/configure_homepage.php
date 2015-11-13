@@ -472,7 +472,7 @@ if (!empty($action)) {
 					// If the requested action is to create a link, make some room
 					// for the new link in the home_menu array at the requested place
 					// and insert the new link there
-                    $icon = '<em class="fa fa-external-link"></em>';
+                    
 					if ($action == 'insert_link' || $action == 'insert_tabs') {
 						for ($i = sizeof($home_menu); $i; $i--) {
 							if ($i > $insert_where) {
@@ -481,10 +481,10 @@ if (!empty($action)) {
 								break;
 							}
 						}
-						$home_menu[$insert_where + 1] = '<li '.$class_add_in_tab.'><a href="'.$link_url.'" target="'.($target_blank ? '_blank' : '_self').'">'.$icon.' '.$link_name.'</a></li>';
+						$home_menu[$insert_where + 1] = '<li '.$class_add_in_tab.'><a href="'.$link_url.'" target="'.($target_blank ? '_blank' : '_self').'">' . $link_name . '</a></li>';
 					} else {
 						// If the request is about a link edition, change the link
-						$home_menu[$link_index]='<li '.$class_add_in_tab.'><a href="'.$link_url.'" target="'.($target_blank?'_blank':'_self').'">'.$icon.' '.$link_name.'</a></li>';
+						$home_menu[$link_index]='<li '.$class_add_in_tab.'><a href="'.$link_url.'" target="'.($target_blank?'_blank':'_self').'">' . $link_name . '</a></li>';
 					}
 					// Re-build the file from the home_menu array
 					$home_menu = implode("\n", $home_menu);

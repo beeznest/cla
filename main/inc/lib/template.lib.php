@@ -907,8 +907,16 @@ class Template
         $this->assign('portal_name', $portal_name);
 
         //Menu
-        $menu = return_menu();
-        $this->assign('menu', $menu);
+        //$menu = return_menu();
+        
+        //$linkMyCourse = return_navigation_array();
+        $linkMyCourse = return_menu_array();
+        
+        $linkMyCourse = $linkMyCourse['possible_tabs'];
+        
+        //$this->assign('menu', $menu);
+        $this->assign('list', $linkMyCourse);
+        
 
         // Setting notifications
         $count_unread_message = 0;
