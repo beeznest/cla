@@ -211,7 +211,8 @@ class IndexManager
         $userId = api_get_user_id();
         // Including the page for the news
         $html = '';
-
+        global $this_section;
+        $this_section = '';
         if (!empty($_GET['include']) && preg_match('/^[a-zA-Z0-9_-]*\.html$/', $_GET['include'])) {
             $open = @(string)file_get_contents(api_get_path(SYS_PATH).$this->home.$_GET['include']);
             $html = api_to_system_encoding($open, api_detect_encoding(strip_tags($open)));

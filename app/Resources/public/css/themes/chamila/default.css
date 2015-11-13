@@ -21,34 +21,17 @@
   font-style: "normal";
   src: local("Roboto Condensed Bold"), local("RobotoCondensed-Bold"), url("fonts/RobotoCondensed-Bold.woff2") format("woff2");
 }
-.navbar-default {
-  background: #FFCC00;
-  border: none;
-  border-radius: 0px;
-}
-.navbar-default .navbar-nav {
-  margin: 0px;
-}
-.navbar-default .navbar-nav .active a {
-  background: transparent;
-}
-
-.nav li {
-  font-weight: 700;
-  font-size: 22px;
-}
-
-.navbar-brand {
-  padding: 10px;
-}
-
 body {
   font-family: "Roboto Condensed";
   font-size: 14px;
 }
 
+header {
+  background-color: #FFFFFF;
+}
+
 footer {
-  background: #1A1A1A;
+  background: #000000;
   color: #FFFFFF;
 }
 footer a {
@@ -56,6 +39,97 @@ footer a {
 }
 footer a:hover {
   color: #FFCC00;
+}
+
+#hero {
+  min-height: 580px;
+  padding-top: 90px;
+  text-align: center;
+}
+#hero .title-n1 {
+  color: #FFFFFF;
+  font-size: 5rem;
+  font-weight: 700;
+  font-style: italic;
+}
+#hero .description {
+  color: #FFFFFF;
+  font-size: 22px;
+  font-style: italic;
+}
+#hero #search-course {
+  padding-left: 25%;
+  padding-right: 25%;
+}
+#hero .btn-primary {
+  font-size: 2.4rem;
+}
+#hero .form-control {
+  border-right: none;
+}
+#hero .input-group-addon {
+  background-color: #FFF;
+}
+
+.navbar-default {
+  background: #FFCC00;
+  border: none;
+  border-radius: 0px;
+  margin-bottom: 0px;
+}
+.navbar-default .navbar-nav {
+  margin: 0px;
+}
+.navbar-default .navbar-nav .active a {
+  background: transparent;
+}
+.navbar-default .nav li {
+  font-weight: 700;
+  font-size: 22px;
+}
+.navbar-default .nav li a {
+  color: #000000;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.navbar-brand {
+  padding: 10px;
+}
+
+.btn-primary {
+  color: #000000;
+  background-color: #FFCC00;
+  border-color: #FFCC00;
+  font-weight: 700;
+}
+.btn-primary:hover {
+  background-color: #000000;
+  border-color: #000000;
+}
+.btn-primary:active, .btn-primary:focus {
+  background-color: #FFCC00;
+  border-color: #FFCC00;
+  color: #000000;
+}
+
+.login .btn-default {
+  color: #000000;
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+  font-weight: 700;
+}
+.login .btn-default:hover, .login .btn-default:active, .login .btn-default:focus {
+  color: #FFFFFF;
+  background-color: #000000;
+  border-color: #000000;
+}
+.login .dropdown-menu {
+  min-width: 290px;
+}
+.login .dropdown-menu .panel-default {
+  border: none;
+  margin-bottom: 0px;
 }
 
 /*# sourceMappingURL=default.css.map */

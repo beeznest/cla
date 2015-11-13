@@ -34,11 +34,10 @@
     </form>
 {% endif %}
 
-
 {% if show_header == true %}
 
 <div id="page-wrap"><!-- page section -->
-    {# Bug and help notifications #}
+
     {% block help_notifications %}
     <ul id="navigation" class="notification-panel">
         {{ help_content }}
@@ -46,7 +45,6 @@
     </ul>
     {% endblock %}
 
-    {# topbar #}
     {% block topbar %}
         {% include template ~ "/layout/topbar.tpl" %}
         {% if show_toolbar == 1 %}
@@ -70,33 +68,23 @@
                         </div>
                     </div>
                     <div class="col-lg-9">
-                        <div class="col-sm-4">
-                            {% if plugin_header_left is not null %}
-                            <div id="plugin_header_left">
-                                {{ plugin_header_left }}
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-sm-4">
-                            {% if plugin_header_center is not null %}
-                            <div id="plugin_header_center">
-                                {{ plugin_header_center }}
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-sm-4">
-                            {% if plugin_header_right is not null %}
-                            <div id="plugin_header_right">
-                                {{ plugin_header_right }}
-                            </div>
-                            {% endif %}
-                            <div class="section-notifications">
-                                <ul id="notifications" class="nav nav-pills pull-right">
-                                    {{ notification_menu }}
+                    {% if _u.logged == 0 %}
+                        <div class="login pull-right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  <i class="fa fa-sign-in fa-lg"></i> Iniciar Sesión <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li class="login-menu">
+                                        {% block login_form %}
+                                            {% include template ~ "/layout/login_form.tpl" %}
+                                        {% endblock %}
+                                    </li>
                                 </ul>
                             </div>
-                            {{ accessibility }}
+                            <a class="btn btn-primary" href="#"><i class="fa fa-pencil-square-o fa-lg"></i> Registrate</a>
                         </div>
+                    {% endif %}
                     </div>
                 </div>
             </section>
@@ -106,17 +94,7 @@
                 {% include template ~ "/layout/menu.tpl" %}
                 {% endblock %}
             </section>
-            <section id="breadcrumb-bar">
-                <div class="container">
-                    {# breadcrumb #}
-                    {% block breadcrumb %}
-                    {{ breadcrumb }}
-                    {% endblock %}
-                </div>
-            </section>
+            
         </header>
-    <div id="top_main_content" class="container">
-    <div class="row">
-    {# course navigation links/shortcuts need to be activated by the admin #}
-    {% include template ~ "/layout/course_navigation.tpl" %}
+    
 {% endif %}

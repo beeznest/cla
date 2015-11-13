@@ -11,6 +11,18 @@
 
     /* Makes row highlighting possible */
     $(document).ready( function() {
+        
+        $('#hero').vegas({
+        transition: 'fade2',
+        transitionDuration: 5000,
+        animationDuration: 3000,
+        overlay: '{{ _p.web_css_theme }}js/vegas/overlays/overlay.png',
+        slides: [
+            { src: '{{ _p.web_css_theme }}images/bg1.jpg' },
+            { src: '{{ _p.web_css_theme }}images/bg2.jpg' },
+            { src: '{{ _p.web_css_theme }}images/bg3.jpg' }
+            ]
+        });
         // Date time settings.
         moment.locale('{{ locale }}');
         $.datepicker.setDefaults($.datepicker.regional["{{ locale }}"]);
@@ -105,7 +117,4 @@
         };
         $('.boot-tooltip').tooltip(tip_options);
     });
-
-
-
 </script>

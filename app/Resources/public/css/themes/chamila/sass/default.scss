@@ -18,12 +18,13 @@
 //@include font-face($fontsFamily,$fontsFile,'LightItalic', 300, 'italic');
 //@include font-face($fontsFamily,$fontsFile,'Italic', 400, 'italic');
 //@include font-face($fontsFamily,$fontsFile,'BoldItalic', 700, 'italic');
-//Navbar
-@import "navbar.scss";
 
 body{
     font-family: $fontsFamily;
     font-size: $fontBody;
+}
+header{
+    background-color: $colorWhite;
 }
 footer{
     background: $colorSecundary;
@@ -34,4 +35,73 @@ footer{
     a:hover{
         color: $colorPrimary;
     }
+}
+#hero{
+    min-height:580px; 
+    padding-top: 90px;
+    text-align: center;
+    .title-n1{
+        color: $colorWhite;
+        font-size: 5rem;
+        font-weight: 700;
+        font-style: italic;
+    }
+    .description{
+        color: $colorWhite;
+        font-size: 22px;
+        font-style: italic;
+    }
+    #search-course{
+        padding-left: 25%;
+        padding-right: 25%;
+    }
+    .btn-primary{
+        font-size: 2.4rem;
+    }
+    .form-control{
+        border-right: none;
+    }
+    .input-group-addon{
+        background-color: #FFF;
+    }
+}
+//Navbar
+@import "navbar.scss";
+
+//Botton
+
+.btn-primary{
+    color: $colorSecundary;
+    background-color: $colorPrimary;
+    border-color: $colorPrimary;
+    font-weight: 700;
+    &:hover{
+        background-color: $colorSecundary;
+        border-color: $colorSecundary;
+    }
+    &:active, &:focus{
+         background-color: $colorPrimary;
+         border-color: $colorPrimary;
+         color: $colorSecundary;
+    }
+}
+.login {
+  .btn-default{
+    color: $colorSecundary;
+    background-color: $colorWhite;
+    border-color: $colorWhite;
+    font-weight: 700;
+    &:hover, &:active, &:focus{
+        color: $colorWhite;
+        background-color: $colorSecundary;
+        border-color: $colorSecundary;
+    }
+   }
+   .dropdown-menu{
+       min-width: 290px;
+       .panel-default{
+           border: $noBorder;
+           margin-bottom: 0px;
+       }
+   }
 }

@@ -1,98 +1,45 @@
 {% extends template ~ "/layout/main.tpl" %}
 
 {% block body %}
-	{# Main content #}
-
-    {# Plugin main top #}
-    {% if plugin_main_top %}
-        <div id="plugin_main_top" class="col-md-12">
-            {{ plugin_main_top }}
-        </div>
-    {% endif %}
-
-	{#  Right column #}
-	<div class="col-md-3 menu-column">
-        {% if plugin_menu_top %}
-            <div id="plugin_menu_top">
-                {{plugin_menu_top}}
-            </div>
-        {% endif %}
-
-	    {# if user is not login show the login form #}
-        {% block login_form %}
-		{% if _u.logged  == 0 %}
-			{% include template ~ "/layout/login_form.tpl" %}
-		{% endif %}
-        {% endblock %}
-
-		{# User picture #}
-        {% if _u.logged  == 1 %}
-            {{ user_image_block }}
-        {% endif %}
-        {# User Profile links #}
-		{{ profile_block }}
-
-
-        {# Course block - admin #}
-		{{ course_block }}
-
-        {# Course block - teacher #}
-		{{ teacher_block }}
-
-        {# Skills #}
-        {{ skills_block }}
-
-        {# Certificates search block #}
-        {{ certificates_search_block }}
-
-		{# Notice #}
-		{{ notice_block }}
-
-        {# Help #}
-		{{ help_block }}
-
-		{# Links that are not added in the tabs #}
-		{{ navigation_course_links }}
-
-		{# Search (xapian) #}
-		{{ search_block }}
-
-		{# Classes #}
-		{{ classes_block }}
-
-		{# Plugin courses sidebar #}
-        {# Plugins for footer section #}
-
-        {% if plugin_menu_bottom %}
-            <div id="plugin_menu_bottom">
-                {{ plugin_menu_bottom }}
-            </div>
-        {% endif %}
-	</div>
-
-	<div class="col-md-9">
-        {# Plugin bottom #}
-        {% if plugin_content_top %}
-            <div id="plugin_content_top">
-                {{ plugin_content_top }}
-            </div>
-        {% endif %}
-
-		{# Portal homepage #}
+	<div class="page-home">
+            {% if section_name == 'section-mycampus' and hide_special_search_block == 0 %}
+            <section id="hero">
+                <div class="container">
+                    <div class="badge-big"><img src="{{ _p.web_css_theme }}images/badge-big.png"></div>
+                    <h1 class="title-n1">¿Qué te gustaría aprender?</h1>
+                    <form id="search-course" class="form-horizontal">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="s" placeholder="Escribe y busca el curso que buscas...">
+                                <div class="input-group-addon"><i class="glyphicon glyphicon-search"></i></div>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="description">Apúntate a nuestros cursos online y evoluciona en tus conocimientos #AtreveteHoy</p>
+                    <a class="btn btn-primary"><i class="fa fa-book"></i> ¿Quieres enseñar? Registrate</a>
+                </div>
+            </section>
+            <section id="focus">
+                <div class="container">
+                <h2>Descubre nuestros más reciente cursos</h2>
+                <p>Chamila es un portal donde podras encontrar toda la información que te interesa para ampliar tus
+                conocimientos, que te permitirá optimizar la forma en la que se te presentas a una oferta de trabajo
+                y recursos para poner en marcha tu propio proyecto emprendedor</p>
+                </div>
+            </section>        
+            {% endif %}
         {% if home_page_block %}
             <section id="homepage-home">
                 {{ home_page_block }}
             </section>
         {% endif %}
-
-		{#  ??  #}
-		{{ sniff_notification }}
+        
+        {{ sniff_notification }}
 
         {% block page_body %}
         {% include template ~ "/layout/page_body.tpl" %}
         {% endblock %}
 
-        {# Welcome to course block  #}
         {% if welcome_to_course_block %}
             <section id="homepage-course">
             {{ welcome_to_course_block }}
@@ -107,37 +54,24 @@
         {% endif %}
         {% endblock %}
 
-		{# Announcements  #}
         {% if announcements_block %}
             <section id="homepage-announcements">
             {{ announcements_block }}
             </section>
         {% endif %}
 
-        {# Course categories (must be turned on in the admin settings) #}
         {% if course_category_block %}
             <section id="homepage-course-category">
                 {{ course_category_block }}
             </section>
         {% endif %}
-
-		{# Hot courses template  #}
-		{% include template ~ "/layout/hot_courses.tpl" %}
-
-        {# Content bottom  #}
-        {% if plugin_content_bottom %}
-            <div id="plugin_content_bottom">
-                {{plugin_content_bottom}}
+        <section id="courses">
+            <div class="container">
+                {% include template ~ "/layout/hot_courses.tpl" %}
             </div>
-        {% endif %}
-        &nbsp;
-	</div>
+        </section>
+	
 
-    {# Plugin main bottom #}
-    {% if plugin_main_bottom %}
-        <div id="plugin_main_bottom" class="col-md-12">
-            {{ plugin_main_bottom }}
-        </div>
-    {% endif %}
+	</div>
 
 {% endblock %}
