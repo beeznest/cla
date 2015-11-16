@@ -21,10 +21,9 @@
             </section>
             <section id="focus">
                 <div class="container">
-                <h2>Descubre nuestros más reciente cursos</h2>
-                <p>Chamila es un portal donde podras encontrar toda la información que te interesa para ampliar tus
-                conocimientos, que te permitirá optimizar la forma en la que se te presentas a una oferta de trabajo
-                y recursos para poner en marcha tu propio proyecto emprendedor</p>
+                <h2>Descubre cursos enseñados por expertos</h2>
+                <p>Ofrecemos contenidos premium preparado por profesionales apasionados. Queremos asegurarnos
+que tengas la mejor experiencia de aprendizaje.</p>
                 </div>
             </section>        
             {% endif %}
