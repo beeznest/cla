@@ -41,20 +41,41 @@ footer a:hover {
   color: #FFCC00;
 }
 
-#hero {
-  min-height: 580px;
-  padding-top: 90px;
-  text-align: center;
-}
-#hero .title-n1 {
+.title-n1 {
   color: #FFFFFF;
   font-size: 5rem;
   font-weight: 700;
   font-style: italic;
 }
+
+.title-n2 {
+  color: #000000;
+  font-size: 3rem;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.description {
+  color: #000000;
+  font-size: 22px;
+  font-style: normal;
+  color: #808080;
+}
+
+.title-n3 {
+  color: #000000;
+  font-size: 2rem;
+  font-weight: 700;
+  font-style: normal;
+}
+
+#hero {
+  min-height: 580px;
+  padding-top: 70px;
+  text-align: center;
+}
 #hero .description {
   color: #FFFFFF;
-  font-size: 22px;
   font-style: italic;
 }
 #hero #search-course {
@@ -69,6 +90,21 @@ footer a:hover {
 }
 #hero .input-group-addon {
   background-color: #FFF;
+}
+
+#focus {
+  text-align: center;
+  padding-top: 70px !important;
+}
+#focus .description {
+  font-size: 18px;
+  line-height: 1.6;
+}
+#focus .message {
+  padding-bottom: 35px;
+}
+#focus .user-tips {
+  padding-top: 35px;
 }
 
 .navbar-default {

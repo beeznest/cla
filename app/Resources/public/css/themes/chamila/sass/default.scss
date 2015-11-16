@@ -36,19 +36,37 @@ footer{
         color: $colorPrimary;
     }
 }
+.title-n1{
+    color: $colorWhite;
+    font-size: 5rem;
+    font-weight: 700;
+    font-style: italic;
+}
+.title-n2{
+    color: $colorSecundary;
+    font-size: 3rem;
+    font-weight: 700;
+    font-style: normal;
+}
+.description{
+    color: $colorSecundary;
+    font-size: 22px;
+    font-style: normal;
+    color: $colorFontsBody;
+}
+.title-n3 {
+  color: $colorSecundary;
+  font-size: 2rem;
+  font-weight: 700;
+  font-style: normal;
+}
 #hero{
     min-height:580px; 
-    padding-top: 90px;
+    padding-top: 70px;
     text-align: center;
-    .title-n1{
-        color: $colorWhite;
-        font-size: 5rem;
-        font-weight: 700;
-        font-style: italic;
-    }
+    
     .description{
         color: $colorWhite;
-        font-size: 22px;
         font-style: italic;
     }
     #search-course{
@@ -63,6 +81,20 @@ footer{
     }
     .input-group-addon{
         background-color: #FFF;
+    }
+}
+#focus{
+    text-align: center;
+    padding-top: 70px !important;
+    .description{
+        font-size: 18px;
+        line-height: 1.6;
+    }
+    .message{
+        padding-bottom: 35px;
+    }
+    .user-tips{
+        padding-top: 35px;
     }
 }
 //Navbar

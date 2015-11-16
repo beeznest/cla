@@ -21,56 +21,55 @@
             </section>
             <section id="focus">
                 <div class="container">
-                <h2>Descubre cursos enseñados por expertos</h2>
-                <p>Ofrecemos contenidos premium preparado por profesionales apasionados. Queremos asegurarnos
+                    <div class="row message">
+                        <div class="col-md-12">
+                            <h2 class="title-n2">Descubre cursos enseñados por expertos</h2>
+                            <p class="description">Ofrecemos contenidos premium preparado por profesionales apasionados. Queremos asegurarnos
 que tengas la mejor experiencia de aprendizaje.</p>
+                        </div>
+                    </div>
+                    <div class="row user-tips">
+                        <div class="col-sm-4">
+                            <i class="fa fa-smile-o fa-4x"></i>
+                            <h3 class="title-n3">Aprende a tu ritmo</h3>
+                            <p class="description">Disfruta de los cursos desde casa, sin horarios ni entregas. Tú marcas tu propia agenda</p>
+                        </div>
+                        <div class="col-sm-4">
+                            <i class="fa fa-laptop fa-4x"></i>
+                            <h3 class="title-n3">En primera fila</h3>
+                            <p class="description">Vídeos de máxima calidad para que no pierdas detalle. Y como el acceso es ilimitado, puedes verlos una y otra vez</p>
+                        </div>
+                        <div class="col-sm-4">
+                            <i class="fa fa-thumbs-o-up fa-4x"></i>
+                            <h3 class="title-n3">De la mano del profesor</h3>
+                            <p class="description">Aprende técnicas y métodos de gran valor explicados por los expertos, respuesta casi inmediata a cualquier duda que tengas.</p>
+                        </div>
+                    </div>      
                 </div>
             </section>        
             {% endif %}
-        {% if home_page_block %}
-            <section id="homepage-home">
-                {{ home_page_block }}
-            </section>
-        {% endif %}
-        
-        {{ sniff_notification }}
-
-        {% block page_body %}
-        {% include template ~ "/layout/page_body.tpl" %}
-        {% endblock %}
-
-        {% if welcome_to_course_block %}
-            <section id="homepage-course">
-            {{ welcome_to_course_block }}
-            </section>
-        {% endif %}
-
-        {% block content %}
-        {% if content is not null %}
-            <section id="page-content" class="{{ course_history_page }}">
-                {{ content }}
-            </section>
-        {% endif %}
-        {% endblock %}
-
-        {% if announcements_block %}
-            <section id="homepage-announcements">
-            {{ announcements_block }}
-            </section>
-        {% endif %}
-
-        {% if course_category_block %}
-            <section id="homepage-course-category">
-                {{ course_category_block }}
-            </section>
-        {% endif %}
-        <section id="courses">
+            
+        <section id="content-body">
             <div class="container">
+                {{ sniff_notification }}
+                {% if welcome_to_course_block %}
+                    {{ welcome_to_course_block }}
+                {% endif %}
+                {% if home_page_block %}
+                    {{ home_page_block }}
+                {% endif %}
                 {% include template ~ "/layout/hot_courses.tpl" %}
-            </div>
-        </section>
-	
-
-	</div>
-
+                {% block page_body %}
+                    {% include template ~ "/layout/page_body.tpl" %}
+                {% endblock %}
+                {% block content %}
+                {% if content is not null %}
+                    <div class="{{ course_history_page }}">
+                        {{ content }}
+                    </div>
+                {% endif %}
+                {% endblock %}
+            </div> 
+        </section>    
+</div>
 {% endblock %}

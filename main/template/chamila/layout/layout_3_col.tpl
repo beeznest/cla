@@ -2,7 +2,7 @@
 {% extends template ~ "/layout/main.tpl" %}
 
 {% block body %}
-	<div id="maincontent" class="maincontent">
+	<div id="maincontent" class="container">
 		{{ plugin_courses_block}}
 		{{ home_page_block}}
 		{{ message}}

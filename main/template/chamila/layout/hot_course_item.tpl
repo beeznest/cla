@@ -1,6 +1,6 @@
 {% for hot_course in hot_courses %}
     {% if hot_course.extra_info.title %}
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="items-course">
                             <div class="items-course-image">
                                 <a href="{{ hot_course.extra_info.course_public_url }}"><img class="img-responsive" src="{{ hot_course.extra_info.course_image_large }}" alt="{{ hot_course.extra_info.title|e }}"/></a>
