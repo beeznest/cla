@@ -51,6 +51,9 @@ que tengas la mejor experiencia de aprendizaje.</p>
             
         <section id="content-body">
             <div class="container">
+                {% block breadcrumb %}
+                    {{ breadcrumb }}
+                {% endblock %}
                 {{ sniff_notification }}
                 {% if welcome_to_course_block %}
                     {{ welcome_to_course_block }}

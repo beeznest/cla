@@ -85,6 +85,7 @@
                             <a class="btn btn-primary" href="#"><i class="fa fa-pencil-square-o fa-lg"></i> Registrate</a>
                         </div>
                     {% endif %}
+                    {{ viewoption }}
                     </div>
                 </div>
             </section>

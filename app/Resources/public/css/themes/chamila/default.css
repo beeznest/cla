@@ -107,6 +107,44 @@ footer a:hover {
   padding-top: 35px;
 }
 
+#content-body {
+  margin-top: 10px;
+}
+
+#course_tools .content a {
+  font-size: 14px;
+  color: #808080;
+}
+#course_tools .content a:hover {
+  color: #000000;
+  text-decoration: none;
+}
+#course_tools .content visible {
+  color: #AAA;
+}
+
+.big_icon {
+  padding: 10px;
+}
+.big_icon a {
+  display: inline-block;
+  border: 3px solid #CCCCCC;
+  padding: 10px;
+  border-radius: 50%;
+}
+.big_icon a:hover, .big_icon a:focus {
+  box-shadow: 0px 4px 18px #C8C8C8;
+}
+.big_icon img {
+  box-shadow: none;
+  padding: 0px;
+  border-radius: 0px;
+  border: none;
+}
+.big_icon img:hover {
+  box-shadow: none;
+}
+
 .navbar-default {
   background: #FFCC00;
   border: none;

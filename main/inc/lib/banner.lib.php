@@ -479,7 +479,7 @@ function return_menu_array()
                             'url' => $matches[1],
                             'target' => $matches[2],
                             'title' => $matches[3],
-                            'key' => 'extra-page'
+                            'key' => 'extra-page-' . str_replace(' ', '-', strtolower($matches[3]))
                         );
                     }
                 }
@@ -495,7 +495,7 @@ function return_menu_array()
                             'url' => $matches[1],
                             'target' => $matches[2],
                             'title' => $matches[3],
-                            'key' => 'extra-page'
+                            'key' => 'extra-page-' . str_replace(' ', '-', strtolower($matches[3]))
                         );
                     }
                 }
@@ -505,18 +505,34 @@ function return_menu_array()
     
     if (count($mainNavigation['possible_tabs']) > 0) {
         //$pre_lis = '';
+        $activeSection = '';
         foreach ($mainNavigation['possible_tabs'] as $section => $navigation_info) {
             $key = (!empty($navigation_info['key'])?'tab-'.$navigation_info['key']:'');
-            $isCurrent = false;
+
             if (isset($GLOBALS['this_section'])) {
-                $current = $section == $GLOBALS['this_section'] ? 'active':'';
-                $isCurrent = $current;
+                $tempSection = $section;
+                if ($section == 'social') {
+                    $tempSection = 'social-network';
+                }
+                if ($tempSection == $GLOBALS['this_section']) {
+                    $activeSection = $section;
+                }
+                // If we're on the index page and a specific extra link has been
+                // loaded
+                if ($GLOBALS['this_section'] == SECTION_CAMPUS) {
+                    if (!empty($_GET['include'])) {
+                        $name = str_replace(' ', '-', strtolower($navigation_info['title'])) . '_' . $lang . $ext;
+                        if ($_GET['include'] == $name) {
+                            $activeSection = $section;
+                        }
+                    }
+                }
             } else {
                 $current = '';
             }
-            $mainNavigation['possible_tabs'][$section]['current'] = $isCurrent;
-            
+            $mainNavigation['possible_tabs'][$section]['current'] = '';
         }
+        $mainNavigation['possible_tabs'][$activeSection]['current'] = 'active';
         
     }
 
@@ -639,13 +655,7 @@ function return_breadcrumb($interbreadcrumb, $language_file, $nameTools)
 {
     $session_id = api_get_session_id();
     $session_name = api_get_session_name($session_id);
-    $_course = api_get_course_info();
-    $user_id = api_get_user_id();
-    $course_id = 0;
-    if (!empty($_course)) {
-        $course_id = $_course['real_id'];
-    }
-
+ 
     /*  Plugins for banner section */
     $web_course_path = api_get_path(WEB_COURSE_PATH);
 
@@ -776,13 +786,7 @@ function return_breadcrumb($interbreadcrumb, $language_file, $nameTools)
 
     $html = '';
 
-    /* Part 4 . Show the teacher view/student view button at the right of the breadcrumb */
-    $view_as_student_link = null;
-    if ($user_id && isset($course_id)) {
-        if ((api_is_course_admin() || api_is_platform_admin()) && api_get_setting('student_view_enabled') == 'true') {
-            $view_as_student_link = api_display_tool_view_option();
-        }
-    }
+    
     if (!empty($final_navigation)) {
         $lis = '';
         $i = 0;
@@ -809,11 +813,7 @@ function return_breadcrumb($interbreadcrumb, $language_file, $nameTools)
             }
         }
 
-        // View as student/teacher link
-        $view = null;
-        if (!empty($view_as_student_link)) {
-            $view .= Display::tag('div', $view_as_student_link, array('id' => 'view_as_link','class' => 'pull-right'));
-        }
+       
 
         if (!empty($navigation_right)) {
             foreach($navigation_right as $item){
@@ -823,10 +823,32 @@ function return_breadcrumb($interbreadcrumb, $language_file, $nameTools)
         }
 
         if (!empty($lis)) {
-            $html .= $view;
             $html .= Display::tag('ul', $lis, array('class'=>'breadcrumb'));
         }
     }
 
     return $html;
+}
+function viewStudent(){
+    $userId = api_get_user_id();
+    $_course = api_get_course_info();
+    $courseId = 0;
+    if (!empty($_course)) {
+        $courseId = $_course['real_id'];
+    }
+   
+    /* Part 4 . Show the teacher view/student view button at the right of the breadcrumb */
+    $viewStudentLink = null;
+    if ($userId && !empty($courseId)) {
+        if ((api_is_course_admin() || api_is_platform_admin()) && api_get_setting('student_view_enabled') == 'true') {
+            $viewStudentLink = api_display_tool_view_option();
+        }
+    }
+    // View as student/teacher link
+    $view = null;
+    if (!empty($viewStudentLink)) {
+        $view .= Display::tag('div', $viewStudentLink, array('id' => 'viewOption'));
+    }
+    
+    return $view;
 }

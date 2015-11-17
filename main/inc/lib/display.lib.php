@@ -704,7 +704,7 @@ class Display
         $additional_attributes = array(),
         $size = ICON_SIZE_SMALL,
         $show_text = true,
-        $return_only_path = false
+        $return_only_path = false    
     ) {
         $code_path = api_get_path(SYS_CODE_PATH);
         $w_code_path = api_get_path(WEB_CODE_PATH);

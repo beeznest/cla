@@ -6,7 +6,7 @@
     which means using a div with class span12
 #}
 {% if show_header == true %}
-    <div class="col-md-12">
+    <div class="container">
         {% include template ~ "/layout/page_body.tpl" %}
         <section id="main_content">
 {% endif %}

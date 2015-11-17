@@ -97,6 +97,46 @@ footer{
         padding-top: 35px;
     }
 }
+#content-body{
+    margin-top: 10px;
+}
+#course_tools {
+    .content{
+        a{
+            font-size: $fontBody;
+            color: $colorFontsBody;
+            &:hover{
+                color: $colorSecundary;
+                text-decoration: none;
+            }
+        }      
+        visible{
+            color:#AAA;
+        }
+    } 
+}
+.big_icon{
+    padding: 10px;
+    a{
+        display: inline-block;
+        border: 3px solid #CCCCCC;
+        padding: 10px;
+        border-radius: 50%;
+        &:hover, &:focus{
+            box-shadow: 0px 4px 18px #C8C8C8;
+        }
+    }
+    
+    img{
+        box-shadow: none;
+        padding: 0px;
+        border-radius: 0px;
+        border: none;
+        &:hover{
+          box-shadow: none;  
+        }
+    }
+}
 //Navbar
 @import "navbar.scss";
 

@@ -12,10 +12,10 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="menuone">
             <ul class="nav navbar-nav">
-                {% for item in list %}
-                {% if item['key'] != 'agenda' and item['key'] != 'my-space' and item['key'] != 'profile' and item['key'] != 'dashboard' %}
-                    <li class="{{ item['current'] }} {{ item['key'] }}"><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
-                {% endif %}    
+                {% for item in menu %}
+                    {% if item['key'] != 'agenda' and item['key'] != 'my-space' and item['key'] != 'profile' and item['key'] != 'dashboard' %}
+                        <li class="{{ item['current'] }} {{ item['key'] }}"><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+                    {% endif %}    
                 {% endfor %}
             </ul>
            

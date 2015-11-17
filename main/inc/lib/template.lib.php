@@ -915,7 +915,7 @@ class Template
         $linkMyCourse = $linkMyCourse['possible_tabs'];
         
         //$this->assign('menu', $menu);
-        $this->assign('list', $linkMyCourse);
+        $this->assign('menu', $linkMyCourse);
         
 
         // Setting notifications
@@ -949,7 +949,10 @@ class Template
 
         // Block Breadcrumb
         $breadcrumb = return_breadcrumb($interbreadcrumb, $language_file, $nameTools);
+        $viewButton = viewStudent();
+        
         $this->assign('breadcrumb', $breadcrumb);
+        $this->assign('viewoption', $viewButton);
 
         //Extra content
         $extra_header = null;
