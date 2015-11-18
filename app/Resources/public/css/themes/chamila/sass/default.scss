@@ -177,3 +177,26 @@ footer{
        }
    }
 }
+//items session
+.item-session{
+    border: 1px solid #E1E2E1;
+    margin-bottom: 40px;
+    .thumbnail{
+        padding: 0px;
+        border: none;
+        margin-bottom: 10px;
+    }
+    .description{
+        padding-top: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 5px;
+        h3{
+            font-size: $fontItem;
+            margin-top: $cero;
+        }
+        p{
+            font-size: $fontBody;
+        }
+    }
+}

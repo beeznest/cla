@@ -1037,7 +1037,7 @@ class IndexManager
                 $user_id,
                 $this->load_directories_preview
             );
-            $courses_html .= $courses['html'];
+            //$courses_html .= $courses['html'];
             $courseCount = $specialCourses['course_count'] + $courses['course_count'];
         }
 

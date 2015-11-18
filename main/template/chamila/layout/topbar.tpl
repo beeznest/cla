@@ -1,5 +1,6 @@
 <!-- Topbar -->
 {% if show_toolbar == 1 %}
+{% if _u.logged %}
     <nav id="toolbar-admin" class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
 
@@ -15,11 +16,11 @@
                 </a>
             </div>
 
-            {% if _u.logged %}
+            
                 <div class="collapse navbar-collapse" id="toolbar">
                     <ul class="nav navbar-nav">
                         <li class="active"><a href="{{ _p.web }}user_portal.php"> {{ "MyCourses"|get_lang }}</a></li>
-                        {#
+                        
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{'Teaching'|get_lang }}<b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -27,7 +28,7 @@
                                 <li><a href="{{ _p.web_main }}auth/courses.php">{{ "Catalog"|get_lang }}</a></li>
                             </ul>
                         </li>
-                        #}
+                        
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{'Tracking'|get_lang }}<b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -87,7 +88,8 @@
                         <li><a href="{{  _p.web }}index.php?logout=logout&uid={{_u.user_id}}">{{ "Logout"|get_lang }}</a></li>
                     </ul>
                 </div> <!-- /nav collapse -->
-            {% endif %}
+            
         </div> <!-- /container-->
     </nav><!-- /topbar -->
+    {% endif %}
 {% endif %}

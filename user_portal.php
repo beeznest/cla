@@ -119,6 +119,7 @@ if (isset($_COOKIE['defaultMyCourseView'.$userId]) &&
 } else {
     $courseAndSessions = $controller->returnCoursesAndSessions($userId);
     IndexManager::setDefaultMyCourseView(IndexManager::VIEW_BY_DEFAULT, $userId);
+    
 }
 
 // if teacher, session coach or admin, display the button to change te course view
@@ -192,6 +193,7 @@ if (empty($courseAndSessions['html']) && !isset($_GET['history'])) {
 }
 
 $controller->tpl->assign('content', $courseAndSessions['html']);
+
 
 if (api_get_setting('allow_browser_sniffer') == 'true') {
     if ($_SESSION['sniff_navigator'] != "checked") {

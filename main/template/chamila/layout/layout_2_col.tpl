@@ -68,7 +68,9 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 {% block content %}
                 {% if content is not null %}
                     <div class="{{ course_history_page }}">
-                        {{ content }}
+                        <div class="row">
+                            {{ content }}
+                        </div>
                     </div>
                 {% endif %}
                 {% endblock %}
