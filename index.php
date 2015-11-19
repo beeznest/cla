@@ -118,6 +118,7 @@ if (api_get_setting('display_categories_on_homepage') == 'true') {
 }
 
 $controller->set_login_form();
+$controller->set_register_form();
 
 //@todo move this inside the IndexManager
 if (!api_is_anonymous()) {
@@ -158,6 +159,9 @@ if (!isset($_REQUEST['include'])) {
     }
     $announcements_block = $controller->return_announcements();
 }
+
+$path = api_get_path(WEB_CODE_PATH).'inc/ajax/sign.ajax.php';
+$controller->tpl->assign('ajax_path',$path);
 
 $controller->tpl->assign('hot_courses', $hot_courses);
 $controller->tpl->assign('announcements_block', $announcements_block);
