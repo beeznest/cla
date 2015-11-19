@@ -9,6 +9,16 @@
                 <div class="modal-body">
                     <div id="returnMessage" class="text-center"></div>
                     {{ login_form }}
+                    <div id="extra-form">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                ¿No tienes cuenta? <a href="#">Regístrate</a>
+                            </div>
+                             <div class="col-xs-6">
+                                 <span class="pull-right"><a href="#">{{ 'LostPassword' | get_lang }}</a></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

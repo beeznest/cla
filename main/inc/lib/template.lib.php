@@ -1267,12 +1267,12 @@ class Template
             FormValidator::LAYOUT_BOX_NO_LABEL
         );
         
-        if (api_get_setting('login_is_email')) {
+        if (api_get_setting('login_is_email') == 'true') {
             $form->addText(
                 'login',
                 get_lang('Email'),
                 true,
-                array('id' => 'login', 'autofocus' => 'autofocus', 'icon' => 'user fa-envelope', 'placeholder' => get_lang('Email')));
+                array('id' => 'login', 'autofocus' => 'autofocus', 'icon' => 'envelope fa-fw', 'placeholder' => get_lang('Email')));
         } else {
             $form->addText(
                 'login',
@@ -1285,7 +1285,7 @@ class Template
             'password',
             'password',
             get_lang('Pass'),
-            array('id' => 'password', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Pass'))
+            array('id' => 'password', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('EnterPassword'))
         );
 
         // Captcha
@@ -1321,7 +1321,7 @@ class Template
             }
         }
 
-        $form->addButton('submitAuth', get_lang('LoginEnter'), null, 'primary', null, 'btn-block');
+        $form->addButton('submitAuth', get_lang('LoginEnter'), null, 'primary', null, 'btn-lg btn-block');
 
         $html = $form->returnForm();
         if (api_get_setting('openid_authentication') == 'true') {
@@ -1345,23 +1345,23 @@ class Template
         
         if (api_is_western_name_order()) {
             // FIRST NAME and LAST NAME
-            $form->addElement('text', 'firstname', get_lang('FirstName'), array('id' => 'firstname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('FirstName')));
-            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('LastName')));
+            $form->addElement('text', 'firstname', get_lang('FirstName'), array('id' => 'firstname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('FirstName')));
+            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('LastName')));
         } else {
             // LAST NAME and FIRST NAME
-            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('LastName')));
-            $form->addElement('text', 'firstname', get_lang('FirstName'),  array('id' => 'firstname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('FirstName')));
+            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('LastName')));
+            $form->addElement('text', 'firstname', get_lang('FirstName'),  array('id' => 'firstname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('FirstName')));
         }
         
         $form->addElement('text', 'username', get_lang('Email'), array('id' => 'username', 'size' => USERNAME_MAX_LENGTH, 'autofocus' => 'autofocus', 'icon' => 'user fa-envelope', 'placeholder' => get_lang('Email')));        
         $form->addElement('password', 'pass1', get_lang('Pass'), array('id' => 'pass1', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Pass')));
-        $form->addElement('password', 'pass2', get_lang('Confirmation'), array('id' => 'pass2', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Pass')));
+        $form->addElement('password', 'pass2', get_lang('Confirmation'), array('id' => 'pass2', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Confirmation')));
         
         $form->addCheckBox('privacy_policy', '', get_lang('IAcceptPrivacyPolicy'), ['id' => 'privacyPolicy']);
         
         $form->addCheckBox('terms_and_conditions', '', get_lang('IAcceptTermsAndConditions'), ['id' => 'termsAndConditions']);
         
-        $form->addButton('submitReg', get_lang('SignUp'), null, 'primary', null, 'btn-block');
+        $form->addButton('submitReg', get_lang('SignUp'), null, 'primary', null, 'btn-lg btn-block');
 
         $html = $form->returnForm();
         

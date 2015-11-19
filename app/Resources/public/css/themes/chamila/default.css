@@ -207,6 +207,50 @@ footer a:hover {
   margin-bottom: 0px;
 }
 
+.modal-backdrop.in {
+  opacity: 0.7;
+}
+
+.modal-title {
+  font-weight: bold;
+}
+
+.modal-content {
+  background-color: #E6E6E6;
+}
+.modal-content .input-group-addon {
+  background-color: #FFF;
+}
+.modal-content .input-group-addon .fa {
+  color: #B3B3B3;
+}
+.modal-content .form-control {
+  border-left: none;
+  height: 40px;
+}
+
+.modal-header {
+  border-bottom-color: #D9D9D9;
+}
+
+.modal-body {
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.modal-body .col-sm-offset-2 {
+  display: none;
+}
+.modal-body #extra-form a {
+  color: #000000;
+  font-weight: bold;
+}
+.modal-body #extra-form a:hover {
+  color: #808080;
+  text-decoration: none;
+}
+
 .item-session {
   border: 1px solid #E1E2E1;
   margin-bottom: 40px;

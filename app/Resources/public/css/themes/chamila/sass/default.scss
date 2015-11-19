@@ -177,6 +177,50 @@ footer{
        }
    }
 }
+// icons input
+
+//modals
+.modal-backdrop.in{
+    opacity: 0.7;
+}
+.modal-title{
+    font-weight: bold;
+}
+.modal-content{
+    background-color: $colorModal;
+    .input-group-addon{
+        background-color: #FFF;
+        .fa{
+            color: #B3B3B3;
+        }
+    }
+    .form-control{
+        border-left: none;
+        height: 40px;
+    }
+}
+.modal-header{
+    border-bottom-color: $borderModal;
+}
+.modal-body{
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    .col-sm-offset-2{
+      display: none;   
+    }
+    #extra-form{
+       a{
+            color: $colorSecundary;
+            font-weight: bold;
+            &:hover{
+                color: $colorHover;
+                text-decoration: none;
+            }
+        }
+    }
+}
 //items session
 .item-session{
     border: 1px solid #E1E2E1;
