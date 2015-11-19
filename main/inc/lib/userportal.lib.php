@@ -1037,7 +1037,7 @@ class IndexManager
                 $user_id,
                 $this->load_directories_preview
             );
-            //$courses_html .= $courses['html'];
+            $courses_html .= $courses['html'];
             $courseCount = $specialCourses['course_count'] + $courses['course_count'];
         }
 
@@ -1052,10 +1052,12 @@ class IndexManager
                 $session_category_id = $session_category['session_category']['id'];
 
                 // Sessions and courses that are not in a session category
+                /*
                 if (
                     empty($session_category_id) &&
                     isset($session_category['sessions'])
                 ) {
+                */
                     // Independent sessions
                     foreach ($session_category['sessions'] as $session) {
 
@@ -1190,7 +1192,9 @@ class IndexManager
                             $sessionCount++;
                         }
                     }
+                /*
                 } else {
+                
                     // All sessions included in
                     $count_courses_session = 0;
                     $html_sessions = '';
@@ -1337,6 +1341,7 @@ class IndexManager
                         );
                     }
                 }
+                */
             }
         }
 

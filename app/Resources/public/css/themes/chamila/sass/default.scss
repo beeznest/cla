@@ -185,18 +185,41 @@ footer{
         padding: 0px;
         border: none;
         margin-bottom: 10px;
+        .course-metadata{
+            position: absolute;
+            top: 10px !important;
+            left: 16px !important;
+            font-size: 1.35rem;
+            text-transform: uppercase;
+            z-index: 3;
+            span{
+                float: left;
+                padding: 3px 8px;
+                margin: 0px 0px 1px;
+            }
+            .category{
+                color: $colorWhite;
+                background-color: rgba(22, 22, 22, 0.6);
+            }
+        }
     }
     .description{
         padding-top: 5px;
         padding-left: 15px;
         padding-right: 15px;
         padding-bottom: 5px;
-        h3{
-            font-size: $fontItem;
-            margin-top: $cero;
+        .title{
+            min-height: 40px;
+            h3{
+                font-size: $fontItem;
+                margin-top: $cero;
+            }
         }
-        p{
-            font-size: $fontBody;
+        .text{
+            min-height: 80px;
+            p{
+                font-size: $fontBody - 1;
+            }
         }
     }
 }
