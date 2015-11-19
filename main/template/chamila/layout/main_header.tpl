@@ -139,12 +139,12 @@ $(document).ready(function() {
                         <div class="login pull-right">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="modal" data-target="#login_modal" aria-haspopup="true" aria-expanded="false">
-                                  <i class="fa fa-sign-in fa-lg"></i> Iniciar Sesión <span class="caret"></span>
+                                  <i class="fa fa-sign-in fa-lg"></i> Iniciar Sesión
                                 </button>
                                 {% include template ~ "/layout/login_form.tpl" %}
                             </div>
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="modal" data-target="#register_modal" aria-haspopup="true" aria-expanded="false">
-                                  <i class="fa fa-pencil-square-o fa-lg"></i> Registrate <span class="caret"></span>
+                                  <i class="fa fa-pencil-square-o fa-lg"></i> Registrate
                             </button>
                             {% include template ~ "/layout/register_form.tpl" %}
                         </div>
