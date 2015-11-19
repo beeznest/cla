@@ -8063,3 +8063,50 @@ function api_protect_limit_for_session_admin()
 function api_is_student_view_active() {
     return (isset($_SESSION['studentview']) && $_SESSION['studentview'] == "studentview");
 }
+
+function api_login_ajax_error_handler($loginFailed, $error)
+{
+    if ($loginFailed) {
+        $message = get_lang('InvalidId');
+
+        if (!isset($error)) {
+            if (api_is_self_registration_allowed()) {
+                $message = get_lang('InvalidForSelfRegistration');
+            }
+        } else {
+            switch ($error) {
+                case '':
+                    if (api_is_self_registration_allowed()) {
+                        $message = get_lang('InvalidForSelfRegistration');
+                    }
+                    break;
+                case 'account_expired':
+                    $message = get_lang('AccountExpired');
+                    break;
+                case 'account_inactive':
+                    $message = get_lang('AccountInactive');
+                    break;
+                case 'user_password_incorrect':
+                    $message = get_lang('InvalidId');
+                    break;
+                case 'access_url_inactive':
+                    $message = get_lang('AccountURLInactive');
+                    break;
+                case 'wrong_captcha':
+                    $message = get_lang('TheTextYouEnteredDoesNotMatchThePicture');
+                    break;
+                case 'blocked_by_captcha':
+                    $message = get_lang('AccountBlockedByCaptcha');
+                    break;
+                case 'multiple_connection_not_allowed':
+                    $message = get_lang('MultipleConnectionsAreNotAllow');
+                    break;
+                case 'unrecognize_sso_origin':
+                    //$message = get_lang('SSOError');
+                    break;
+            }
+        }
+    }
+    
+    return Display::return_message($message, 'error');
+}

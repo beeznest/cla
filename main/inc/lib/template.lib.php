@@ -164,6 +164,7 @@ class Template
         $this->assign('login_class', null);
 
         $this->setLoginForm();
+        $this->setRegisterForm();
 
         // Chamilo plugins
         if ($this->show_header) {
@@ -367,7 +368,7 @@ class Template
 
         $show_toolbar = 0;
 
-        if (self::isToolBarDisplayedForUser()) {
+        if (self::isToolBarDisplayedForUser() && !api_is_anonymous()) {
             $show_toolbar = 1;
         }
 
@@ -1187,6 +1188,20 @@ class Template
             }
         }
     }
+    
+    /**
+     * @param bool|true $setRegisterForm
+     */
+    public function setRegisterForm($setRegisterForm = true)
+    {
+        $userId = api_get_user_id();
+        if (!($userId) || api_is_anonymous($userId)) {
+            
+            if ($setRegisterForm) {
+                $this->assign('register_form', $this->displayRegisterForm());
+            }
+        }
+    }
 
     /**
      * @return string
@@ -1248,13 +1263,21 @@ class Template
             null,
             FormValidator::LAYOUT_BOX_NO_LABEL
         );
-
-        $form->addText(
-            'login',
-            get_lang('UserName'),
-            true,
-            array('id' => 'login', 'autofocus' => 'autofocus', 'icon' => 'user fa-fw', 'placeholder' => get_lang('UserName')));
-
+        
+        if (api_get_setting('login_is_email')) {
+            $form->addText(
+                'login',
+                get_lang('Email'),
+                true,
+                array('id' => 'login', 'autofocus' => 'autofocus', 'icon' => 'user fa-envelope', 'placeholder' => get_lang('Email')));
+        } else {
+            $form->addText(
+                'login',
+                get_lang('UserName'),
+                true,
+                array('id' => 'login', 'autofocus' => 'autofocus', 'icon' => 'user fa-fw', 'placeholder' => get_lang('UserName')));
+        }
+        
         $form->addElement(
             'password',
             'password',
@@ -1303,6 +1326,42 @@ class Template
             $html .= '<div>'.openid_form().'</div>';
         }
 
+        return $html;
+    }
+    
+    public function displayRegisterForm()
+    {
+        $form = new FormValidator(
+            'formRegister',
+            'POST',
+            null,
+            null,
+            null,
+            FormValidator::LAYOUT_BOX_NO_LABEL
+        );
+        
+        if (api_is_western_name_order()) {
+            // FIRST NAME and LAST NAME
+            $form->addElement('text', 'firstname', get_lang('FirstName'), array('id' => 'firstname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('FirstName')));
+            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('LastName')));
+        } else {
+            // LAST NAME and FIRST NAME
+            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('LastName')));
+            $form->addElement('text', 'firstname', get_lang('FirstName'),  array('id' => 'firstname', 'size' => 40, 'icon' => 'user fa-hand-o-right', 'placeholder' => get_lang('FirstName')));
+        }
+        
+        $form->addElement('text', 'username', get_lang('Email'), array('id' => 'username', 'size' => USERNAME_MAX_LENGTH, 'autofocus' => 'autofocus', 'icon' => 'user fa-envelope', 'placeholder' => get_lang('Email')));        
+        $form->addElement('password', 'pass1', get_lang('Pass'), array('id' => 'pass1', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Pass')));
+        $form->addElement('password', 'pass2', get_lang('Confirmation'), array('id' => 'pass2', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Pass')));
+        
+        $form->addCheckBox('privacy_policy', '', get_lang('IAcceptPrivacyPolicy'), ['id' => 'privacyPolicy']);
+        
+        $form->addCheckBox('terms_and_conditions', '', get_lang('IAcceptTermsAndConditions'), ['id' => 'termsAndConditions']);
+        
+        $form->addButton('submitReg', get_lang('SignUp'), null, 'primary', null, 'btn-block');
+
+        $html = $form->returnForm();
+        
         return $html;
     }
 

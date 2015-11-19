@@ -39,6 +39,11 @@ class IndexManager
         global $loginFailed;
         $this->tpl->setLoginForm($setLoginForm);
     }
+    
+    function set_register_form($setRegisterForm = true)
+    {
+        $this->tpl->setRegisterForm($setRegisterForm);
+    }
 
     function return_exercise_block($personal_course_list)
     {
