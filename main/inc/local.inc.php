@@ -305,7 +305,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                     Session::erase('_uid');
                     Session::write('loginFailed', '1');
 
-                    header('Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=wrong_captcha');
+                    $error = 'wrong_captcha';
+                    echo api_login_ajax_error_handler($loginFailed, $error);
                     exit;
                 }
 
@@ -321,7 +322,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                         Session::erase('_uid');
                         Session::write('loginFailed', '1');
 
-                        header('Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=blocked_by_captcha');
+                        $error = 'blocked_by_captcha';
+                        echo api_login_ajax_error_handler($loginFailed, $error);
                         exit;
                     }
                 }
@@ -407,7 +409,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                         if ($cas_login) {
                                             cas_logout(null, $location);
                                         } else {
-                                            header('Location: '.$location);
+                                            $error = 'access_url_inactive';
+                                            echo api_login_ajax_error_handler($loginFailed, $error);
                                         }
                                         exit;
                                     }
@@ -433,10 +436,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                             $loginFailed = true;
                                             Session::erase('_uid');
                                             Session::write('loginFailed', '1');
-                                            header(
-                                                'Location: '.api_get_path(WEB_PATH)
-                                                .'index.php?loginFailed=1&error=access_url_inactive'
-                                            );
+                                            $error = 'access_url_inactive';
+                                            echo api_login_ajax_error_handler($loginFailed, $error);
                                             exit;
                                         }
                                     }
@@ -456,20 +457,16 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                             $loginFailed = true;
                             Session::erase('_uid');
                             Session::write('loginFailed', '1');
-                            header(
-                                'Location: '.api_get_path(WEB_PATH)
-                                .'index.php?loginFailed=1&error=account_expired'
-                            );
+                            $error = 'account_expired';
+                            echo api_login_ajax_error_handler($loginFailed, $error);
                             exit;
                         }
                     } else {
                         $loginFailed = true;
                         Session::erase('_uid');
                         Session::write('loginFailed', '1');
-                        header(
-                            'Location: '.api_get_path(WEB_PATH)
-                            .'index.php?loginFailed=1&error=account_inactive'
-                        );
+                        $error = 'account_inactive';
+                        echo api_login_ajax_error_handler($loginFailed, $error);
                         exit;
                     }
                 } else {
@@ -494,11 +491,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                             }
                         }
                     }
-
-                    header(
-                        'Location: '.api_get_path(WEB_PATH)
-                        .'index.php?loginFailed=1&error=user_password_incorrect'
-                    );
+                    $error = 'user_password_incorrect';
+                    echo api_login_ajax_error_handler($loginFailed, $error);
                     exit;
                 }
 
@@ -569,10 +563,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
             } //end if is_array($extAuthSource)
             if ($loginFailed) { //If we are here username given is wrong
                 Session::write('loginFailed', '1');
-                header(
-                    'Location: '.api_get_path(WEB_PATH)
-                    .'index.php?loginFailed=1&error=user_password_incorrect'
-                );
+                $error = 'user_password_incorrect';
+                echo api_login_ajax_error_handler($loginFailed, $error);
                 exit;
             }
         } //end else login failed
@@ -657,7 +649,8 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                     $loginFailed = true;
                     Session::erase('_uid');
                     Session::write('loginFailed', '1');
-                    header('Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=unrecognize_sso_origin');
+                    $error = 'unrecognize_sso_origin';
+                    echo api_login_ajax_error_handler($loginFailed, $error);
                     exit;
                 }
             }
@@ -711,14 +704,16 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                     $loginFailed = true;
                                     Session::erase('_uid');
                                     Session::write('loginFailed', '1');
-                                    header('Location: index.php?loginFailed=1&error=account_expired');
+                                    $error = 'account_expired';
+                                    echo api_login_ajax_error_handler($loginFailed, $error);
                                     exit;
                                 }
                             } else {
                                 $loginFailed = true;
                                 Session::erase('_uid');
                                 Session::write('loginFailed', '1');
-                                header('Location: index.php?loginFailed=1&error=account_inactive');
+                                $error = 'account_inactive';
+                                echo api_login_ajax_error_handler($loginFailed, $error);
                                 exit;
                             }
                             if (isset($uData['creator_id']) && $_user['user_id'] != $uData['creator_id']) {
@@ -1397,4 +1392,4 @@ if ((isset($cas_login) && $cas_login && exist_firstpage_parameter()) ||
     }
 }
 
-Redirect::session_request_uri($logging_in, $user_id);
+Redirect::session_request_uri($logging_in, $user_id, true);
