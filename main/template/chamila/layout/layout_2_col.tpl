@@ -61,7 +61,7 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 {% if home_page_block %}
                     {{ home_page_block }}
                 {% endif %}
-                {% include template ~ "/layout/hot_courses.tpl" %}
+                {% include template ~ "/session/sessions_current.tpl" %}
                 {% block page_body %}
                     {% include template ~ "/layout/page_body.tpl" %}
                 {% endblock %}

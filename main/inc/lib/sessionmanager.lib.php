@@ -2832,6 +2832,40 @@ class SessionManager
             return false;
         }
     }
+    
+    public static function getHotSessions()
+    {
+        $tbl_session = Database::get_main_table(TABLE_MAIN_SESSION);
+        $tbl_session_category = Database::get_main_table(TABLE_MAIN_SESSION_CATEGORY);
+        $tbl_users = Database::get_main_table(TABLE_MAIN_USER);
+        $sql = "SELECT 
+                s.id,
+                s.name,
+                s.id_coach,
+                u.firstname,
+                u.lastname,
+                s.session_category_id,
+                c.name as category_name,
+                s.description,
+                (SELECT COUNT(*)  FROM  session_rel_user WHERE session_id = s.id) as users,
+				(SELECT COUNT(*)  FROM  c_lp WHERE session_id = s.id) as lessons
+                FROM $tbl_session s
+                INNER JOIN $tbl_session_category c
+                    ON s.session_category_id = c.id
+                INNER JOIN $tbl_users u
+                    ON s.id_coach = u.id
+                ORDER BY 9 DESC
+                LIMIT 8";        
+        $result = Database::query($sql);
+        if (Database::num_rows($result) > 0) {
+            while ($row = Database::fetch_array($result, 'ASSOC')) {
+                $sessions[] = $row;
+            }
+            return $sessions;
+        } else {
+            return false;
+        }            
+    }
 
     /**
      * Subscribes sessions to human resource manager (Dashboard feature)
