@@ -1,5 +1,5 @@
 {% if not session.show_simple_session_info %}
-        <div class="col-xs-6 col-sm-4 col-md-3">
+        <div class="col-xs-6 col-sm-4 col-md-4">
             <div class="item-session">
                 {% for field_value in session.extra_fields %}
                 <div class="thumbnail">

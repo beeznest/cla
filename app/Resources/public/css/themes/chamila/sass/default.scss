@@ -23,6 +23,12 @@ body{
     font-family: $fontsFamily;
     font-size: $fontBody;
 }
+a{
+    color: $colorSecundary;
+    &:hover{
+        color: $colorFontsBody;
+    }
+}
 header{
     background-color: $colorWhite;
 }
@@ -97,7 +103,7 @@ footer{
         padding-top: 35px;
     }
 }
-#content-body{
+#content-body, #my-courses{
     margin-top: 10px;
 }
 #course_tools {
@@ -264,6 +270,20 @@ footer{
             p{
                 font-size: $fontBody - 1;
             }
+        }
+    }
+}
+//menu lateral
+.sidebar .nav{
+    li{
+        a{
+           padding: 5px;
+           &:hover{
+               background: none;
+           }
+           img{
+               margin-right: 5px;
+           }
         }
     }
 }

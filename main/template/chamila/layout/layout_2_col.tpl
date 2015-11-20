@@ -48,7 +48,7 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 </div>
             </section>        
             {% endif %}
-            
+{% if section_name != 'section-mycourses' %}           
         <section id="content-body">
             <div class="container">
                 {% block breadcrumb %}
@@ -75,6 +75,25 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 {% endif %}
                 {% endblock %}
             </div> 
-        </section>    
+        </section>
+{% endif %}
+{% if section_name == 'section-mycourses' %}
+    <section id="my-courses" class="container">
+        <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+               {{ user_image_block }}
+               {{ profile_block }}
+               {{ course_block }}
+               {{ navigation_course_links }}
+               {{ skills_block }}
+            </div>
+        </div>
+        <div class="col-md-9">
+                 {{ content }}
+        </div>
+    </div>
+    </section>
+{% endif %}
 </div>
 {% endblock %}

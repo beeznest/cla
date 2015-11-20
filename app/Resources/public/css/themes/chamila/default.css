@@ -26,6 +26,13 @@ body {
   font-size: 14px;
 }
 
+a {
+  color: #000000;
+}
+a:hover {
+  color: #808080;
+}
+
 header {
   background-color: #FFFFFF;
 }
@@ -107,7 +114,7 @@ footer a:hover {
   padding-top: 35px;
 }
 
-#content-body {
+#content-body, #my-courses {
   margin-top: 10px;
 }
 
@@ -295,6 +302,16 @@ footer a:hover {
 }
 .item-session .description .text p {
   font-size: 13px;
+}
+
+.sidebar .nav li a {
+  padding: 5px;
+}
+.sidebar .nav li a:hover {
+  background: none;
+}
+.sidebar .nav li a img {
+  margin-right: 5px;
 }
 
 /*# sourceMappingURL=default.css.map */
