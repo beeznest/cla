@@ -259,7 +259,6 @@ footer a:hover {
 }
 
 .item-session {
-  border: 1px solid #E1E2E1;
   margin-bottom: 40px;
 }
 .item-session .thumbnail {
@@ -294,14 +293,11 @@ footer a:hover {
   min-height: 40px;
 }
 .item-session .description .title h3 {
-  font-size: 14px;
+  font-size: 16px;
   margin-top: 0px;
 }
-.item-session .description .text {
-  min-height: 80px;
-}
 .item-session .description .text p {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .sidebar .nav li a {

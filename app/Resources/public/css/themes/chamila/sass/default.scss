@@ -229,7 +229,6 @@ footer{
 }
 //items session
 .item-session{
-    border: 1px solid #E1E2E1;
     margin-bottom: 40px;
     .thumbnail{
         padding: 0px;
@@ -266,9 +265,8 @@ footer{
             }
         }
         .text{
-            min-height: 80px;
             p{
-                font-size: $fontBody - 1;
+                font-size: $fontBody;
             }
         }
     }

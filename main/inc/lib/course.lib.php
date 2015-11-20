@@ -3525,7 +3525,8 @@ class CourseManager
 
         $html .= $courseInCategory['html'];
         $courseCount += $courseInCategory['course_count'];
-
+        
+       
         return [
             'html' => $html,
             'course_count' => $courseCount
@@ -3894,7 +3895,7 @@ class CourseManager
 
                 if ($user_in_course_status == COURSEMANAGER || $sessionCourseAvailable) {
                     $session_url = $course_info['course_public_url'] . '?id_session=' . $course_info['id_session'];
-                    $session_title = '<h4><a href="' . $session_url. '">'. $course_info['name'] . '</a>'.$notifications.'</h4>';
+                    $session_title = $course_info['name'] .$notifications;
                 } else {
                     $session_title = $course_info['name'];
                 }
