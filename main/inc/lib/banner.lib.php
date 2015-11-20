@@ -532,7 +532,9 @@ function return_menu_array()
             }
             $mainNavigation['possible_tabs'][$section]['current'] = '';
         }
-        $mainNavigation['possible_tabs'][$activeSection]['current'] = 'active';
+        if (!empty($activeSection)) {
+            $mainNavigation['possible_tabs'][$activeSection]['current'] = 'active';
+        }
         
     }
 

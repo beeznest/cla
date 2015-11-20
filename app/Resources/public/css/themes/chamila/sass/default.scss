@@ -264,6 +264,56 @@ footer{
                 margin-top: $cero;
             }
         }
+        .teacher{
+            font-size: $fontBody;
+        }
+        .info{
+            font-size: $fontBody;
+        }
+        .text{
+            p{
+                font-size: $fontBody;
+            }
+        }
+    }
+}
+//items session my courses
+#my-courses .item-session{
+    margin-bottom: 40px;
+    .thumbnail{
+        padding: 0px;
+        border: none;
+        margin-bottom: 10px;
+        .course-metadata{
+            position: absolute;
+            top: 10px !important;
+            left: 16px !important;
+            font-size: 1.35rem;
+            text-transform: uppercase;
+            z-index: 3;
+            span{
+                float: left;
+                padding: 3px 8px;
+                margin: 0px 0px 1px;
+            }
+            .category{
+                color: $colorWhite;
+                background-color: rgba(22, 22, 22, 0.6);
+            }
+        }
+    }
+    .description{
+        padding-top: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 5px;
+        .title{
+            min-height: 40px;
+            h3{
+                font-size: $fontItem;
+                margin-top: $cero;
+            }
+        }
         .text{
             p{
                 font-size: $fontBody;
