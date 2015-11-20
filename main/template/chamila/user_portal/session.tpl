@@ -1,4 +1,3 @@
-{{ session | var_dump }}
 {% if not session.show_simple_session_info %}
         <div class="col-md-12">
             <div class="item-session">

@@ -296,7 +296,55 @@ footer a:hover {
   font-size: 16px;
   margin-top: 0px;
 }
+.item-session .description .teacher {
+  font-size: 14px;
+}
+.item-session .description .info {
+  font-size: 14px;
+}
 .item-session .description .text p {
+  font-size: 14px;
+}
+
+#my-courses .item-session {
+  margin-bottom: 40px;
+}
+#my-courses .item-session .thumbnail {
+  padding: 0px;
+  border: none;
+  margin-bottom: 10px;
+}
+#my-courses .item-session .thumbnail .course-metadata {
+  position: absolute;
+  top: 10px !important;
+  left: 16px !important;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  z-index: 3;
+}
+#my-courses .item-session .thumbnail .course-metadata span {
+  float: left;
+  padding: 3px 8px;
+  margin: 0px 0px 1px;
+}
+#my-courses .item-session .thumbnail .course-metadata .category {
+  color: #FFFFFF;
+  background-color: rgba(22, 22, 22, 0.6);
+}
+#my-courses .item-session .description {
+  padding-top: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 5px;
+}
+#my-courses .item-session .description .title {
+  min-height: 40px;
+}
+#my-courses .item-session .description .title h3 {
+  font-size: 16px;
+  margin-top: 0px;
+}
+#my-courses .item-session .description .text p {
   font-size: 14px;
 }
 

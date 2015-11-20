@@ -13,9 +13,9 @@
                         </div>
                         <div class="description">
                             <div class="title">
-                                <h3><a href="/session/{{ session.id }}/about/" title="title-session">{{ session.name }}</a></h3>
-                                <div class="teacher">{{ session.firstname }} {{ session.lastname }}</div>
+                                <h3><a href="{{ _p.web }}session/{{ session.id }}/about/" title="title-session">{{ session.name }}</a></h3>
                             </div>
+                            <div class="teacher"><i class="fa fa-graduation-cap"></i> {{ session.firstname }} {{ session.lastname }}</div>
                             <div class="text">
                                 <p>{{ session.description }}</p>
                             </div>
