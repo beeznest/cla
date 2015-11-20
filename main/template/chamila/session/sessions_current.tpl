@@ -6,14 +6,14 @@
                 <div class="col-xs-6 col-sm-4 col-md-3">
                     <div class="item-session">
                         <div class="thumbnail">
-                            <img src="" id="session-idsession">
+                            <img src="{{ _p.web_upload }}{{ session.image }}" id="session-idsession">
                             <span class="course-metadata">
-                                <span class="category">{{ session.name }}</span>
+                                <span class="category">{{ session.category_name }}</span>
                             </span>
                         </div>
                         <div class="description">
                             <div class="title">
-                                <h3><a href="vinculoalaaboutsession" title="title-session">{{ session.category_name }}</a></h3>
+                                <h3><a href="/session/{{ session.id }}/about/" title="title-session">{{ session.name }}</a></h3>
                                 <div class="teacher">{{ session.firstname }} {{ session.lastname }}</div>
                             </div>
                             <div class="text">
