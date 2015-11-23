@@ -260,6 +260,7 @@ footer a:hover {
 
 .item-session {
   margin-bottom: 40px;
+  border: 1px solid #E1E2E1;
 }
 .item-session .thumbnail {
   padding: 0px;
@@ -291,6 +292,7 @@ footer a:hover {
 }
 .item-session .description .title {
   min-height: 40px;
+  margin-bottom: 5px;
 }
 .item-session .description .title h3 {
   font-size: 16px;
@@ -301,13 +303,25 @@ footer a:hover {
 }
 .item-session .description .info {
   font-size: 14px;
+  display: inline-block;
+  width: 100%;
 }
 .item-session .description .text {
-  min-height: 95px;
+  min-height: 80px;
   padding-top: 10px;
 }
 .item-session .description .text p {
   font-size: 14px;
+  display: block;
+  display: -webkit-box;
+  max-width: 400px;
+  height: 60.2px;
+  margin: 0 auto;
+  line-height: 1.4;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #my-courses .item-session {
@@ -360,6 +374,18 @@ footer a:hover {
 }
 .sidebar .nav li a img {
   margin-right: 5px;
+}
+
+@media (max-width: 480px) {
+  .item-session {
+    width: 290px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .item-session .thumbnail .course-metadata {
+    left: 0px !important;
+  }
 }
 
 /*# sourceMappingURL=default.css.map */

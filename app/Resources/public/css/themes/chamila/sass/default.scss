@@ -230,6 +230,7 @@ footer{
 //items session
 .item-session{
     margin-bottom: 40px;
+    border: 1px solid #E1E2E1;
     .thumbnail{
         padding: 0px;
         border: none;
@@ -259,6 +260,7 @@ footer{
         padding-bottom: 5px;
         .title{
             min-height: 40px;
+            margin-bottom: 5px;
             h3{
                 font-size: $fontItem;
                 margin-top: $cero;
@@ -269,12 +271,25 @@ footer{
         }
         .info{
             font-size: $fontBody;
+            display: inline-block;
+            width: 100%;
         }
         .text{
-            min-height: 95px;
+            min-height: 80px;
             padding-top:10px;
+            
             p{
                 font-size: $fontBody;
+                display: block;
+                display: -webkit-box;
+                max-width: 400px;
+                height: 60.2px;
+                margin: 0 auto;
+                line-height: 1.4;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
     }
@@ -334,6 +349,21 @@ footer{
            img{
                margin-right: 5px;
            }
+        }
+    }
+}
+
+// Responsive CSS
+@media (max-width: $screen-xs){
+    .item-session{
+        width: 290px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+        .thumbnail{
+            .course-metadata{
+               left: 0px !important;
+            }
         }
     }
 }
