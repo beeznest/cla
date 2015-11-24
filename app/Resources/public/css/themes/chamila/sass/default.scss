@@ -213,6 +213,11 @@ footer{
     padding-right: 30px;
     padding-top: 15px;
     padding-bottom: 15px;
+    .page-header{
+        margin-top: 10px;
+        font-size: 25px;
+        font-weight: bold;
+    }
     .col-sm-offset-2{
       display: none;   
     }
@@ -352,7 +357,69 @@ footer{
         }
     }
 }
-
+//about
+.section-page{
+    .page-header{
+        margin-top: 20px;
+        h3{
+            font-size: 34px;
+            font-weight: bold;
+        }
+    }
+}
+#about-session{
+    .title-info{
+        color: $colorSecundary;
+        margin-bottom: 20px;
+        font-size: 22px;
+    }
+    .course-description{
+        font-size: $fontBody + 2;
+        color: $colorFontsBody;
+    }
+    .course-objetive{
+        font-size: $fontBody + 2;
+        color: $colorFontsBody;
+    }
+    .course-topics{
+        font-size: $fontBody + 2;
+        color: $colorFontsBody;
+    }
+    .suscriber{
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+    .sidebar{
+        .coaches-info{
+            .avatar{
+                text-align: center;
+            }
+            .extra-field{
+                dd{
+                    color: $colorFontsBody;
+                    font-size: $fontBody + 2;
+                }
+                p{
+                    color: $colorFontsBody;
+                    font-size: $fontBody + 2;
+                }
+            }
+        }
+        .list-inline{
+            .label-info{
+                background-color: $colorPrimary;
+                color: $colorSecundary;
+                font-size: $fontBody + 2;
+                font-weight: bold;
+            }
+        }
+    }
+}
+.section-global {
+    .breadcrumb{
+        display: none;
+    }
+}
 // Responsive CSS
 @media (max-width: $screen-xs){
     .item-session{
