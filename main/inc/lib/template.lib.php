@@ -298,7 +298,7 @@ class Template
         $tpl = $this->get_template('layout/layout_2_col.tpl');
         $this->display($tpl);
     }
-
+    
     /**
      * Displays an empty template
      */

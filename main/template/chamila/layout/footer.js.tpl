@@ -25,6 +25,14 @@
             expandText: 'Ver más...',
             userCollapseText: 'Ocultar'
         });
+        $('.session-description .text').expander({
+            slicePoint: 150,
+            widow: 2,
+            expandEffect: 'fadeIn',
+            expandText: 'Ver más...',
+            userCollapseText: 'Ocultar'
+        });
+        
         $('#hero').vegas({
         transition: 'fade2',
         transitionDuration: 5000,

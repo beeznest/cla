@@ -263,6 +263,21 @@ footer a:hover {
   text-decoration: none;
 }
 
+.course-book {
+  text-align: center;
+  border: 1px solid #DDD;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #ECECEC;
+}
+.course-book .course-info {
+  min-height: 45px;
+}
+.course-book .course-info .title {
+  font-size: 14px;
+}
+
 .item-session {
   margin-bottom: 40px;
   border: 1px solid #E1E2E1;
@@ -329,45 +344,48 @@ footer a:hover {
   text-overflow: ellipsis;
 }
 
-#my-courses .item-session {
-  margin-bottom: 40px;
+.list-session {
+  margin-bottom: 20px;
+  border: 1px solid #DDD;
+  border-radius: 5px;
+  padding: 10px;
 }
-#my-courses .item-session .thumbnail {
+.list-session .thumbnail {
   padding: 0px;
   border: none;
   margin-bottom: 10px;
 }
-#my-courses .item-session .thumbnail .course-metadata {
+.list-session .thumbnail .course-metadata {
   position: absolute;
-  top: 10px !important;
+  top: 0px !important;
   left: 16px !important;
   font-size: 1.35rem;
   text-transform: uppercase;
   z-index: 3;
 }
-#my-courses .item-session .thumbnail .course-metadata span {
+.list-session .thumbnail .course-metadata span {
   float: left;
   padding: 3px 8px;
   margin: 0px 0px 1px;
 }
-#my-courses .item-session .thumbnail .course-metadata .category {
+.list-session .thumbnail .course-metadata .category {
   color: #FFFFFF;
   background-color: rgba(22, 22, 22, 0.6);
 }
-#my-courses .item-session .description {
-  padding-top: 5px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-bottom: 5px;
-}
-#my-courses .item-session .description .title {
+.list-session .title {
   min-height: 40px;
 }
-#my-courses .item-session .description .title h3 {
-  font-size: 16px;
+.list-session .title h3 {
+  font-size: 20px;
   margin-top: 0px;
 }
-#my-courses .item-session .description .text p {
+.list-session .list .courses li a:hover {
+  text-decoration: none;
+}
+.list-session .session-description {
+  color: #808080;
+}
+.list-session .session-description .text p {
   font-size: 14px;
 }
 

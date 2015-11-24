@@ -1356,7 +1356,8 @@ class IndexManager
             'html' => $sessions_with_category.$sessions_with_no_category.$special_courses,
             'html_courses' => $courses_html,
             'session_count' => $sessionCount,
-            'course_count' => $courseCount
+            'course_count' => $courseCount,
+            'items' => $courses['items']
         ];
     }
 

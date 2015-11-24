@@ -192,7 +192,7 @@ if (empty($courseAndSessions['html']) && !isset($_GET['history'])) {
 	$controller->tpl->assign('welcome_to_course_block', $controller->return_welcome_to_course_block());
 }
 
-$controller->tpl->assign('html_courses', $courseAndSessions['html_courses']);
+$controller->tpl->assign('courseitems', $courseAndSessions['items']);
 $controller->tpl->assign('content', $courseAndSessions['html']);
 
 

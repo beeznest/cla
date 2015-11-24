@@ -94,10 +94,34 @@ que tengas la mejor experiencia de aprendizaje.</p>
                {{ skills_block }}
             </div>
         </div>
-        {% if html_courses %}
-            {{ html_courses }}
-        {% endif %}
+        
         <div class="col-md-9">
+            
+            {% if courseitems %}
+            <section id="course-items">
+            <div class="row">
+                {% for items in courseitems %}
+                
+                <div class="col-md-3">
+                    <div id="courseid-{{ items['id'] }}" class="course-book">
+                        <div class="course-icon">
+                            <img src="{{ "scorms.png"|icon(64) }}"/>
+                        </div>
+                        <div class="course-info">
+                            <h4 class="title"><a href="{{ items['link'] }}">{{ items['title'] }}</a></h4>
+                            <!-- <p class="teacher">{{ items['teachers'] }}</p> -->
+                        </div>
+                        <div class="edit">
+                            <a class="btn btn-default btn-xs" href="{{ items['actions'] }}"><i class="fa fa-pencil"></i> {{ 'Edit' | get_lang }}</a>
+                        </div>
+                    </div>
+                </div>
+                
+                {% endfor %}
+            </div>
+            </section>
+            {% endif %}
+            
             {{ content }}
         </div>
     </div>

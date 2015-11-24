@@ -232,6 +232,21 @@ footer{
         }
     }
 }
+//items course
+.course-book{
+    text-align: center;
+    border: 1px solid #DDD;
+    border-radius: $radius;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #ECECEC;
+    .course-info{
+        min-height: 45px;
+        .title{
+            font-size: $fontItem - 2;
+        }
+    }
+}
 //items session
 .item-session{
     margin-bottom: 40px;
@@ -300,15 +315,18 @@ footer{
     }
 }
 //items session my courses
-#my-courses .item-session{
-    margin-bottom: 40px;
+.list-session{
+    margin-bottom: 20px;
+    border: 1px solid #DDD;
+    border-radius: $radius;
+    padding: 10px;
     .thumbnail{
         padding: 0px;
         border: none;
         margin-bottom: 10px;
         .course-metadata{
             position: absolute;
-            top: 10px !important;
+            top: 0px !important;
             left: 16px !important;
             font-size: 1.35rem;
             text-transform: uppercase;
@@ -324,18 +342,27 @@ footer{
             }
         }
     }
-    .description{
-        padding-top: 5px;
-        padding-left: 15px;
-        padding-right: 15px;
-        padding-bottom: 5px;
-        .title{
+    .title{
             min-height: 40px;
             h3{
-                font-size: $fontItem;
+                font-size: $fontMenu;
                 margin-top: $cero;
             }
+    }
+    .list{
+        .courses{
+            li{
+                a{
+                    &:hover{
+                        text-decoration: none;
+                    }
+                }
+            }
         }
+    }
+    .session-description{
+        color:$colorFontsBody;
+        
         .text{
             p{
                 font-size: $fontBody;
