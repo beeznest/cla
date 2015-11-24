@@ -89,8 +89,11 @@ que tengas la mejor experiencia de aprendizaje.</p>
                {{ skills_block }}
             </div>
         </div>
+        {% if html_courses %}
+            {{ html_courses }}
+        {% endif %}
         <div class="col-md-9">
-                 {{ content }}
+            {{ content }}
         </div>
     </div>
     </section>

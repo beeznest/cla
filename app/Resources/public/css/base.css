@@ -4278,6 +4278,25 @@ ul.holder li.bit-box{
   padding-top: 2em;
   padding-bottom: 2em;
 }
+
+.session-border-top {
+    border-top: 1px solid #BCBCBC;
+}
+
+.session-info {
+    font-size: 14px;
+    color : #444;
+}
+
+.session-course-list-text {
+    font-size: 18px;
+    color : #444;
+}
+
+.session-course-list-fa {
+    color : #008547;
+}
+
 .code-course{
     padding-left: 10px;
     padding-right: 10px;

@@ -3256,6 +3256,7 @@ class CourseManager
     public static function course_item_html($params, $is_sub_content = false)
     {
         $html = '';
+        $html .= '<div class="col-md-3 text-center">';
         $class = "panel panel-default";
         if ($is_sub_content) {
             $class = "course_item";
@@ -3264,22 +3265,22 @@ class CourseManager
         $html .= '<div class="panel-body">';
         $html .= '<div class="course-items">';
         $html .= ' <div class="row">';
-        $html .= '<div class="col-md-2">';
+        
         if (!empty($params['link'])) {
-            $html .= '<a class="thumbnail" href="' . $params['link'] . '">';
+            $html .= '<a  href="' . $params['link'] . '">';
             $html .= $params['icon'];
             $html .= '</a>';
         } else {
-            $html .= '<div class="thumbnail">';
+            $html .= '<div>';
             $html .= $params['icon'];
             $html .= '</div>';
         }
-        $html .= '</div>';
+        //$html .= '</div>';
         $notifications = isset($params['notifications']) ? $params['notifications'] : '';
         $param_class = isset($params['class']) ? $params['class'] : '';
         $params['right_actions'] = isset($params['right_actions']) ? $params['right_actions'] : '';
 
-        $html .= '<div class="col-md-10 ' . $param_class . '">';
+        //$html .= '<div class="col-md-10 ' . $param_class . '">';
         $html .= '<div class="pull-right">' . $params['right_actions'] . '</div>';
         $html .= '<h4 class="course-items-title">' . $params['title'] . $notifications . '</h4> ';
 
@@ -3536,11 +3537,12 @@ class CourseManager
     /**
      *  Display courses inside a category (without special courses) as HTML dics of
      *  class userportal-course-item.
-     * @param int      User category id
+     * @param int       User category id
      * @param bool      Whether to show the document quick-loader or not
+     * @param int       Limit the courses list rows to a int number
      * @return string
      */
-    public static function displayCoursesInCategory($user_category_id, $load_dirs = false)
+    public static function displayCoursesInCategory($user_category_id, $load_dirs = false, $limit = null)
     {
         $user_id = api_get_user_id();
         // Table definitions
@@ -3616,10 +3618,10 @@ class CourseManager
             $show_notification = Display::show_notification($course_info);
 
             $status_icon = Display::return_icon(
-                'blackboard.png',
+                'scorms.png',
                 api_htmlentities($course_info['title']),
                 array(),
-                ICON_SIZE_LARGE
+                ICON_SIZE_BIG
             );
 
             $iconName = basename($course_info['course_image']);
@@ -3634,41 +3636,41 @@ class CourseManager
             $params = array();
             $params['right_actions'] = '';
 
-            if (api_is_platform_admin()) {
-                if ($load_dirs) {
-                    $params['right_actions'] .= '<a id="document_preview_' . $course_info['real_id'] . '_0" class="document_preview" href="javascript:void(0);">' . Display::return_icon('folder.png',
-                            get_lang('Documents'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
-                    $params['right_actions'] .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'course_info/infocours.php?cidReq=' . $course['code'] . '">' . Display::return_icon('edit.png',
-                            get_lang('Edit'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
-                    $params['right_actions'] .= Display::div('', array(
-                            'id' => 'document_result_' . $course_info['real_id'] . '_0',
-                            'class' => 'document_preview_container'
-                        ));
-                } else {
-                    $params['right_actions'] .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'course_info/infocours.php?cidReq=' . $course['code'] . '">' . Display::return_icon('edit.png',
-                            get_lang('Edit'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
-                }
-
-                if ($course_info['status'] == COURSEMANAGER) {
-                    //echo Display::return_icon('teachers.gif', get_lang('Status').': '.get_lang('Teacher'), array('style'=>'width: 11px; height: 11px;'));
-                }
-            } else {
-                if ($course_info['visibility'] != COURSE_VISIBILITY_CLOSED) {
-                    if ($load_dirs) {
-                        $params['right_actions'] .= '<a id="document_preview_' . $course_info['real_id'] . '_0" class="document_preview" href="javascript:void(0);">' . Display::return_icon('folder.png',
-                                get_lang('Documents'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
-                        $params['right_actions'] .= Display::div('', array(
-                                'id' => 'document_result_' . $course_info['real_id'] . '_0',
-                                'class' => 'document_preview_container'
-                            ));
-                    } else {
-                        if ($course_info['status'] == COURSEMANAGER) {
-                            $params['right_actions'] .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'course_info/infocours.php?cidReq=' . $course['code'] . '">' . Display::return_icon('edit.png',
-                                    get_lang('Edit'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
-                        }
-                    }
-                }
-            }
+//            if (api_is_platform_admin()) {
+//                if ($load_dirs) {
+//                    $params['right_actions'] .= '<a id="document_preview_' . $course_info['real_id'] . '_0" class="document_preview" href="javascript:void(0);">' . Display::return_icon('folder.png',
+//                            get_lang('Documents'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
+//                    $params['right_actions'] .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'course_info/infocours.php?cidReq=' . $course['code'] . '">' . Display::return_icon('edit.png',
+//                            get_lang('Edit'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
+//                    $params['right_actions'] .= Display::div('', array(
+//                            'id' => 'document_result_' . $course_info['real_id'] . '_0',
+//                            'class' => 'document_preview_container'
+//                        ));
+//                } else {
+//                    $params['right_actions'] .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'course_info/infocours.php?cidReq=' . $course['code'] . '">' . Display::return_icon('edit.png',
+//                            get_lang('Edit'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
+//                }
+//
+//                if ($course_info['status'] == COURSEMANAGER) {
+//                    //echo Display::return_icon('teachers.gif', get_lang('Status').': '.get_lang('Teacher'), array('style'=>'width: 11px; height: 11px;'));
+//                }
+//            } else {
+//                if ($course_info['visibility'] != COURSE_VISIBILITY_CLOSED) {
+//                    if ($load_dirs) {
+//                        $params['right_actions'] .= '<a id="document_preview_' . $course_info['real_id'] . '_0" class="document_preview" href="javascript:void(0);">' . Display::return_icon('folder.png',
+//                                get_lang('Documents'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
+//                        $params['right_actions'] .= Display::div('', array(
+//                                'id' => 'document_result_' . $course_info['real_id'] . '_0',
+//                                'class' => 'document_preview_container'
+//                            ));
+//                    } else {
+//                        if ($course_info['status'] == COURSEMANAGER) {
+//                            $params['right_actions'] .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'course_info/infocours.php?cidReq=' . $course['code'] . '">' . Display::return_icon('edit.png',
+//                                    get_lang('Edit'), array('align' => 'absmiddle'), ICON_SIZE_SMALL) . '</a>';
+//                        }
+//                    }
+//                }
+//            }
 
             $course_title_url = '';
             if ($course_info['visibility'] != COURSE_VISIBILITY_CLOSED || $course['status'] == COURSEMANAGER) {

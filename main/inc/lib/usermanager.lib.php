@@ -2317,6 +2317,8 @@ class UserManager
         $sql = "SELECT DISTINCT
                     session.id,
                     session.name,
+                    session.display_start_date,
+                    session.display_end_date,
                     session.access_start_date,
                     session.access_end_date,
                     session_category_id,
@@ -2324,7 +2326,8 @@ class UserManager
                     session_category.date_start session_category_date_start,
                     session_category.date_end session_category_date_end,
                     coach_access_start_date,
-                    coach_access_end_date
+                    coach_access_end_date,
+                    (SELECT COUNT(*)  FROM  session_rel_user WHERE session_id = session.id) as session_users
               FROM $tbl_session as session
                   LEFT JOIN $tbl_session_category session_category
                   ON (session_category_id = session_category.id)
@@ -2367,7 +2370,18 @@ class UserManager
                         }
                     }
                 }
-
+                if ($row['display_start_date']) {
+                    $row['display_start_date'] = api_format_date($row['display_start_date'], 10);
+                } else {
+                    $row['display_start_date'] = get_lang('NoStartDate');
+                }
+                
+                if ($row['display_end_date']) {
+                    $row['display_end_date'] = api_format_date($row['display_end_date'], 10);
+                } else {
+                    $row['display_end_date'] = get_lang('NoEndTime');
+                }
+                
                 $categories[$row['session_category_id']]['session_category'] = array(
                     'id' => $row['session_category_id'],
                     'name' => $row['session_category_name'],
@@ -2428,8 +2442,12 @@ class UserManager
                 $categories[$row['session_category_id']]['sessions'][$row['id']] = array(
                     'session_name' => $row['name'],
                     'session_id' => $row['id'],
+                    'session_category_name' => $row['session_category_name'],
+                    'session_users' => $row['session_users'],
                     'access_start_date' => $row['access_start_date'],
                     'access_end_date' => $row['access_end_date'],
+                    'display_start_date' => $row['display_start_date'],
+                    'display_end_date' => $row['display_end_date'],
                     'coach_access_start_date' => $row['coach_access_start_date'],
                     'coach_access_end_date' => $row['coach_access_end_date'],
                     'courses' => $courseList

@@ -1042,7 +1042,7 @@ class IndexManager
                 $user_id,
                 $this->load_directories_preview
             );
-            //$courses_html .= $courses['html'];
+            $courses_html .= $courses['html'];
             $courseCount = $specialCourses['course_count'] + $courses['course_count'];
         }
 
@@ -1155,7 +1155,11 @@ class IndexManager
                             $extra_info .= isset($session_box['duration'])
                                 ? ' ' . $session_box['duration']
                                 : null;
-
+                            
+                            $params['category_name'] = $session['session_category_name'];
+                            $params['session_users'] = $session['session_users'];
+                            $params['display_start_date'] = $session['display_start_date'];
+                            $params['display_end_date'] = $session['display_end_date'];
                             $params['extra_fields'] = $session_box['extra_fields'];
                             $params['show_link_to_session'] = !api_is_drh() && $sessionTitleLink;
                             $params['title'] = $session_box['title'];
@@ -1349,7 +1353,8 @@ class IndexManager
         }
 
         return [
-            'html' => $sessions_with_category.$sessions_with_no_category.$courses_html.$special_courses,
+            'html' => $sessions_with_category.$sessions_with_no_category.$special_courses,
+            'html_courses' => $courses_html,
             'session_count' => $sessionCount,
             'course_count' => $courseCount
         ];
