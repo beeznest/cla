@@ -51,10 +51,15 @@ que tengas la mejor experiencia de aprendizaje.</p>
 {% if section_name != 'section-mycourses' %}           
         <section id="content-body">
             <div class="container">
-                {% block breadcrumb %}
-                    {{ breadcrumb }}
-                {% endblock %}
-                {{ sniff_notification }}
+                
+                    {% block breadcrumb %}
+                        {{ breadcrumb }}
+                    {% endblock %}
+                
+                    <div class="notification">
+                        {{ sniff_notification }}
+                    </div>
+                    
                 {% if welcome_to_course_block %}
                     {{ welcome_to_course_block }}
                 {% endif %}

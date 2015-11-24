@@ -1,9 +1,9 @@
 <section id="sessions-current">
     {% if hot_sessions %}
-        {% for session in hot_sessions %}
             <div class="row">
                 <!-- Esto repite para mostar 8 sessiones recientes -->
-                <div class="col-xs-6 col-sm-4 col-md-3">
+                {% for session in hot_sessions %}
+                <div class="col-xs-12 col-sm-4 col-md-3">
                     <div class="item-session">
                         <div class="thumbnail">
                             <img src="{{ _p.web_upload }}{{ session.image }}" id="session-idsession">
@@ -17,7 +17,7 @@
                             </div>
                             <div class="teacher"><i class="fa fa-graduation-cap"></i> {{ session.firstname }} {{ session.lastname }}</div>
                             <div class="text">
-                                <p>{{ session.description }}</p>
+                                {{ session.description }}
                             </div>
                             <div class="info">
                                 <div class="col-xs-6 col-md-6">

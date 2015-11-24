@@ -11,7 +11,20 @@
 
     /* Makes row highlighting possible */
     $(document).ready( function() {
-        
+        $('.course-description').expander({
+            slicePoint: 400,
+            widow: 2,
+            expandEffect: 'fadeIn',
+            expandText: 'Ver más...',
+            userCollapseText: 'Ocultar'
+        });
+        $('.content-info').expander({
+            slicePoint: 400,
+            widow: 2,
+            expandEffect: 'fadeIn',
+            expandText: 'Ver más...',
+            userCollapseText: 'Ocultar'
+        });
         $('#hero').vegas({
         transition: 'fade2',
         transitionDuration: 5000,

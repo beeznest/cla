@@ -246,6 +246,11 @@ footer a:hover {
   padding-top: 15px;
   padding-bottom: 15px;
 }
+.modal-body .page-header {
+  margin-top: 10px;
+  font-size: 25px;
+  font-weight: bold;
+}
 .modal-body .col-sm-offset-2 {
   display: none;
 }
@@ -260,6 +265,7 @@ footer a:hover {
 
 .item-session {
   margin-bottom: 40px;
+  border: 1px solid #E1E2E1;
 }
 .item-session .thumbnail {
   padding: 0px;
@@ -268,7 +274,7 @@ footer a:hover {
 }
 .item-session .thumbnail .course-metadata {
   position: absolute;
-  top: 10px !important;
+  top: 0px !important;
   left: 16px !important;
   font-size: 1.35rem;
   text-transform: uppercase;
@@ -285,12 +291,13 @@ footer a:hover {
 }
 .item-session .description {
   padding-top: 5px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
   padding-bottom: 5px;
 }
 .item-session .description .title {
   min-height: 40px;
+  margin-bottom: 5px;
 }
 .item-session .description .title h3 {
   font-size: 16px;
@@ -301,9 +308,25 @@ footer a:hover {
 }
 .item-session .description .info {
   font-size: 14px;
+  display: inline-block;
+  width: 100%;
+}
+.item-session .description .text {
+  min-height: 80px;
+  padding-top: 10px;
 }
 .item-session .description .text p {
   font-size: 14px;
+  display: block;
+  display: -webkit-box;
+  max-width: 400px;
+  height: 60.2px;
+  margin: 0 auto;
+  line-height: 1.4;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #my-courses .item-session {
@@ -356,6 +379,69 @@ footer a:hover {
 }
 .sidebar .nav li a img {
   margin-right: 5px;
+}
+
+.section-page .page-header {
+  margin-top: 20px;
+}
+.section-page .page-header h3 {
+  font-size: 34px;
+  font-weight: bold;
+}
+
+#about-session .title-info {
+  color: #000000;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+#about-session .course-description {
+  font-size: 16px;
+  color: #808080;
+}
+#about-session .course-objetive {
+  font-size: 16px;
+  color: #808080;
+}
+#about-session .course-topics {
+  font-size: 16px;
+  color: #808080;
+}
+#about-session .suscriber {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+#about-session .sidebar .coaches-info .avatar {
+  text-align: center;
+}
+#about-session .sidebar .coaches-info .extra-field dd {
+  color: #808080;
+  font-size: 16px;
+}
+#about-session .sidebar .coaches-info .extra-field p {
+  color: #808080;
+  font-size: 16px;
+}
+#about-session .sidebar .list-inline .label-info {
+  background-color: #FFCC00;
+  color: #000000;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.section-global .breadcrumb {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .item-session {
+    width: 290px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .item-session .thumbnail .course-metadata {
+    left: 0px !important;
+  }
 }
 
 /*# sourceMappingURL=default.css.map */
