@@ -98,10 +98,12 @@ que tengas la mejor experiencia de aprendizaje.</p>
         <div class="col-md-9">
             
             {% if courseitems %}
+            
             <section id="course-items">
+            <h3>{{ 'BaseCourses' | get_lang }} </h3>
             <div class="row">
                 {% for items in courseitems %}
-                
+               
                 <div class="col-md-3">
                     <div id="courseid-{{ items['id'] }}" class="course-book">
                         <div class="course-icon">
@@ -120,6 +122,11 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 {% endfor %}
             </div>
             </section>
+            {% if _u.status == 5 %}
+                <h3>{{ 'AdminCourses' | get_lang }} </h3>
+                {% else %}
+                <h3>{{ 'SessionCourses' | get_lang }} </h3>
+            {% endif %}
             {% endif %}
             
             {{ content }}

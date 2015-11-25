@@ -436,6 +436,7 @@ class Template
     private function set_user_parameters()
     {
         $user_info = array();
+        
         $user_info['logged'] = 0;
         $this->user_is_logged_in = false;
         if (api_user_is_login()) {
@@ -451,6 +452,7 @@ class Template
             $this->user_is_logged_in = true;
         }
         // Setting the $_u array that could be use in any template
+        
         $this->assign('_u', $user_info);
     }
 

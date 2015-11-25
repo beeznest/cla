@@ -1,5 +1,4 @@
 {% if not session.show_simple_session_info %}
-        
             <div class="list-session">
                 <div class="row">
                     <div class="col-xs-12 col-md-8">
