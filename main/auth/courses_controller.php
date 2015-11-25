@@ -736,6 +736,8 @@ class CoursesController
             'extraFieldType' => Chamilo\CoreBundle\Entity\ExtraField::COURSE_FIELD_TYPE,
             'variable' => 'tags',
         ]);
+        
+       
         /** @var \Chamilo\CoreBundle\Entity\Session $session */
         foreach ($sessions as $session) {
             $sessionDates = SessionManager::parseSessionDates([
@@ -746,7 +748,7 @@ class CoursesController
                 'coach_access_start_date' => $session->getCoachAccessStartDate(),
                 'coach_access_end_date' => $session->getCoachAccessEndDate(),
             ]);
-
+            
             $imageField = $extraFieldValue->get_values_by_handler_and_field_variable($session->getId(), 'image');
 
             $sessionCourseTags = [];
@@ -806,6 +808,8 @@ class CoursesController
                 ),
                 'show_description' => $session->getShowDescription(),
                 'tags' => $sessionCourseTags,
+                'description'=> $session->getDescription(),
+                'category_name'=> $session->getCategory()
             );
 
             $sessionsBlock = array_merge($sessionsBlock, $sequences);

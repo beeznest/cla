@@ -9,33 +9,11 @@
         });
     </script>
 
-    <div class="col-md-12">
+    <div class="container">
         <div class="row">
-            {% if show_courses %}
-                <div class="col-md-4">
-                    <div class="section-title-catalog">{{ 'Courses'|get_lang }}</div>
-                    {% if not hidden_links %}
-                        <form class="form-horizontal" method="post" action="{{ course_url }}">
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                    <input type="hidden" name="sec_token" value="{{ search_token }}">
-                                    <input type="hidden" name="search_course" value="1" />
-                                    <div class="input-group">
-                                        <input type="text" name="search_term" class="form-control" />
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="submit"><em class="fa fa-search"></em> {{ 'Search'|get_lang }}</button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    {% endif %}
-                </div>
-            {% endif %}
-
-            <div class="col-md-8">
+            <div class="col-md-12">
                 {% if show_sessions %}
-                    <div class="section-title-catalog">{{ 'Sessions'|get_lang }}</div>
+                    <div class="section-title-catalog">{{ 'Courses'|get_lang }}</div>
 
                     <div class="row">
                         <div class="col-md-6">
@@ -75,44 +53,51 @@
     </div>
 
     <section id="session-list">
-        <div class="col-md-12">
+        <div class="container">
             <div class="row">
+                
                 {% for session in sessions %}
-                    <div class="col-md-3 session-col">
-                        <div class="item" id="session-{{ session.id }}">
-                            <img src="{{ session.image ? _p.web_upload ~ session.image : _p.web_img ~ 'session_default.png' }}">
-
-                            <div class="information-item">
-                                <h3 class="title-session">
-                                    <a href="{{ _p.web ~ 'session/' ~ session.id ~ '/about/' }}" title="{{ session.name }}">
-                                        {{ session.name }}
-                                    </a>
-                                </h3>
-                                <ul class="list-unstyled">
-                                    {% if show_tutor %}
-                                        <li class="author-session">
-                                            <em class="fa fa-user"></em> {{ session.coach_name }}
-                                        </li>
-                                    {% endif %}
-                                    <li class="date-session">
-                                        <em class="fa fa-calendar-o"></em> {{ session.date }}
-                                    </li>
-                                    {% if session.tags %}
-                                        <li class="tags-session">
-                                            <em class="fa fa-tags"></em> {{ session.tags|join(', ')}}
-                                        </li>
-                                    {% endif %}
-                                </ul>
-
-                                <div class="options">
+                
+                    <div class="col-xs-12 col-sm-4 col-md-3">
+                        <div class="item-session" id="items-session-{{ session.id }}">
+                             
+                            <div class="thumbnail">
+                                <img src="{{ session.image ? _p.web_upload ~ session.image : _p.web_img ~ 'session_default.png' }}">
+                                <span class="course-metadata">
+                                    <span class="category">{{ session.category_name }}</span>
+                                </span>
+                            </div>
+                            
+                            <div class="description">
+                                <div class="title">
+                                    <h3>
+                                        <a href="{{ _p.web ~ 'session/' ~ session.id ~ '/about/' }}" title="{{ session.name }}">
+                                            {{ session.name }}
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div class="teacher">
+                                    <em class="fa fa-graduation-cap"></em>
+                                    {{ session.coach_name }}
+                                </div>
+                                <div class="text">
+                                    {{ session.description }}
+                                </div>
+                                <div class="info">
+                                    <div class="col-xs-6 col-md-6">
+                                        <i class="fa fa-user"></i> {{ session.nbr_users }}
+                                    </div>
+                                    <div class="col-xs-6 col-md-6">
+                                        <i class="fa fa-book"></i> {{ session.lessons }}
+                                    </div>
+                                </div>
+                                 <div class="options">
                                     {% if not _u.logged %}
                                         <p>
                                             <a class="btn btn-info btn-block btn-sm" href="{{ "#{_p.web}session/#{session.id}/about/" }}" title="{{ session.name }}">{{ 'SeeCourseInformationAndRequirements'|get_lang }}</a>
                                         </p>
                                     {% else %}
-                                        <p>
-                                            <a class="btn btn-info btn-block btn-sm" role="button" data-toggle="popover" id="session-{{ session.id }}-sequences">{{ 'SeeSequences'|get_lang }}</a>
-                                        </p>
+                                        
                                         <p class="buttom-subscribed">
                                             {% if session.is_subscribed %}
                                                 {{ already_subscribed_label }}
@@ -123,6 +108,7 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            
 
                             {% if _u.logged %}
                                 <script>
