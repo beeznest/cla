@@ -214,6 +214,69 @@ footer a:hover {
   margin-bottom: 0px;
 }
 
+.icon-toolbar .fa {
+  background-color: #000000;
+}
+
+.icon-toolbar .fa:hover {
+  color: #FFCC00;
+}
+
+.expand .fa {
+  background-color: #FFCC00;
+  color: #000000;
+}
+
+.expand .fa:hover {
+  background-color: #FFB200;
+  color: #000000;
+}
+
+.inner_lp_toc .scorm_item_section {
+  background: #FFFFFF;
+  font-size: 14px;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 5px;
+}
+
+.scorm_item_normal {
+  padding: 8px;
+  padding-left: 5px;
+}
+
+.scorm_item_normal.scorm_completed {
+  background: url("images/scorm_completed.png") no-repeat scroll left center;
+}
+
+.scorm_item_normal.scorm_highlight.scorm_completed {
+  background: url("images/scorm_current.png") no-repeat scroll left center !important;
+}
+
+.scorm_item_normal.scorm_not_attempted {
+  background: url("images/scorm_not_attempted.png") no-repeat scroll left center;
+}
+
+.scorm_item_normal.scorm_highlight {
+  background: url("images/scorm_highlight.png") no-repeat scroll left center !important;
+}
+
+.scorm_item_normal.scorm_highlight a {
+  color: #000000 !important;
+  font-weight: bold;
+}
+
+.scorm_item_section.scorm_completed {
+  color: #666;
+}
+
+#scorm-info hr {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
 .modal-backdrop.in {
   opacity: 0.7;
 }
