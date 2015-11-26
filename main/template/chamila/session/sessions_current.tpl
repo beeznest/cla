@@ -6,7 +6,7 @@
                 <div class="col-xs-12 col-sm-4 col-md-3">
                     <div class="item-session">
                         <div class="thumbnail">
-                            <img src="{{ _p.web_upload }}{{ session.image }}" id="session-idsession">
+                            <a href="{{ _p.web }}session/{{ session.id }}/about/" title="title-session"><img src="{{ _p.web_upload }}{{ session.image }}" id="session-idsession"></a>
                             <span class="course-metadata">
                                 <span class="category">{{ session.category_name }}</span>
                             </span>

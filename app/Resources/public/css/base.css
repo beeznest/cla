@@ -3967,7 +3967,6 @@ i.size-32.icon-new-work{
     padding: 0;
 }
 .list-user-data .item{
-    font-size: 12px;
     padding-top: 5px;
     text-align: center;
 }
@@ -4153,7 +4152,6 @@ i.size-32.icon-new-work{
 }
 .social-network-menu .nav li a{
   padding: 5px;
-  font-size: 12px;
 }
 .social-network-menu .nav-pills li.active a{
   background: none;

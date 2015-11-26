@@ -74,6 +74,17 @@ footer a:hover {
   font-size: 2rem;
   font-weight: 700;
   font-style: normal;
+  margin-bottom: 20px;
+}
+
+.breadcrumb {
+  background-color: #ECECEC;
+  border: 1px solid #DDD;
+}
+
+.section-bread .breadcrumb {
+  margin-bottom: 5px;
+  margin-top: 10px;
 }
 
 #hero {
@@ -102,6 +113,7 @@ footer a:hover {
 #focus {
   text-align: center;
   padding-top: 70px !important;
+  padding-bottom: 40px !important;
 }
 #focus .description {
   font-size: 18px;
@@ -114,8 +126,25 @@ footer a:hover {
   padding-top: 35px;
 }
 
+#extra-focus {
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+#extra-focus .btn-primary {
+  font-size: 2.1rem;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
 #content-body, #my-courses {
   margin-top: 10px;
+}
+
+.section-header {
+  margin-bottom: 25px;
+  margin-top: 10px;
+  padding-top: 5px;
 }
 
 #course_tools .content a {
@@ -344,6 +373,9 @@ footer a:hover {
 .item-session {
   margin-bottom: 40px;
   border: 1px solid #E1E2E1;
+}
+.item-session:hover {
+  box-shadow: 2px 2px 5px 0px #cccccc;
 }
 .item-session .thumbnail {
   padding: 0px;

@@ -147,6 +147,7 @@ define('TOOL_COURSE_PROGRESS', 'course_progress');
 
 // CONSTANTS defining Chamilo interface sections
 define('SECTION_CAMPUS', 'mycampus');
+define('SECTION_USERPORTAL', 'userportal');
 define('SECTION_COURSES', 'mycourses');
 define('SECTION_MYPROFILE', 'myprofile');
 define('SECTION_MYAGENDA', 'myagenda');

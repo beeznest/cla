@@ -28,7 +28,7 @@ if (isset($_SESSION['this_section'])) {
 /* Included libraries */
 require_once './main/inc/global.inc.php';
 
-$this_section = SECTION_COURSES;
+$this_section = SECTION_USERPORTAL;
 
 api_block_anonymous_users(); // Only users who are logged in can proceed.
 

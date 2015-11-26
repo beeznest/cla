@@ -16,39 +16,22 @@
                         </div>
                     </form>
                     <p class="description">Apúntate a nuestros cursos online y evoluciona en tus conocimientos #AtreveteHoy</p>
-                    <a class="btn btn-primary"><i class="fa fa-book"></i> ¿Quieres enseñar? Registrate</a>
+                    {% if _u.logged == 0 %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#register_modal" aria-haspopup="true" aria-expanded="false">
+                                  <i class="fa fa-book"></i> ¿Quieres aprender? Registrate
+                    </button>
+                    {% include template ~ "/layout/register_form.tpl" %}
+                    {% endif %}
                 </div>
             </section>
             <section id="focus">
-                <div class="container">
-                    <div class="row message">
-                        <div class="col-md-12">
-                            <h2 class="title-n2">Descubre cursos enseñados por expertos</h2>
-                            <p class="description">Ofrecemos contenidos premium preparado por profesionales apasionados. Queremos asegurarnos
-que tengas la mejor experiencia de aprendizaje.</p>
-                        </div>
-                    </div>
-                    <div class="row user-tips">
-                        <div class="col-sm-4">
-                            <i class="fa fa-smile-o fa-4x"></i>
-                            <h3 class="title-n3">Aprende a tu ritmo</h3>
-                            <p class="description">Disfruta de los cursos desde casa, sin horarios ni entregas. Tú marcas tu propia agenda</p>
-                        </div>
-                        <div class="col-sm-4">
-                            <i class="fa fa-laptop fa-4x"></i>
-                            <h3 class="title-n3">En primera fila</h3>
-                            <p class="description">Vídeos de máxima calidad para que no pierdas detalle. Y como el acceso es ilimitado, puedes verlos una y otra vez</p>
-                        </div>
-                        <div class="col-sm-4">
-                            <i class="fa fa-thumbs-o-up fa-4x"></i>
-                            <h3 class="title-n3">De la mano del profesor</h3>
-                            <p class="description">Aprende técnicas y métodos de gran valor explicados por los expertos, respuesta casi inmediata a cualquier duda que tengas.</p>
-                        </div>
-                    </div>      
-                </div>
+                {% if home_page_block %}
+                    {{ home_page_block }}
+                {% endif %}
+                
             </section>        
             {% endif %}
-{% if section_name != 'section-mycourses' %}           
+{% if section_name != 'section-userportal' %}           
         <section id="content-body">
             <div class="container">
                 
@@ -63,9 +46,7 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 {% if welcome_to_course_block %}
                     {{ welcome_to_course_block }}
                 {% endif %}
-                {% if home_page_block %}
-                    {{ home_page_block }}
-                {% endif %}
+                
                 {% include template ~ "/session/sessions_current.tpl" %}
                 {% block page_body %}
                     {% include template ~ "/layout/page_body.tpl" %}
@@ -81,8 +62,19 @@ que tengas la mejor experiencia de aprendizaje.</p>
                 {% endblock %}
             </div> 
         </section>
+                <section id="extra-focus">
+                    <div class="container">
+                        <a href="{{ _p.web_main }}auth/courses.php" class="btn btn-primary">Ver más cursos en Chamila</a>
+                    </div>
+                </section>        
 {% endif %}
-{% if section_name == 'section-mycourses' %}
+
+{% if section_name == 'section-userportal' %}
+    
+<div class="container">
+    <div class="section-bread">{{ breadcrumb }}</div>
+</div>
+    
     <section id="my-courses" class="container">
         <div class="row">
         <div class="col-md-3">
@@ -100,7 +92,7 @@ que tengas la mejor experiencia de aprendizaje.</p>
             {% if courseitems %}
             
             <section id="course-items">
-            <h3>{{ 'BaseCourses' | get_lang }} </h3>
+            <h3 class="title-n3">{{ 'BaseCourses' | get_lang }} </h3>
             <div class="row">
                 {% for items in courseitems %}
                
@@ -123,9 +115,9 @@ que tengas la mejor experiencia de aprendizaje.</p>
             </div>
             </section>
             {% if _u.status == 5 %}
-                <h3>{{ 'AdminCourses' | get_lang }} </h3>
+                <h3 class="title-n3">{{ 'AdminCourses' | get_lang }} </h3>
                 {% else %}
-                <h3>{{ 'SessionCourses' | get_lang }} </h3>
+                <h3 class="title-n3">{{ 'SessionCourses' | get_lang }} </h3>
             {% endif %}
             {% endif %}
             
