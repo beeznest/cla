@@ -62,9 +62,9 @@
                 {% endblock %}
             </div> 
         </section>
-                <section id="extra-focus">
+                <section id="extra-focus" class="text-center" style="padding-bottom: 30px;">
                     <div class="container">
-                        <a href="{{ _p.web_main }}auth/courses.php" class="btn btn-primary">Ver más cursos en Chamila</a>
+                        <a href="{{ _p.web_main }}auth/courses.php" class="btn btn-primary"><i class="fa fa-book"></i> Ver más cursos en Chamila</a>
                     </div>
                 </section>        
 {% endif %}
