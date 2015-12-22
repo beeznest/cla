@@ -19,7 +19,7 @@ $sessionId = isset($_GET['session_id']) ? intval($_GET['session_id']) : 0;
 $entityManager = Database::getManager();
 
 $session = $entityManager->find('ChamiloCoreBundle:Session', $sessionId);
-
+$sessionImage = SessionManager::getSessionImage($sessionId);
 if (!$session) {
     api_not_allowed(true);
 }
@@ -101,9 +101,12 @@ foreach ($sessionCourses as $sessionCourse) {
         'objectives' => $courseObjectives,
         'topics' => $courseTopics,
         'coaches' => $coachesData,
-        'extra_fields' => $courseValues->getAllValuesForAnItem($sessionCourse->getId())
+        'extra_fields' => $courseValues->getAllValuesForAnItem($sessionCourse->getId()),
+        'image' => (is_file(api_get_path(SYS_COURSE_PATH).$sessionCourse->getDirectory()."/course-pic.png")) ? api_get_path(WEB_COURSE_PATH).$sessionCourse->getDirectory()."/course-pic.png" : api_get_path(WEB_IMG_PATH) . "session_default.png"
     ];
 }
+
+var_dump($courses);
 
 $sessionDates = SessionManager::parseSessionDates([
     'display_start_date' => $session->getDisplayStartDate(),
@@ -135,6 +138,7 @@ $template = new Template($session->getName(), true, true, false, true, false);
 $template->assign('show_tutor', (api_get_setting('show_session_coach')==='true' ? true : false));
 $template->assign('pageUrl', api_get_path(WEB_PATH) . "session/{$session->getId()}/about/");
 $template->assign('session', $session);
+$template->assign('session_image', $sessionImage);
 $template->assign('session_date', $sessionDates);
 $template->assign(
     'is_subscribed',
