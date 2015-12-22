@@ -106,8 +106,6 @@ foreach ($sessionCourses as $sessionCourse) {
     ];
 }
 
-var_dump($courses);
-
 $sessionDates = SessionManager::parseSessionDates([
     'display_start_date' => $session->getDisplayStartDate(),
     'display_end_date' => $session->getDisplayEndDate(),
