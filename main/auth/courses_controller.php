@@ -619,9 +619,9 @@ class CoursesController
         $date = isset($_POST['date']) ? $_POST['date'] : date('Y-m-d');
         $hiddenLinks = isset($_GET['hidden_links']) ? intval($_GET['hidden_links']) == 1 : false;
         $limit = isset($limit) ? $limit : getLimitArray();
-
+        $search = isset($_GET['search']) ? Security::remove_XSS($_GET['search']) : '';
         $countSessions = $this->model->countSessions($date);
-        $sessions = $this->model->browseSessions($date, $limit);
+        $sessions = $this->model->browseSessions($date, $limit, $search);
 
         $pageTotal = intval(ceil(intval($countSessions) / $limit['length']));
         // Do NOT show pagination if only one page or less

@@ -7,10 +7,10 @@
                 <div class="container">
                     <div class="badge-big"><img src="{{ _p.web_css_theme }}images/badge-big.png"></div>
                     <h1 class="title-n1">¿Qué te gustaría aprender?</h1>
-                    <form id="search-course" class="form-horizontal">
+                    <form id="search-course" class="form-horizontal" action="{{ _p.web_main }}auth/courses.php" method="GET">
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="text" class="form-control" id="s" placeholder="Escribe y busca el curso que buscas...">
+                                <input type="text" class="form-control" id="s" name="search" placeholder="Escribe y busca el curso que buscas...">
                                 <div class="input-group-addon"><i class="glyphicon glyphicon-search"></i></div>
                             </div>
                         </div>

@@ -647,9 +647,10 @@ class Auth
      * List the sessions
      * @param string $date (optional) The date of sessions
      * @param array $limit
+     * @param string search_term
      * @return array The session list
      */
-    public function browseSessions($date = null, $limit = array())
+    public function browseSessions($date = null, $limit = array(), $search = '')
     {
         $em = Database::getManager();
         $qb = $em->createQueryBuilder();
@@ -665,6 +666,10 @@ class Auth
         $_sessions->where(
             $qb->expr()->gt('s.nbrCourses', 0)
         );
+        
+        if(!empty($search)) {
+            $_sessions->andWhere("s.name LIKE '%$search%'");
+        }
 
         if (!is_null($date)) {
             $_sessions
