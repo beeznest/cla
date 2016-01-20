@@ -306,7 +306,7 @@ class Link extends Model
                         $tbl_se_ref = Database:: get_main_table(
                             TABLE_MAIN_SEARCH_ENGINE_REF
                         );
-                        $sql = 'INSERT INTO %s (c_id, id, course_code, tool_id, ref_id_high_level, search_did)
+                        $sql = 'INSERT INTO %s (id, course_code, tool_id, ref_id_high_level, search_did)
                                 VALUES (NULL , \'%s\', \'%s\', %s, %s)';
                         $sql = sprintf(
                             $sql,
@@ -833,7 +833,6 @@ class Link extends Model
                     (itemproperties.visibility = '0' OR itemproperties.visibility = '1')
                     $sessionCondition AND
                     linkcat.c_id = " . $courseId . "
-                GROUP BY c_id, id
                 ORDER BY linkcat.display_order DESC
                 ";
         $result = Database::query($sql);

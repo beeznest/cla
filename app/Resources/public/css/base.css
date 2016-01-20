@@ -142,7 +142,7 @@ a.thumbnail:hover{
 }
 #carousel-announcement .right{
   right: 0px;
-} 
+}
 #carousel-announcement .carousel-indicators li{
   width: 20px;
   height: 20px;
@@ -152,6 +152,20 @@ a.thumbnail:hover{
 }
 #carousel-announcement .carousel-indicators .active{
   background: #C52D2F;
+}
+
+.panelSliders {
+  margin: 20px 0;
+}
+
+.panelSliders .ui-slider-handle {
+  border-color: #000;
+}
+
+#panelSliders {
+  width: 75%;
+  margin: 25px auto;
+  text-align: center;
 }
 
 #notice_block p, #notice-block p{
@@ -1519,6 +1533,7 @@ a.unread {
   margin:5px;
   padding:5px;
   list-style: none outside none;
+  border-radius: 5px;
 }
 .lp_resource_element_new a {
   font-size: 14px;
@@ -2628,7 +2643,9 @@ form .formw .freeze {
 table#skill_holder {
   margin-top: 15px;
 }
-
+.badges-sidebar{
+    height: 250px;
+}
 /* ****************************************************
                      END SKILL
  **************************************************** */
@@ -3992,7 +4009,7 @@ i.size-32.icon-new-work{
   margin-right: 15px;
   padding: 0;
   vertical-align: top;
-  width: 120px;
+  width: 95px;
 }
 #skillList .list-badges .thumbnail img{
   margin-bottom: 4px;
@@ -4000,6 +4017,7 @@ i.size-32.icon-new-work{
 }
 #skillList .list-badges .thumbnail .caption{
   background: #D9EDF7;
+  font-size: 12px;
 }
 #skillList .list-badges .thumbnail .caption p{
   margin-bottom: 0;
@@ -4189,9 +4207,9 @@ i.size-32.icon-new-work{
   background: #ffffff;
   background: -moz-linear-gradient(top, #ffffff 0%, #f6f6f6 47%, #ededed 100%);
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(47%,#f6f6f6), color-stop(100%,#ededed));
-  background: -webkit-linear-gradient(top, #ffffff 0%,#f6f6f6 47%,#ededed 100%); 
-  background: -o-linear-gradient(top, #ffffff 0%,#f6f6f6 47%,#ededed 100%); 
-  background: -ms-linear-gradient(top, #ffffff 0%,#f6f6f6 47%,#ededed 100%); 
+  background: -webkit-linear-gradient(top, #ffffff 0%,#f6f6f6 47%,#ededed 100%);
+  background: -o-linear-gradient(top, #ffffff 0%,#f6f6f6 47%,#ededed 100%);
+  background: -ms-linear-gradient(top, #ffffff 0%,#f6f6f6 47%,#ededed 100%);
   background: linear-gradient(to bottom, #ffffff 0%,#f6f6f6 47%,#ededed 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 );
 }
@@ -5643,7 +5661,7 @@ a.sessionView {
     width: 800px;
     height: 350px;
     overflow: hidden;
-}	
+}
 #issues li {
     width: 800px;
     height: 350px;
@@ -5661,13 +5679,13 @@ a.sessionView {
     float: left;
     margin: 10px 30px 10px 50px;
     background: transparent;
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF)"; /* IE 8 */   
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF);/* IE 6 & 7 */      
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF)"; /* IE 8 */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#00FFFFFF,endColorstr=#00FFFFFF);/* IE 6 & 7 */
     zoom: 1;
     -webkit-transition: all 2s ease-in-out;
     -moz-transition: all 2s ease-in-out;
     -o-transition: all 2s ease-in-out;
-    -ms-transition: all 2s ease-in-out; 
+    -ms-transition: all 2s ease-in-out;
     transition: all 2s ease-in-out;
     -webkit-transform: scale(0.7,0.7);
     -moz-transform: scale(0.7,0.7);
@@ -5961,4 +5979,8 @@ a.sessionView {
     footer #footer_right{
         text-align: center;
     }
+}
+
+.elfinder-cwd-filename {
+    color: black !important;
 }

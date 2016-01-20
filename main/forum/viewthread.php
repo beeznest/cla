@@ -219,7 +219,6 @@ if ($my_message != 'PostDeletedSpecial') {
         echo $my_url . '&view=flat">'
             . Display::return_icon('forum_listview.png', get_lang('FlatView'), null, ICON_SIZE_MEDIUM)
             . '</a>';
-        //echo $my_url.'&view=threaded">'.Display::return_icon('forum_threadedview.gif', get_lang('ThreadedView')).get_lang('ThreadedView').'</a>';
         echo $my_url . '&view=nested">'
             . Display::return_icon('forum_nestedview.png', get_lang('NestedView'), null, ICON_SIZE_MEDIUM)
             . '</a>';
@@ -262,16 +261,14 @@ if ($my_message != 'PostDeletedSpecial') {
 
     switch ($viewMode) {
         case 'flat':
+            //no break
+        default:
             include_once 'viewthread_flat.inc.php';
             break;
         case 'threaded':
-            //include_once 'viewthread_threaded.inc.php';
-            //break;
+            //no break;
         case 'nested':
             include_once 'viewthread_nested.inc.php';
-            break;
-        default:
-            include_once 'viewthread_flat.inc.php';
             break;
     }
 }

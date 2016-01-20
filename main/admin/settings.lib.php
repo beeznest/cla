@@ -719,26 +719,26 @@ function handle_search()
         }
         */
 
-        $xapian_loaded = Display::return_icon('bullet_green.gif', get_lang('Ok'));
-        $dir_exists = Display::return_icon('bullet_green.gif', get_lang('Ok'));
-        $dir_is_writable = Display::return_icon('bullet_green.gif', get_lang('Ok'));
-        $specific_fields_exists = Display::return_icon('bullet_green.gif', get_lang('Ok'));
+        $xapian_loaded = Display::return_icon('bullet_green.png', get_lang('Ok'));
+        $dir_exists = Display::return_icon('bullet_green.png', get_lang('Ok'));
+        $dir_is_writable = Display::return_icon('bullet_green.png', get_lang('Ok'));
+        $specific_fields_exists = Display::return_icon('bullet_green.png', get_lang('Ok'));
 
         //Testing specific fields
         if (empty($specific_fields)) {
-            $specific_fields_exists = Display::return_icon('bullet_red.gif', get_lang('AddSpecificSearchField'));
+            $specific_fields_exists = Display::return_icon('bullet_red.png', get_lang('AddSpecificSearchField'));
         }
         //Testing xapian extension
         if (!extension_loaded('xapian')) {
-            $xapian_loaded = Display::return_icon('bullet_red.gif', get_lang('Error'));
+            $xapian_loaded = Display::return_icon('bullet_red.png', get_lang('Error'));
         }
         //Testing xapian searchdb path
         if (!is_dir($xapian_path)) {
-            $dir_exists = Display::return_icon('bullet_red.gif', get_lang('Error'));
+            $dir_exists = Display::return_icon('bullet_red.png', get_lang('Error'));
         }
         //Testing xapian searchdb path is writable
         if (!is_writable($xapian_path)) {
-            $dir_is_writable = Display::return_icon('bullet_red.gif', get_lang('Error'));
+            $dir_is_writable = Display::return_icon('bullet_red.png', get_lang('Error'));
         }
 
         $data[] = array(get_lang('XapianModuleInstalled'),$xapian_loaded);
@@ -759,9 +759,9 @@ function handle_search()
             foreach($list_of_programs as $program) {
                 $output = $ret_val = null;
                 exec("which $program", $output, $ret_val);
-                $icon = Display::return_icon('bullet_red.gif', get_lang('NotInstalled'));
+                $icon = Display::return_icon('bullet_red.png', get_lang('NotInstalled'));
                 if (!empty($output[0])) {
-                    $icon = Display::return_icon('bullet_green.gif', get_lang('Installed'));
+                    $icon = Display::return_icon('bullet_green.png', get_lang('Installed'));
                 }
                 $data2[]= array($program, $output[0], $icon);
             }
@@ -1000,6 +1000,7 @@ function add_edit_template() {
     $form->addButtonSave(get_lang('Ok'), 'submit');
 
     // Setting the rules: the required fields.
+    $form->addRule('template_image', get_lang('ThisFieldIsRequired'), 'required');
     $form->addRule('title', get_lang('ThisFieldIsRequired'), 'required');
     $form->addRule('template_text', get_lang('ThisFieldIsRequired'), 'required');
 
@@ -1042,7 +1043,7 @@ function add_edit_template() {
             // Store the information in the database (as insert or as update).
             $table_system_template = Database :: get_main_table('system_template');
             if ($_GET['action'] == 'add') {
-                $content_template = '<head>{CSS}<style type="text/css">.text{font-weight: normal;}</style></head><body>'.Database::escape_string($values['template_text']).'</body>';
+                $content_template =  Security::remove_XSS($values['template_text'], COURSEMANAGERLOWSECURITY);
                 $params = [
                     'title' =>  $values['title'],
                     'content' => $content_template,
@@ -1184,10 +1185,17 @@ function generate_settings_form($settings, $settings_by_access_list)
     $default_values = array();
     $url_info = api_get_access_url($url_id);
     $i = 0;
+    $addedSettings = [];
     foreach ($settings as $row) {
         if (in_array($row['variable'], array_keys($settings_to_avoid))) {
             continue;
         }
+
+        if (in_array($row['variable'], $addedSettings)) {
+            continue;
+        }
+
+        $addedSettings[] = $row['variable'];
 
         if (!empty($_configuration['multiple_access_urls'])) {
             if (api_is_global_platform_admin()) {
@@ -1455,7 +1463,7 @@ function search_setting($search)
     }
     $table_settings_current = Database :: get_main_table(TABLE_MAIN_SETTINGS_CURRENT);
     $sql = "SELECT * FROM $table_settings_current
-            WHERE category <> 'Plugins' GROUP BY variable ORDER BY id ASC ";
+            WHERE category <> 'Plugins' ORDER BY id ASC ";
     $result = Database::store_result(Database::query($sql), 'ASSOC');
     $settings = array();
 

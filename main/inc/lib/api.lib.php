@@ -1163,7 +1163,6 @@ function api_protect_course_script($print_headers = false, $allow_session_admins
     if (api_is_platform_admin($allow_session_admins)) {
         return true;
     }
-
     if (isset($course_info) && isset($course_info['visibility'])) {
         switch ($course_info['visibility']) {
             default:
@@ -1509,7 +1508,7 @@ function _api_format_user($user, $add_password = false)
  * @param bool $checkIfUserOnline
  * @param bool $showPassword
  * @param bool $loadExtraData
- *
+ * @param bool $loadOnlyVisibleExtraData Get the user extra fields that are visible
  * @return array $user_info user_id, lastname, firstname, username, email, etc
  * @author Patrick Cool <patrick.cool@UGent.be>
  * @author Julio Montoya
@@ -1519,7 +1518,8 @@ function api_get_user_info(
     $user_id = 0,
     $checkIfUserOnline = false,
     $showPassword = false,
-    $loadExtraData = false
+    $loadExtraData = false,
+    $loadOnlyVisibleExtraData = false
 ) {
     if (empty($user_id)) {
         $userFromSession = Session::read('_user');
@@ -1559,7 +1559,8 @@ function api_get_user_info(
             $fieldValue = new ExtraFieldValue('user');
 
             $result_array['extra'] = $fieldValue->getAllValuesForAnItem(
-                $user_id
+                $user_id,
+                $loadOnlyVisibleExtraData
             );
         }
         $user = _api_format_user($result_array, $showPassword);
@@ -1903,7 +1904,7 @@ function api_format_course_array($course_data)
     if (array_key_exists('add_teachers_to_sessions_courses', $course_data)) {
         $_course['add_teachers_to_sessions_courses'] = $course_data['add_teachers_to_sessions_courses'];
     }
-    
+
     if (file_exists(api_get_path(SYS_COURSE_PATH).$course_data['directory'].'/course-pic85x85.png')) {
         $url_image = api_get_path(WEB_COURSE_PATH).$course_data['directory'].'/course-pic85x85.png';
     } else {
@@ -5361,7 +5362,7 @@ function & api_get_settings($cat = null, $ordering = 'list', $access_url = 1, $u
         $sql .= " AND category='$cat' ";
     }
     if ($ordering == 'group') {
-        $sql .= " GROUP BY variable ORDER BY id ASC";
+        $sql .= " ORDER BY id ASC";
     } else {
         $sql .= " ORDER BY 1,2 ASC";
     }
@@ -6399,7 +6400,8 @@ function api_browser_support($format = "")
             ($current_browser == 'Chrome' && $current_majorver >= 6) ||
             ($current_browser == 'Internet Explorer' && $current_majorver >= 9) ||
             $current_browser == 'Android' ||
-            $current_browser == 'iPhone'
+            $current_browser == 'iPhone' ||
+            $current_browser == 'Firefox'
         ) {
             return true;
         } else {
@@ -6460,7 +6462,7 @@ function api_get_css($file, $media = 'screen') {
  */
 function api_get_jquery_js()
 {
-    return api_get_asset('jquery/dist/jquery.min.js');
+    return api_get_asset('jquery/jquery.min.js');
 }
 
 /**
@@ -6469,7 +6471,7 @@ function api_get_jquery_js()
  */
 function api_get_jquery_web_path()
 {
-    return api_get_path(WEB_PATH).'web/assets/jquery/dist/jquery.min.js';
+    return api_get_path(WEB_PATH).'web/assets/jquery/jquery.min.js';
 }
 
 /**
@@ -6796,7 +6798,11 @@ function api_get_real_ip(){
     global $debug;
     $ip = trim($_SERVER['REMOTE_ADDR']);
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        list($ip1, $ip2) = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        if (preg_match('/,/', $_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            list($ip1, $ip2) = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        } else {
+            $ip1 = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
         $ip = trim($ip1);
     }
     if (!empty($debug)) error_log('Real IP: '.$ip);
@@ -6876,11 +6882,12 @@ function api_is_global_chat_enabled()
  * @param int $group_id
  * @param array $courseInfo
  */
-function api_set_default_visibility($item_id, $tool_id, $group_id = 0, $courseInfo = array())
+function api_set_default_visibility($item_id, $tool_id, $group_id = 0, $courseInfo = array(), $sessionId = null)
 {
     $courseInfo = empty($courseInfo) ? api_get_course_info() : $courseInfo;
     $courseId = $courseInfo['real_id'];
     $courseCode = $courseInfo['code'];
+    $sessionId = empty($sessionId) ? api_get_session_id() : $sessionId;
 
     $original_tool_id = $tool_id;
 
@@ -6941,14 +6948,16 @@ function api_set_default_visibility($item_id, $tool_id, $group_id = 0, $courseIn
 
         switch ($original_tool_id) {
             case TOOL_QUIZ:
-                $objExerciseTmp = new Exercise($courseId);
-                $objExerciseTmp->read($item_id);
-                if ($visibility == 'visible') {
-                    $objExerciseTmp->enable();
-                    $objExerciseTmp->save();
-                } else {
-                    $objExerciseTmp->disable();
-                    $objExerciseTmp->save();
+                if (empty($sessionId)) {
+                    $objExerciseTmp = new Exercise($courseId);
+                    $objExerciseTmp->read($item_id);
+                    if ($visibility == 'visible') {
+                        $objExerciseTmp->enable();
+                        $objExerciseTmp->save();
+                    } else {
+                        $objExerciseTmp->disable();
+                        $objExerciseTmp->save();
+                    }
                 }
                 break;
         }
@@ -7958,6 +7967,8 @@ function api_mail_html(
 
     $mailView = new Template(null, false, false, false, false, false, false);
     $mailView->assign('content', $message);
+    $link = $additionalParameters['link'];
+    $mailView->assign('link', $link);
     $layout = $mailView->get_template('mail/mail.tpl');
     $mail->Body = $mailView->fetch($layout);
 
@@ -8048,6 +8059,27 @@ function api_protect_course_group($tool, $showHeader = true)
             api_not_allowed($showHeader);
         }
     }
+}
+
+/**
+ * Eliminate the duplicates of a multidimensional array by sending the key
+ * @param array $array multidimensional array
+ * @param int $key key to find to compare
+ *
+ */
+function api_unique_multidim_array($array, $key){
+    $temp_array = array();
+    $i = 0;
+    $key_array = array();
+
+    foreach($array as $val){
+        if(!in_array($val[$key],$key_array)){
+            $key_array[$i] = $val[$key];
+            $temp_array[$i] = $val;
+        }
+        $i++;
+    }
+    return $temp_array;
 }
 
 /**

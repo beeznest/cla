@@ -908,7 +908,7 @@ abstract class Question
                     ];
                     $id = Database::insert($TBL_ANSWERS, $params);
                     if ($id) {
-                        $sql = "UPDATE $TBL_ANSWERS SET id = id_auto WHERE id_auto = $id";
+                        $sql = "UPDATE $TBL_ANSWERS SET id = iid, id_auto = iid WHERE iid = $id";
                         Database::query($sql);
                     }
                 }
@@ -931,7 +931,7 @@ abstract class Question
                     $id = Database::insert($TBL_ANSWERS, $params);
 
                     if ($id) {
-                        $sql = "UPDATE $TBL_ANSWERS SET id = id_auto WHERE id_auto = $id";
+                        $sql = "UPDATE $TBL_ANSWERS SET id = iid, id_auto = iid WHERE iid = $id";
                         Database::query($sql);
                     }
                 }
@@ -965,7 +965,7 @@ abstract class Question
             $tbl_se_ref = Database::get_main_table(TABLE_MAIN_SEARCH_ENGINE_REF);
             if ($addQs || $rmQs) {
                 //there's only one row per question on normal db and one document per question on search engine db
-                $sql = 'SELECT * FROM %
+                $sql = 'SELECT * FROM %s
                     WHERE course_code=\'%s\' AND tool_id=\'%s\' AND ref_id_second_level=%s LIMIT 1';
                 $sql = sprintf($sql, $tbl_se_ref, $course_id, TOOL_QUIZ, $this->id);
             } else {

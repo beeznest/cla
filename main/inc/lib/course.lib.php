@@ -776,6 +776,7 @@ class CourseManager
             'user_id' => $user_id,
             'status' => $status,
             'sort' => $max_sort + 1,
+            'relation_type' => 0,
             'user_course_cat' => $userCourseCategoryId
         ];
         $insertId = Database::insert($course_user_table, $params);
@@ -2517,8 +2518,7 @@ class CourseManager
         if ($adminGetsAllCourses && UserManager::is_admin($user_id)) {
             // get the whole courses list
             $sql = "SELECT DISTINCT(course.code), course.id as real_id
-                FROM $tbl_course course";
-
+                    FROM $tbl_course course";
         } else {
 
             $with_special_courses = $without_special_courses = '';
@@ -2530,14 +2530,17 @@ class CourseManager
 
             if (!empty($with_special_courses)) {
                 $sql = "SELECT DISTINCT(course.code), course.id as real_id
-                    FROM    " . $tbl_course_user . " course_rel_user
-                    LEFT JOIN " . $tbl_course . " course
-                    ON course.id = course_rel_user.c_id
-                    LEFT JOIN " . $tbl_user_course_category . " user_course_category
-                    ON course_rel_user.user_course_cat = user_course_category.id
-                    WHERE  $with_special_courses
-                    GROUP BY course.code
-                    ORDER BY user_course_category.sort,course.title,course_rel_user.sort ASC";
+                        FROM $tbl_course_user  course_rel_user
+                        LEFT JOIN $tbl_course  course
+                        ON course.id = course_rel_user.c_id
+                        LEFT JOIN $tbl_user_course_category user_course_category
+                        ON course_rel_user.user_course_cat = user_course_category.id
+                        WHERE  $with_special_courses
+                        GROUP BY course.code
+                        ORDER BY user_course_category.sort, course.title, course_rel_user.sort ASC
+
+                    ";
+                //
                 $rs_special_course = Database::query($sql);
                 if (Database::num_rows($rs_special_course) > 0) {
                     while ($result_row = Database::fetch_array($rs_special_course)) {
@@ -3392,7 +3395,7 @@ class CourseManager
                     $params['right_actions'] = '';
                     if (api_is_platform_admin()) {
                         if ($load_dirs) {
-                            $params['right_actions'] .= '<a id="document_preview_' . $course['real_id'] . '_0" class="document_preview" href="javascript:void(0);">' .
+                            $params['right_actions'] .= '<a id="document_preview_' . $course['id'] . '_0" class="document_preview" href="javascript:void(0);">' .
                                 Display::return_icon(
                                     'folder.png',
                                     get_lang('Documents'),
@@ -3407,7 +3410,7 @@ class CourseManager
                                     ICON_SIZE_SMALL
                                 ).'</a>';
                             $params['right_actions'] .= Display::div('', array(
-                                    'id' => 'document_result_' . $course['real_id'] . '_0',
+                                    'id' => 'document_result_' . $course['id'] . '_0',
                                     'class' => 'document_preview_container'
                                 ));
                         } else {
@@ -3421,7 +3424,7 @@ class CourseManager
                     } else {
                         if ($course_info['visibility'] != COURSE_VISIBILITY_CLOSED) {
                             if ($load_dirs) {
-                                $params['right_actions'] .= '<a id="document_preview_' . $course['real_id'] . '_0" class="document_preview" href="javascript:void(0);">' .
+                                $params['right_actions'] .= '<a id="document_preview_' . $course['id'] . '_0" class="document_preview" href="javascript:void(0);">' .
                                     Display::return_icon(
                                         'folder.png',
                                         get_lang('Documents'),
@@ -3429,7 +3432,7 @@ class CourseManager
                                         ICON_SIZE_SMALL
                                     ).'</a>';
                                 $params['right_actions'] .= Display::div('', array(
-                                        'id' => 'document_result_' . $course['real_id'] . '_0',
+                                        'id' => 'document_result_' . $course['id'] . '_0',
                                         'class' => 'document_preview_container'
                                     ));
                             }
@@ -4372,6 +4375,8 @@ class CourseManager
             'session_id' => $session_id,
             'url_id' => $url_id,
             'creation_date' => $now,
+            'total_score' => 0,
+            'users' => 0
         );
 
         $result = Database::select(

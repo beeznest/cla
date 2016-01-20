@@ -1127,7 +1127,6 @@ class DocumentManager
         if (empty($base_work_dir)) {
             return false;
         }
-
         if (empty($documentId)) {
             $documentId = self::get_document_id($_course, $path, $sessionId);
             $docInfo = self::get_document_data_by_id(
@@ -1155,14 +1154,12 @@ class DocumentManager
         if (empty($path) || empty($docInfo) || empty($documentId)) {
             return false;
         }
-
         $itemInfo = api_get_item_property_info(
             $_course['real_id'],
             TOOL_DOCUMENT,
             $documentId,
             $sessionId
         );
-
 
         if (empty($itemInfo)) {
             return false;
@@ -1777,6 +1774,7 @@ class DocumentManager
         }
         $sql = 'SELECT document_id FROM ' . $tbl_category . '
                 WHERE course_code="' . Database::escape_string($course_id) . '" ' . $sql_session;
+
         $rs = Database::query($sql);
         $num = Database::num_rows($rs);
         if ($num == 0) {
@@ -1791,16 +1789,22 @@ class DocumentManager
      * allow replace user info in file html
      * @param int $user_id
      * @param string $course_code
+     * @param int $sessionId
      * @param bool $is_preview
      * @return string The html content of the certificate
      */
-    public static function replace_user_info_into_html($user_id, $course_code, $is_preview = false)
+    public static function replace_user_info_into_html($user_id, $course_code, $sessionId, $is_preview = false)
     {
         $user_id = intval($user_id);
         $course_info = api_get_course_info($course_code);
         $tbl_document = Database::get_course_table(TABLE_DOCUMENT);
         $course_id = $course_info['real_id'];
-        $document_id = self::get_default_certificate_id($course_code);
+
+        $document_id = self::get_default_certificate_id(
+            $course_code,
+            $sessionId
+        );
+
         $my_content_html = null;
         if ($document_id) {
             $sql = "SELECT path FROM $tbl_document
@@ -1815,6 +1819,7 @@ class DocumentManager
                     $my_content_html = file_get_contents($filepath);
                 }
                 $all_user_info = self::get_all_info_to_certificate($user_id, $course_code, $is_preview);
+
                 $info_to_be_replaced_in_content_html = $all_user_info[0];
                 $info_to_replace_in_content_html = $all_user_info[1];
                 $new_content = str_replace(
@@ -1850,7 +1855,7 @@ class DocumentManager
         $organization_name = api_get_setting('Institution');
         $portal_name = api_get_setting('siteName');
 
-        //Extra user data information
+        // Extra user data information
         $extra_user_info_data = UserManager::get_extra_user_data(
             $user_id,
             false,
@@ -1858,6 +1863,10 @@ class DocumentManager
             false,
             true
         );
+
+        // get extra fields
+        $extraField = new ExtraField('user');
+        $extraFields = $extraField->get_all(['filter = ? AND visible = ?' => [1, 1]]);
 
         //Student information
         $user_info = api_get_user_info($user_id);
@@ -1891,7 +1900,8 @@ class DocumentManager
         $url = api_get_path(WEB_PATH) . 'certificates/index.php?id=' . $info_grade_certificate['id'];
 
         //replace content
-        $info_to_replace_in_content_html = array($first_name,
+        $info_to_replace_in_content_html = array(
+            $first_name,
             $last_name,
             $organization_name,
             $portal_name,
@@ -1925,15 +1935,17 @@ class DocumentManager
             '((certificate_barcode))',
         );
 
-        if (!empty($extra_user_info_data)) {
-            foreach ($extra_user_info_data as $key_extra => $value_extra) {
-                $info_to_be_replaced_in_content_html[] = '((' . strtolower($key_extra) . '))';
-                $info_to_replace_in_content_html[] = $value_extra;
+        if (!empty($extraFields)) {
+            foreach ($extraFields as $extraField) {
+                $valueExtra = isset($extra_user_info_data[$extraField['variable']]) ? $extra_user_info_data[$extraField['variable']] : '';
+                $info_to_be_replaced_in_content_html[] = '((' . strtolower($extraField['variable']) . '))';
+                $info_to_replace_in_content_html[] = $valueExtra;
             }
         }
 
         $info_list[] = $info_to_be_replaced_in_content_html;
         $info_list[] = $info_to_replace_in_content_html;
+
         return $info_list;
     }
 
@@ -3129,7 +3141,7 @@ class DocumentManager
                     },
                     //errorAlerts: true,
                     //warningAlerts: true,
-                    swfPath: "' . $js_path . 'jquery-jplayer",
+                    swfPath: "' . $js_path . 'jquery-jplayer/jplayer/",
                     //supplied: "m4a, oga, mp3, ogg, wav",
                     supplied: "' . $params['extension'] . '",
                     wmode: "window",
@@ -3184,15 +3196,15 @@ class DocumentManager
      * @param array $document_data
      * @return string
      */
-    static function generate_video_preview($document_data = array())
+    public static function generate_video_preview($document_data = array())
     {
+        //<button class="jp-video-play-icon" role="button" tabindex="0">play</button>
         $html = '
-        <div id="jp_container_1" class="jp-video">
+        <div id="jp_container_1" class="jp-video" role="application" aria-label="media player">
             <div class="jp-type-single">
                 <div id="jquery_jplayer_1" class="jp-jplayer"></div>
                 <div class="jp-gui">
                     <div class="jp-video-play">
-                        <a href="javascript:;" class="jp-video-play-icon" tabindex="1">play</a>
                     </div>
                     <div class="jp-interface">
                         <div class="jp-progress">
@@ -3200,30 +3212,27 @@ class DocumentManager
                                 <div class="jp-play-bar"></div>
                             </div>
                         </div>
-                        <div class="jp-current-time"></div>
+                        <div class="jp-current-time" role="timer" aria-label="time">&nbsp;</div>
+                        <div class="jp-duration" role="timer" aria-label="duration">&nbsp;</div>
                         <div class="jp-controls-holder">
-                            <ul class="jp-controls">
-                                <li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
-                                <li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
-                                <li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
-                                <li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
-                                <li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
-                                <li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
-                            </ul>
+                          <div class="jp-controls">
+                            <button class="jp-play" role="button" tabindex="0">play</button>
+                            <button class="jp-stop" role="button" tabindex="0">stop</button>
+                          </div>
+                          <div class="jp-volume-controls">
+                            <button class="jp-mute" role="button" tabindex="0">mute</button>
+                            <button class="jp-volume-max" role="button" tabindex="0">max volume</button>
                             <div class="jp-volume-bar">
                                 <div class="jp-volume-bar-value"></div>
                             </div>
-                            <ul class="jp-toggles">
-                                <li><a href="javascript:;" class="jp-full-screen" tabindex="1" title="full screen">full screen</a></li>
-                                <li><a href="javascript:;" class="jp-restore-screen" tabindex="1" title="restore screen">restore screen</a></li>
-                                <li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
-                                <li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
-                            </ul>
+                          </div>
+                          <div class="jp-toggles">
+                            <button class="jp-repeat" role="button" tabindex="0">repeat</button>
+                            <button class="jp-full-screen" role="button" tabindex="0">full screen</button>
+                          </div>
                         </div>
-                        <div class="jp-title">
-                            <ul>
-                                <li>' . $document_data['title'] . '</li>
-                            </ul>
+                        <div class="jp-details">
+                          <div class="jp-title" aria-label="title">&nbsp;</div>
                         </div>
                     </div>
                 </div>
@@ -4657,7 +4666,7 @@ class DocumentManager
         $fileFullPath = "{$filePath}/{$fileName}.html";
         $fileSize = 0;
         $fileType = 'file';
-        $templateContent = file_get_contents(api_get_path(SYS_CODE_PATH) . 'gradebook/certificate_template/template.html');
+        $templateContent = file_get_contents(api_get_path(SYS_CODE_PATH).'gradebook/certificate_template/template.html');
 
         $search = array('{CSS}', '{IMG_DIR}', '{REL_CODE_PATH}', '{COURSE_DIR}');
         $replace = array($css.$js, $img_dir, $codePath, $default_course_dir);
@@ -5089,12 +5098,11 @@ class DocumentManager
     /**
      * Create a html hyperlink depending on if it's a folder or a file
      *
-     * @param string $www
-     * @param string $title
-     * @param string $path
-     * @param string $filetype (file/folder)
-     * @param int $visibility (1/0)
+     * @param array $document_data
      * @param int $show_as_icon - if it is true, only a clickable icon will be shown
+     * @param int $visibility (1/0)
+     * @param int $counter
+     *
      * @return string url
      */
     public static function create_document_link(
@@ -5197,6 +5205,9 @@ class DocumentManager
 
         $curdirpath = isset($_GET['curdirpath']) ? Security::remove_XSS($_GET['curdirpath']) : null;
         $send_to = null;
+
+        $checkExtension = $path;
+
         if (!$show_as_icon) {
             if ($filetype == 'folder') {
                 if (api_is_allowed_to_edit() ||
@@ -5260,25 +5271,26 @@ class DocumentManager
 
             if ($filetype == 'file') {
                 // Sound preview with jplayer
-                if (preg_match('/mp3$/i', urldecode($url)) ||
-                    (preg_match('/wav$/i', urldecode($url)) && !preg_match('/_chnano_.wav$/i', urldecode($url))) ||
-                    preg_match('/ogg$/i', urldecode($url))
+                if (preg_match('/mp3$/i', urldecode($checkExtension)) ||
+                    (preg_match('/wav$/i', urldecode($checkExtension)) && !preg_match('/_chnano_.wav$/i', urldecode($url))) ||
+                    preg_match('/ogg$/i', urldecode($checkExtension))
                 ) {
                     return '<span style="float:left" ' . $visibility_class . '>' .
                     $title .
                     '</span>' . $force_download_html . $send_to . $copy_to_myfiles . $open_in_new_window_link . $pdf_icon;
                 } elseif (
+
                     // Show preview
-                    preg_match('/swf$/i', urldecode($url)) ||
-                    preg_match('/png$/i', urldecode($url)) ||
-                    preg_match('/gif$/i', urldecode($url)) ||
-                    preg_match('/jpg$/i', urldecode($url)) ||
-                    preg_match('/jpeg$/i', urldecode($url)) ||
-                    preg_match('/bmp$/i', urldecode($url)) ||
-                    preg_match('/svg$/i', urldecode($url)) ||
+                    preg_match('/swf$/i', urldecode($checkExtension)) ||
+                    preg_match('/png$/i', urldecode($checkExtension)) ||
+                    preg_match('/gif$/i', urldecode($checkExtension)) ||
+                    preg_match('/jpg$/i', urldecode($checkExtension)) ||
+                    preg_match('/jpeg$/i', urldecode($checkExtension)) ||
+                    preg_match('/bmp$/i', urldecode($checkExtension)) ||
+                    preg_match('/svg$/i', urldecode($checkExtension)) ||
                     (
-                        preg_match('/wav$/i', urldecode($url)) &&
-                        preg_match('/_chnano_.wav$/i', urldecode($url)) &&
+                        preg_match('/wav$/i', urldecode($checkExtension)) &&
+                        preg_match('/_chnano_.wav$/i', urldecode($checkExtension)) &&
                         api_get_setting('enable_nanogong') == 'true'
                     )
                 ) {
@@ -5323,30 +5335,30 @@ class DocumentManager
             // end copy files to users myfiles
         } else {
             // Icon column
-            if (preg_match('/shared_folder/', urldecode($url)) &&
-                preg_match('/shared_folder$/', urldecode($url)) == false &&
+            if (preg_match('/shared_folder/', urldecode($checkExtension)) &&
+                preg_match('/shared_folder$/', urldecode($checkExtension)) == false &&
                 preg_match('/shared_folder_session_' . $current_session_id . '$/', urldecode($url)) == false
             ) {
                 if ($filetype == 'file') {
                     //Sound preview with jplayer
-                    if (preg_match('/mp3$/i', urldecode($url)) ||
-                        (preg_match('/wav$/i', urldecode($url)) && !preg_match('/_chnano_.wav$/i', urldecode($url))) ||
-                        preg_match('/ogg$/i', urldecode($url))) {
+                    if (preg_match('/mp3$/i', urldecode($checkExtension)) ||
+                        (preg_match('/wav$/i', urldecode($checkExtension)) && !preg_match('/_chnano_.wav$/i', urldecode($url))) ||
+                        preg_match('/ogg$/i', urldecode($checkExtension))) {
                         $sound_preview = DocumentManager::generate_media_preview($counter);
 
                         return $sound_preview;
                     } elseif (
                         // Show preview
-                        preg_match('/swf$/i', urldecode($url)) ||
-                        preg_match('/png$/i', urldecode($url)) ||
-                        preg_match('/gif$/i', urldecode($url)) ||
-                        preg_match('/jpg$/i', urldecode($url)) ||
-                        preg_match('/jpeg$/i', urldecode($url)) ||
-                        preg_match('/bmp$/i', urldecode($url)) ||
-                        preg_match('/svg$/i', urldecode($url)) ||
+                        preg_match('/swf$/i', urldecode($checkExtension)) ||
+                        preg_match('/png$/i', urldecode($checkExtension)) ||
+                        preg_match('/gif$/i', urldecode($checkExtension)) ||
+                        preg_match('/jpg$/i', urldecode($checkExtension)) ||
+                        preg_match('/jpeg$/i', urldecode($checkExtension)) ||
+                        preg_match('/bmp$/i', urldecode($checkExtension)) ||
+                        preg_match('/svg$/i', urldecode($checkExtension)) ||
                         (
-                            preg_match('/wav$/i', urldecode($url)) &&
-                            preg_match('/_chnano_.wav$/i', urldecode($url)) &&
+                            preg_match('/wav$/i', urldecode($checkExtension)) &&
+                            preg_match('/_chnano_.wav$/i', urldecode($checkExtension)) &&
                             api_get_setting('enable_nanogong') == 'true'
                         )
                     ) {
@@ -5367,26 +5379,26 @@ class DocumentManager
             } else {
                 if ($filetype == 'file') {
                     // Sound preview with jplayer
-                    if (preg_match('/mp3$/i', urldecode($url)) ||
-                        (preg_match('/wav$/i', urldecode($url)) && !preg_match('/_chnano_.wav$/i', urldecode($url))) ||
-                        preg_match('/ogg$/i', urldecode($url))) {
+                    if (preg_match('/mp3$/i', urldecode($checkExtension)) ||
+                        (preg_match('/wav$/i', urldecode($checkExtension)) && !preg_match('/_chnano_.wav$/i', urldecode($url))) ||
+                        preg_match('/ogg$/i', urldecode($checkExtension))) {
                         $sound_preview = DocumentManager::generate_media_preview($counter);
 
                         return $sound_preview;
                     } elseif (
                         //Show preview
-                        preg_match('/html$/i', urldecode($url)) ||
-                        preg_match('/htm$/i', urldecode($url)) ||
-                        preg_match('/swf$/i', urldecode($url)) ||
-                        preg_match('/png$/i', urldecode($url)) ||
-                        preg_match('/gif$/i', urldecode($url)) ||
-                        preg_match('/jpg$/i', urldecode($url)) ||
-                        preg_match('/jpeg$/i', urldecode($url)) ||
-                        preg_match('/bmp$/i', urldecode($url)) ||
-                        preg_match('/svg$/i', urldecode($url)) ||
+                        preg_match('/html$/i', urldecode($checkExtension)) ||
+                        preg_match('/htm$/i', urldecode($checkExtension)) ||
+                        preg_match('/swf$/i', urldecode($checkExtension)) ||
+                        preg_match('/png$/i', urldecode($checkExtension)) ||
+                        preg_match('/gif$/i', urldecode($checkExtension)) ||
+                        preg_match('/jpg$/i', urldecode($checkExtension)) ||
+                        preg_match('/jpeg$/i', urldecode($checkExtension)) ||
+                        preg_match('/bmp$/i', urldecode($checkExtension)) ||
+                        preg_match('/svg$/i', urldecode($checkExtension)) ||
                         (
-                            preg_match('/wav$/i', urldecode($url)) &&
-                            preg_match('/_chnano_.wav$/i', urldecode($url)) &&
+                            preg_match('/wav$/i', urldecode($checkExtension)) &&
+                            preg_match('/_chnano_.wav$/i', urldecode($checkExtension)) &&
                             api_get_setting('enable_nanogong') == 'true'
                         )
                     ) {
@@ -5487,7 +5499,7 @@ class DocumentManager
                         $basename = get_lang('Gallery');
                     }
                 } elseif ($path == '/chat_files') {
-                    $icon = 'folder_chat.gif';
+                    $icon = 'folder_chat.png';
                     if (api_is_allowed_to_edit()) {
                         $basename = get_lang('HelpFolderChat');
                     } else {
@@ -5504,7 +5516,7 @@ class DocumentManager
             }
         }
         if ($user_image) {
-            return Display::img($icon, $basename, array());
+            return Display::img($icon, $basename, array(), false);
         }
         return Display::return_icon($icon, $basename, array());
     }
@@ -6178,5 +6190,61 @@ class DocumentManager
             @unlink($tempZipFile);
             exit;
         }
+    }
+
+    /**
+     *
+     * Delete documents from a session in a course.
+     * @param array $courseInfo
+     * @param int $sessionId
+     *
+     * @return bool
+     */
+    public function deleteDocumentsFromSession($courseInfo, $sessionId)
+    {
+        if (empty($courseInfo)) {
+            return false;
+        }
+
+        if (empty($sessionId)) {
+            return false;
+        }
+
+        $itemPropertyTable = Database::get_course_table(TABLE_ITEM_PROPERTY);
+        $documentTable = Database::get_course_table(TABLE_DOCUMENT);
+
+        $conditionSession = api_get_session_condition($sessionId, true, false, 'd.session_id');
+
+        //get invisible folders
+        $sql = "SELECT DISTINCT d.id, path
+                FROM $itemPropertyTable i
+                INNER JOIN $documentTable d
+                ON (i.c_id = d.c_id)
+                WHERE
+                    d.id = i.ref AND
+                    i.tool = '" . TOOL_DOCUMENT . "'
+                    $conditionSession AND
+                    i.c_id = {$courseInfo['real_id']} AND
+                    d.c_id = {$courseInfo['real_id']} ";
+
+        $result = Database::query($sql);
+        $documents = Database::store_result($result, 'ASSOC');
+        if ($documents) {
+            $course_dir = $courseInfo['directory'] . '/document';
+            $sys_course_path = api_get_path(SYS_COURSE_PATH);
+            $base_work_dir = $sys_course_path . $course_dir;
+
+            foreach ($documents as $document) {
+                $documentId = $document['id'];
+                DocumentManager::delete_document(
+                    $courseInfo,
+                    null,
+                    $base_work_dir,
+                    $sessionId,
+                    $documentId
+                );
+            }
+        }
+
     }
 }

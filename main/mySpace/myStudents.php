@@ -356,7 +356,7 @@ if (!empty($student_id)) {
     $course_code = isset($_GET['course']) ? Security :: remove_XSS($_GET['course']) : null;
 
     if (CourseManager :: is_user_subscribed_in_course($user_info['user_id'], $course_code, true)) {
-        
+
         $avg_student_progress = Tracking::get_avg_student_progress(
             $user_info['user_id'],
             $course_code,
@@ -656,7 +656,9 @@ if (!empty($student_id)) {
                     if (CourseManager :: is_user_subscribed_in_course($student_id, $course_code, true)) {
                         $course_info = CourseManager :: get_course_information($course_code);
 
-                        $time_spent_on_course = api_time_to_hms(Tracking :: get_time_spent_on_the_course($user_info['user_id'], $courseId, $sessionId));
+                        $time_spent_on_course = api_time_to_hms(
+                            Tracking :: get_time_spent_on_the_course($user_info['user_id'], $courseId, $sessionId)
+                        );
 
                         // get average of faults in attendances by student
                         $results_faults_avg = $attendance->get_faults_average_by_course($student_id, $course_code, $sessionId);
@@ -712,10 +714,10 @@ if (!empty($student_id)) {
 
                         if (isset($_GET['id_coach']) && intval($_GET['id_coach']) != 0) {
                             echo '<td width="10"><a href="'.api_get_self().'?student='.$user_info['user_id'].'&details=true&course='.$course_info['code'].'&id_coach='.Security::remove_XSS($_GET['id_coach']).'&origin='.$origin.'&id_session='.$sessionId.'#infosStudent">
-                            <img src="'.api_get_path(WEB_IMG_PATH).'2rightarrow.gif" border="0" /></a></td>';
+                            '.Display::return_icon('2rightarrow.png', get_lang('Details')).'</a></td>';
                         } else {
                             echo '<td width="10"><a href="'.api_get_self().'?student='.$user_info['user_id'].'&details=true&course='.$course_info['code'].'&origin='.$origin.'&id_session='.$sessionId.'#infosStudent">
-                            <img src="'.api_get_path(WEB_IMG_PATH).'2rightarrow.gif" border="0" /></a></td>';
+                            '.Display::return_icon('2rightarrow.png', get_lang('Details')).'</a></td>';
                         }
                         echo '</tr>';
                     }
@@ -900,7 +902,7 @@ if (!empty($student_id)) {
                             $from ='&from=myspace';
                         }
                         $link = Display::url(
-                            '<img src="../img/2rightarrow.gif" border="0" />',
+                            '<img src="../img/icons/22/2rightarrow.png" border="0" />',
                             'lp_tracking.php?cidReq='.Security::remove_XSS($_GET['course']).'&course='.Security::remove_XSS($_GET['course']).$from.'&origin='.$origin.'&lp_id='.$learnpath['id'].'&student_id='.$user_info['user_id'].'&id_session='.$sessionId
                         );
                         echo Display::tag('td', $link);

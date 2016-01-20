@@ -298,7 +298,7 @@ class UserManager
         if (!empty($currentUserId)) {
             $creator_id = $currentUserId;
         } else {
-            $creator_id = '';
+            $creator_id = 0;
         }
 
         // First check wether the login already exists
@@ -309,10 +309,13 @@ class UserManager
         $currentDate = api_get_utc_datetime();
         $now = new DateTime($currentDate);
 
-        if (empty($expirationDate)) {
+        if (empty($expirationDate) || $expirationDate == '0000-00-00 00:00:00') {
             // Default expiration date
             // if there is a default duration of a valid account then
             // we have to change the expiration_date accordingly
+            // Accept 0000-00-00 00:00:00 as a null value to avoid issues with
+            // third party code using this method with the previous (pre-1.10)
+            // value of 0000...
             if (api_get_setting('account_valid_duration') != '') {
                 $expirationDate = new DateTime($currentDate);
                 $days = intval(api_get_setting('account_valid_duration'));
@@ -592,10 +595,6 @@ class UserManager
         $sql = "DELETE FROM $course_cat_table WHERE user_id = '".$user_id."'";
         Database::query($sql);
 
-        // Delete user from database
-        $sql = "DELETE FROM $table_user WHERE id = '".$user_id."'";
-        Database::query($sql);
-
         // Delete user from the admin table
         $sql = "DELETE FROM $table_admin WHERE user_id = '".$user_id."'";
         Database::query($sql);
@@ -641,6 +640,10 @@ class UserManager
         $sql = "DELETE FROM $table_work WHERE user_id = $user_id AND c_id <> 0";
         Database::query($sql);
 
+        // Delete user from database
+        $sql = "DELETE FROM $table_user WHERE id = '".$user_id."'";
+        Database::query($sql);
+
         // Add event to system log
         $user_id_manager = api_get_user_id();
         Event::addEvent(
@@ -657,6 +660,7 @@ class UserManager
             api_get_utc_datetime(),
             $user_id_manager
         );
+
         return true;
     }
 
@@ -1622,9 +1626,9 @@ class UserManager
         //Crop the image to adjust 1:1 ratio
         $image = new Image($source_file);
         $image->crop($cropParameters);
-        
+
         // Storing the new photos in 4 versions with various sizes.
-        
+
         $small = new Image($source_file);
         $small->resize(22);
         $small->send_image($path.'small_'.$filename);
@@ -1637,9 +1641,9 @@ class UserManager
 
         $big = new Image($source_file); // This is the original picture.
         $big->send_image($path.'big_'.$filename);
-        
+
         $result = $small && $medium && $normal && $big;
-        
+
         return $result ? $filename : false;
     }
 
@@ -2294,13 +2298,16 @@ class UserManager
      * @param integer $user_id
      * @param boolean whether to fill the first element or not (to give space for courses out of categories)
      * @param boolean  optional true if limit time from session is over, false otherwise
+     * @param boolean $ignoreTimeLimit ignore time start/end
      * @return array  list of statuses [session_category][session_id]
+     *
      * @todo ensure multiple access urls are managed correctly
      */
     public static function get_sessions_by_category(
         $user_id,
         $is_time_over = true,
-        $ignore_visibility_for_admins = false
+        $ignore_visibility_for_admins = false,
+        $ignoreTimeLimit = false
     ) {
         // Database Table Definitions
         $tbl_session = Database :: get_main_table(TABLE_MAIN_SESSION);
@@ -2346,26 +2353,28 @@ class UserManager
             while ($row = Database::fetch_array($result, 'ASSOC')) {
 
                 // User portal filters:
-                if ($is_time_over) {
-                    // History
-                    if (empty($row['access_end_date']) || $row['access_end_date'] == '0000-00-00 00:00:00') {
-                        continue;
-                    }
-
-                    if (isset($row['access_end_date'])) {
-                        if ($row['access_end_date'] > $now) {
+                if ($ignoreTimeLimit == false) {
+                    if ($is_time_over) {
+                        // History
+                        if (empty($row['access_end_date']) || $row['access_end_date'] == '0000-00-00 00:00:00') {
                             continue;
                         }
 
-                    }
-                } else {
-                    // Current user portal
-                    if (api_is_allowed_to_create_course()) {
-                        // Teachers can access the session depending in the access_coach date
-                    } else {
-                        if (isset($row['access_end_date']) && $row['access_end_date'] != '0000-00-00 00:00:00') {
-                            if ($row['access_end_date'] <= $now) {
+                        if (isset($row['access_end_date'])) {
+                            if ($row['access_end_date'] > $now) {
                                 continue;
+                            }
+
+                        }
+                    } else {
+                        // Current user portal
+                        if (api_is_allowed_to_create_course()) {
+                            // Teachers can access the session depending in the access_coach date
+                        } else {
+                            if (isset($row['access_end_date']) && $row['access_end_date'] != '0000-00-00 00:00:00') {
+                                if ($row['access_end_date'] <= $now) {
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -2436,7 +2445,9 @@ class UserManager
                     case SESSION_AVAILABLE:
                         break;
                     case SESSION_INVISIBLE:
-                        continue(2);
+                        if ($ignore_visibility_for_admins == false) {
+                            continue(2);
+                        }
                 }
 
                 $categories[$row['session_category_id']]['sessions'][$row['id']] = array(
@@ -4738,28 +4749,28 @@ EOF;
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      */
-    static function add_user_as_admin($user_id)
+    static function add_user_as_admin($userId)
     {
         $table_admin = Database :: get_main_table(TABLE_MAIN_ADMIN);
-        $user_id = intval($user_id);
+        $userId = intval($userId);
 
-        if (!self::is_admin($user_id)) {
-            $sql = "INSERT INTO $table_admin SET user_id = $user_id";
+        if (!self::is_admin($userId)) {
+            $sql = "INSERT INTO $table_admin SET user_id = $userId";
             Database::query($sql);
         }
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      */
-    public static function remove_user_admin($user_id)
+    public static function remove_user_admin($userId)
     {
         $table_admin = Database :: get_main_table(TABLE_MAIN_ADMIN);
-        $user_id = intval($user_id);
-        if (self::is_admin($user_id)) {
-            $sql = "DELETE FROM $table_admin WHERE user_id = user_id";
+        $userId = intval($userId);
+        if (self::is_admin($userId)) {
+            $sql = "DELETE FROM $table_admin WHERE user_id = $userId";
             Database::query($sql);
         }
     }
@@ -4983,6 +4994,9 @@ EOF;
         $atts = array()
     ) {
         $url = 'http://www.gravatar.com/avatar/';
+        if (!empty($_SERVER['HTTPS'])) {
+            $url = 'https://secure.gravatar.com/avatar/';
+        }
         $url .= md5( strtolower( trim( $email ) ) );
         $url .= "?s=$s&d=$d&r=$r";
         if ( $img ) {

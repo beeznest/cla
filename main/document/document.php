@@ -621,6 +621,7 @@ if (isset($_GET['curdirpath']) &&
         $content_html = DocumentManager::replace_user_info_into_html(
             api_get_user_id(),
             api_get_course_id(),
+            api_get_session_id(),
             true
         );
 
@@ -859,8 +860,8 @@ if (isset($_GET['createdir'])) {
 
 $js_path = api_get_path(WEB_LIBRARY_PATH).'javascript/';
 
-$htmlHeadXtra[] = '<link rel="stylesheet" href="'.$js_path.'jquery-jplayer/skins/chamilo/jplayer.blue.monday.css" type="text/css">';
-$htmlHeadXtra[] = '<script type="text/javascript" src="'.$js_path.'jquery-jplayer/jquery.jplayer.min.js"></script>';
+$htmlHeadXtra[] = '<link rel="stylesheet" href="'.$js_path.'jquery-jplayer/skin/chamilo/jplayer.blue.monday.css" type="text/css">';
+$htmlHeadXtra[] = '<script type="text/javascript" src="'.$js_path.'jquery-jplayer/jplayer/jquery.jplayer.min.js"></script>';
 $mediaplayer_path = api_get_path(WEB_LIBRARY_PATH).'mediaplayer/player.swf';
 
 $documentAndFolders = DocumentManager::get_all_document_data(
@@ -1744,7 +1745,9 @@ if (isset($documentAndFolders) && is_array($documentAndFolders)) {
 
             $path_info = pathinfo($document_data['path']);
 
-            if (isset($path_info['extension']) && in_array($path_info['extension'], array('ogg', 'mp3', 'wav'))) {
+            if (isset($path_info['extension']) &&
+                in_array($path_info['extension'], array('ogg', 'mp3', 'wav'))
+            ) {
                 $count++;
             }
 

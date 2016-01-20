@@ -702,10 +702,10 @@ class UrlManager
         if (empty($count)) {
             $sql = "INSERT INTO $table_url_rel_course
                     SET c_id = '".intval($courseId)."', access_url_id = ".intval($url_id);
-            $result = Database::query($sql);
+            Database::query($sql);
         }
 
-        return $result;
+        return true;
     }
 
     /**
@@ -896,11 +896,9 @@ class UrlManager
         }
 
         // Adding courses
-        foreach ($course_list as $course_code) {
-            if (!in_array($course_code, $courseId)) {
-                UrlManager::add_course_to_url($courseId, $access_url_id);
-                CourseManager::update_course_ranking($courseId, 0, $access_url_id);
-            }
+        foreach ($course_list as $courseId) {
+            UrlManager::add_course_to_url($courseId, $access_url_id);
+            CourseManager::update_course_ranking($courseId, 0, $access_url_id);
         }
 
         // Deleting old courses
@@ -1046,6 +1044,26 @@ class UrlManager
         $url_list = Database::store_result($result,'ASSOC');
         return $url_list;
     }
+
+
+
+    /**
+     * @param int $courseId
+     * @return array
+     */
+    public static function get_access_url_from_course($courseId)
+    {
+        $table	= Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_COURSE);
+        $table_url	= Database :: get_main_table(TABLE_MAIN_ACCESS_URL);
+        $sql = "SELECT url, access_url_id FROM $table c INNER JOIN $table_url u
+                ON (c.access_url_id = u.id)
+                WHERE c_id = ".intval($courseId);
+
+        $result = Database::query($sql);
+        $url_list = Database::store_result($result,'ASSOC');
+        return $url_list;
+    }
+
 
     /**
      * @param $session_id

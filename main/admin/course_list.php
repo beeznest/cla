@@ -95,13 +95,14 @@ function get_course_data($from, $number_of_items, $column, $direction)
                     visibility AS col8,
                     directory as col9,
                     visual_code
-    		FROM $course_table";
+    		FROM $course_table course";
 
     if ((api_is_platform_admin() || api_is_session_admin()) &&
         api_is_multiple_url_enabled() && api_get_current_access_url_id() != -1
     ) {
         $access_url_rel_course_table = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_COURSE);
-        $sql.= " INNER JOIN $access_url_rel_course_table url_rel_course ON (id = url_rel_course.c_id)";
+        $sql.= " INNER JOIN $access_url_rel_course_table url_rel_course
+                 ON (course.id = url_rel_course.c_id)";
     }
 
     if (isset ($_GET['keyword'])) {
@@ -256,19 +257,19 @@ function get_course_visibility_icon($v) {
     $style = 'margin-bottom:0;margin-right:5px;';
     switch($v) {
         case 0:
-            return Display::return_icon('bullet_red.gif', get_lang('CourseVisibilityClosed'), array('style' => $style));
+            return Display::return_icon('bullet_red.png', get_lang('CourseVisibilityClosed'), array('style' => $style));
             break;
         case 1:
-            return Display::return_icon('bullet_orange.gif', get_lang('Private'), array('style' => $style));
+            return Display::return_icon('bullet_orange.png', get_lang('Private'), array('style' => $style));
             break;
         case 2:
-            return Display::return_icon('bullet_green.gif', get_lang('OpenToThePlatform'), array('style' => $style));
+            return Display::return_icon('bullet_green.png', get_lang('OpenToThePlatform'), array('style' => $style));
             break;
         case 3:
-            return Display::return_icon('bullet_blue.gif', get_lang('OpenToTheWorld'), array('style' => $style));
+            return Display::return_icon('bullet_blue.png', get_lang('OpenToTheWorld'), array('style' => $style));
             break;
         case 4:
-            return Display::return_icon('bullet_grey.gif', get_lang('CourseVisibilityHidden'), array('style' => $style));
+            return Display::return_icon('bullet_grey.png', get_lang('CourseVisibilityHidden'), array('style' => $style));
             break;
         default:
             return '';

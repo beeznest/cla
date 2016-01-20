@@ -216,9 +216,15 @@ class learnpath
                 error_log('New LP - learnpath::__construct() ' . __LINE__ . ' - NOT Found previous view', 0);
             }
             $this->attempt = 1;
-            $sql = "INSERT INTO $lp_table (c_id, lp_id, user_id, view_count, session_id)
-                    VALUES ($course_id, $lp_id, $user_id, 1, $session_id)";
-            Database::query($sql);
+            $params = [
+                'c_id' => $course_id,
+                'lp_id' => $lp_id,
+                'user_id' => $user_id,
+                'view_count' => 1,
+                'session_id' => $session_id,
+                'last_item' => 0
+            ];
+            Database::insert($lp_table, $params);
             $this->lp_view_id = Database::insert_id();
 
             if ($this->debug > 2) {
@@ -376,8 +382,8 @@ class learnpath
                             }
 
                             // Add that row to the lp_item_view table so that we have something to show in the stats page.
-                            $sql = "INSERT INTO $lp_item_view_table (c_id, lp_item_id, lp_view_id, view_count, status)
-                                    VALUES ($course_id, ".$item_id.",".$this->lp_view_id.", 1, 'not attempted')";
+                            $sql = "INSERT INTO $lp_item_view_table (c_id, lp_item_id, lp_view_id, view_count, status, start_time, total_time, score)
+                                    VALUES ($course_id, ".$item_id.",".$this->lp_view_id.", 1, 'not attempted', '".time()."', 0, 0)";
 
                             if ($this->debug > 2) {
                                 error_log(
@@ -488,12 +494,17 @@ class learnpath
         $prerequisites = 0,
         $max_time_allowed = 0
     ) {
-        $course_id = api_get_course_int_id();
+        $course_id = $this->course_info['real_id'];
         if ($this->debug > 0) {
             error_log('New LP - In learnpath::add_item(' . $parent . ',' . $previous . ',' . $type . ',' . $id . ',' . $title . ')', 0);
         }
+        if (empty($course_id)) {
+            // Sometimes Oogie doesn't catch the course info but sets $this->cc
+            $this->course_info = api_get_course_info($this->cc);
+            $course_id = $this->course_info['real_id'];
+        }
         $tbl_lp_item = Database :: get_course_table(TABLE_LP_ITEM);
-        $_course = api_get_course_info();
+        $_course = $this->course_info;
         $parent = intval($parent);
         $previous = intval($previous);
         $id = intval($id);
@@ -567,7 +578,7 @@ class learnpath
             $max_score = Database :: result($rsQuiz, 0, 0);
 
             // Disabling the exercise if we add it inside a LP
-            $exercise = new Exercise();
+            $exercise = new Exercise($course_id);
             $exercise->read($id);
             $exercise->disable();
             $exercise->save();
@@ -589,7 +600,9 @@ class learnpath
             "next_item_id" => $next,
             "display_order" => $display_order +1,
             "prerequisite" => $prerequisites,
-            "max_time_allowed" => $max_time_allowed
+            "max_time_allowed" => $max_time_allowed,
+            'min_score' => 0,
+            'launch_data' => ''
         );
 
         if ($prerequisites != 0) {
@@ -710,7 +723,7 @@ class learnpath
      * @return	integer	The new learnpath ID on success, 0 on failure
      */
     public static function add_lp(
-        $course,
+        $courseCode,
         $name,
         $description = '',
         $learnpath = 'guess',
@@ -721,7 +734,15 @@ class learnpath
         $categoryId = 0
     ) {
         global $charset;
-        $course_id = api_get_course_int_id();
+
+        if (!empty($courseCode)) {
+            $courseInfo = api_get_course_info($courseCode);
+            $course_id = $courseInfo['real_id'];
+        } else {
+            $course_id = api_get_course_int_id();
+            $courseInfo = api_get_course_info();
+        }
+
         $tbl_lp = Database :: get_course_table(TABLE_LP_MAIN);
         // Check course code exists.
         // Check lp_name doesn't exist, otherwise append something.
@@ -808,9 +829,22 @@ class learnpath
                     'js_lib' => '',
                     'session_id' => $session_id,
                     'created_on' => api_get_utc_datetime(),
+                    'modified_on'  => api_get_utc_datetime(),
                     'publicated_on' => $publicated_on,
                     'expired_on' => $expired_on,
-                    'category_id' => $categoryId
+                    'category_id' => $categoryId,
+                    'force_commit' => 0,
+                    'content_license' => '',
+                    'debug' => 0,
+                    'theme' => '',
+                    'preview_image' => '',
+                    'author' => '',
+                    'prerequisite' => 0,
+                    'hide_toc_frame' => 0,
+                    'seriousgame_mode' => 0,
+                    'autolaunch' => 0,
+                    'max_attempts' => 0,
+                    'subscribe_users' => 0
                 ];
 
                 $id = Database::insert($tbl_lp, $params);
@@ -819,16 +853,15 @@ class learnpath
                     $sql = "UPDATE $tbl_lp SET id = iid WHERE iid = $id";
                     Database::query($sql);
 
-                    $course_info = api_get_course_info();
                     // Insert into item_property.
                     api_item_property_update(
-                        $course_info,
+                        $courseInfo,
                         TOOL_LEARNPATH,
                         $id,
                         'LearnpathAdded',
                         api_get_user_id()
                     );
-                    api_set_default_visibility($id, TOOL_LEARNPATH);
+                    api_set_default_visibility($id, TOOL_LEARNPATH, 0, $courseInfo);
                     return $id;
                 }
                 break;
@@ -985,14 +1018,17 @@ class learnpath
 
     /**
      * Static admin function allowing removal of a learnpath
-     * @param	string	Course code
+     * @param	array $courseInfo
      * @param	integer	Learnpath ID
      * @param	string	Whether to delete data or keep it (default: 'keep', others: 'remove')
      * @return	boolean	True on success, false on failure (might change that to return number of elements deleted)
      */
-    public function delete($course = null, $id = null, $delete = 'keep')
+    public function delete($courseInfo = null, $id = null, $delete = 'keep')
     {
         $course_id = api_get_course_int_id();
+        if (!empty($courseInfo)) {
+            $course_id = isset($courseInfo['real_id']) ? $courseInfo['real_id'] : $course_id;
+        }
 
         // TODO: Implement a way of getting this to work when the current object is not set.
         // In clear: implement this in the item class as well (abstract class) and use the given ID in queries.
@@ -1094,7 +1130,7 @@ class learnpath
      */
     public function delete_children_items($id)
     {
-        $course_id = api_get_course_int_id();
+        $course_id = $this->course_info['real_id'];
         if ($this->debug > 0) {
             error_log('New LP - In learnpath::delete_children_items(' . $id . ')', 0);
         }
@@ -3219,7 +3255,7 @@ class learnpath
         return $html;
     }
 
-     /**
+    /**
      * Returns an HTML-formatted string ready to display with teacher buttons
      * in LP view menu
      * @return	string	HTML TOC ready to display
@@ -4521,10 +4557,10 @@ class learnpath
         if (empty($name)) {
             return false;
         }
-        $this->name = $name;
+        $this->name = Database::escape_string($name);
         $lp_table = Database :: get_course_table(TABLE_LP_MAIN);
         $lp_id = $this->get_id();
-        $course_id = api_get_course_int_id();
+        $course_id = $this->course_info['real_id'];
         $sql = "UPDATE $lp_table SET
                 name = '" . Database::escape_string($this->name). "'
                 WHERE c_id = ".$course_id." AND id = '$lp_id'";
@@ -5623,29 +5659,34 @@ class learnpath
                         $edit_icon .= '</a>';
 
                         if (
-                            !in_array($arrLP[$i]['item_type'], ['forum', 'thread'])
+                        !in_array($arrLP[$i]['item_type'], ['forum', 'thread'])
                         ) {
                             if (
-                                $this->items[$arrLP[$i]['id']]->getForumThread(
-                                    $this->course_int_id,
-                                    $this->lp_session_id
-                                )
+                            $this->items[$arrLP[$i]['id']]->getForumThread(
+                                $this->course_int_id,
+                                $this->lp_session_id
+                            )
                             ) {
+                                $forumIconUrl = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
+                                        'action' => 'dissociate_forum',
+                                        'id' => $arrLP[$i]['id'],
+                                        'lp_id' => $this->lp_id
+                                    ]);
                                 $forumIcon = Display::url(
-                                    Display::return_icon('forum.png', get_lang('CreateForum'), [], ICON_SIZE_TINY),
-                                    '#',
-                                    ['class' => 'btn btn-default disabled']
+                                    Display::return_icon('forum.png', get_lang('DissociateForumToLPItem'), [], ICON_SIZE_TINY),
+                                    $forumIconUrl,
+                                    ['class' => 'btn btn-default lp-btn-dissociate-forum']
                                 );
                             } else {
                                 $forumIconUrl = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
-                                    'action' => 'create_forum',
-                                    'id' => $arrLP[$i]['id'],
-                                    'lp_id' => $this->lp_id
-                                ]);
+                                        'action' => 'create_forum',
+                                        'id' => $arrLP[$i]['id'],
+                                        'lp_id' => $this->lp_id
+                                    ]);
                                 $forumIcon = Display::url(
-                                    Display::return_icon('forum.png', get_lang('CreateForum'), [], ICON_SIZE_TINY),
+                                    Display::return_icon('forum.png', get_lang('AssociateForumToLPItem'), [], ICON_SIZE_TINY),
                                     $forumIconUrl,
-                                    ['class' => "btn btn-default"]
+                                    ['class' => "btn btn-default lp-btn-associate-forum"]
                                 );
                             }
                         }
@@ -5670,7 +5711,7 @@ class learnpath
             }
             if ($update_audio != 'true') {
                 $row = $move_icon . ' ' . $icon .
-                    Display::span($title_cut) . 
+                    Display::span($title_cut) .
                     Display::tag(
                         'div',
                         "<div class=\"btn-group btn-group-xs\">$audio $edit_icon $forumIcon $prerequisities_icon $move_item_icon $audio_icon $delete_icon</div>",
@@ -5908,65 +5949,107 @@ class learnpath
 
     /**
      * Create a new document //still needs some finetuning
-     * @param array $_course
+     * @param array $courseInfo
+     * @param string $content
+     * @param string $title
+     * @param string $extension
+     *
      * @return string
      */
-    public function create_document($_course)
+    public function create_document($courseInfo, $content = '', $title = '', $extension = 'html')
     {
-        $course_id = api_get_course_int_id();
-        global $charset;
-        $dir = isset ($_GET['dir']) ? $_GET['dir'] : $_POST['dir'];
-        // Please, do not modify this dirname formatting.
-        if (strstr($dir, '..'))
-            $dir = '/';
-        if ($dir[0] == '.')
-            $dir = substr($dir, 1);
-        if ($dir[0] != '/')
-            $dir = '/' . $dir;
-        if ($dir[strlen($dir) - 1] != '/')
-            $dir .= '/';
+        if (!empty($courseInfo)) {
+            $course_id = $courseInfo['real_id'];
+        } else {
+            $course_id = api_get_course_int_id();
+        }
 
-        $filepath = api_get_path(SYS_COURSE_PATH) . $_course['path'] . '/document' . $dir;
+        global $charset;
+        $postDir = isset($_POST['dir']) ? $_POST['dir'] : '';
+        $dir = isset ($_GET['dir']) ? $_GET['dir'] : $postDir; // Please, do not modify this dirname formatting.
+        // Please, do not modify this dirname formatting.
+        if (strstr($dir, '..')) {
+            $dir = '/';
+        }
+        if (!empty($dir[0]) && $dir[0] == '.') {
+            $dir = substr($dir, 1);
+        }
+        if (!empty($dir[0]) && $dir[0] != '/') {
+            $dir = '/' . $dir;
+        }
+        if (isset($dir[strlen($dir) - 1]) && $dir[strlen($dir) - 1] != '/') {
+            $dir .= '/';
+        }
+        $filepath = api_get_path(SYS_COURSE_PATH) . $courseInfo['path'] . '/document' . $dir;
 
         if (empty($_POST['dir']) && empty($_GET['dir'])) {
             //Generates folder
-            $result     = $this->generate_lp_folder($_course);
-            $dir 		= $result['dir'];
-            $filepath 	= $result['filepath'];
+            $result = $this->generate_lp_folder($courseInfo);
+            $dir = $result['dir'];
+            $filepath = $result['filepath'];
         }
 
         if (!is_dir($filepath)) {
-            $filepath = api_get_path(SYS_COURSE_PATH) . $_course['path'] . '/document/';
+            $filepath = api_get_path(SYS_COURSE_PATH) . $courseInfo['path'] . '/document/';
             $dir = '/';
         }
 
         // stripslashes() before calling api_replace_dangerous_char() because $_POST['title']
         // is already escaped twice when it gets here.
-        $title = api_replace_dangerous_char(stripslashes($_POST['title']));
+
+        $originalTitle = !empty($title) ? $title : $_POST['title'];
+        if (!empty($title)) {
+            $title = api_replace_dangerous_char(stripslashes($title));
+        } else {
+            $title = api_replace_dangerous_char(stripslashes($_POST['title']));
+        }
+
         $title = disable_dangerous_file($title);
 
         $filename = $title;
-        $content = $_POST['content_lp'];
+
+        $content = isset($content) ? $content : $_POST['content_lp'];
 
         $tmp_filename = $filename;
 
         $i = 0;
-        while (file_exists($filepath . $tmp_filename . '.html'))
+        while (file_exists($filepath . $tmp_filename . '.'.$extension))
             $tmp_filename = $filename . '_' . ++ $i;
 
-        $filename = $tmp_filename . '.html';
-        $content = stripslashes($content);
+        $filename = $tmp_filename . '.'.$extension;
+        if ($extension == 'html') {
+            $content = stripslashes($content);
+            $content = str_replace(
+                api_get_path(WEB_COURSE_PATH),
+                api_get_path(REL_PATH).'courses/',
+                $content
+            );
 
-        $content = str_replace(api_get_path(WEB_COURSE_PATH), api_get_path(REL_PATH).'courses/', $content);
+            // Change the path of mp3 to absolute.
 
-        // Change the path of mp3 to absolute.
-
-        // The first regexp deals with :// urls.
-        $content = preg_replace("|(flashvars=\"file=)([^:/]+)/|", "$1" . api_get_path(REL_COURSE_PATH) . $_course['path'] . '/document/', $content);
-        // The second regexp deals with audio/ urls.
-        $content = preg_replace("|(flashvars=\"file=)([^/]+)/|", "$1" . api_get_path(REL_COURSE_PATH) . $_course['path'] . '/document/$2/', $content);
-        // For flv player: To prevent edition problem with firefox, we have to use a strange tip (don't blame me please).
-        $content = str_replace('</body>', '<style type="text/css">body{}</style></body>', $content);
+            // The first regexp deals with :// urls.
+            $content = preg_replace(
+                "|(flashvars=\"file=)([^:/]+)/|",
+                "$1".api_get_path(
+                    REL_COURSE_PATH
+                ).$courseInfo['path'].'/document/',
+                $content
+            );
+            // The second regexp deals with audio/ urls.
+            $content = preg_replace(
+                "|(flashvars=\"file=)([^/]+)/|",
+                "$1".api_get_path(
+                    REL_COURSE_PATH
+                ).$courseInfo['path'].'/document/$2/',
+                $content
+            );
+            // For flv player: To prevent edition problem with firefox, we have to use a strange tip (don't blame me please).
+            $content = str_replace(
+                '</body>',
+                '<style type="text/css">body{}</style></body>',
+                $content
+            );
+        }
 
         if (!file_exists($filepath . $filename)) {
             if ($fp = @ fopen($filepath . $filename, 'w')) {
@@ -5977,7 +6060,7 @@ class learnpath
                 $save_file_path = $dir.$filename;
 
                 $document_id = add_document(
-                    $_course,
+                    $courseInfo,
                     $save_file_path,
                     'file',
                     $file_size,
@@ -5986,7 +6069,7 @@ class learnpath
 
                 if ($document_id) {
                     api_item_property_update(
-                        $_course,
+                        $courseInfo,
                         TOOL_DOCUMENT,
                         $document_id,
                         'DocumentAdded',
@@ -5999,7 +6082,7 @@ class learnpath
                     );
 
                     $new_comment = (isset($_POST['comment'])) ? trim($_POST['comment']) : '';
-                    $new_title = (isset($_POST['title'])) ? trim($_POST['title']) : '';
+                    $new_title = $originalTitle;
 
                     if ($new_comment || $new_title) {
                         $tbl_doc = Database :: get_course_table(TABLE_DOCUMENT);
@@ -6009,8 +6092,9 @@ class learnpath
                         if ($new_title)
                             $ct .= ", title='" . Database::escape_string(htmlspecialchars($new_title, ENT_QUOTES, $charset))."' ";
 
-                        $sql_update = "UPDATE " . $tbl_doc ." SET " . substr($ct, 1)." WHERE c_id = ".$course_id." AND id = " . $document_id;
-                        Database::query($sql_update);
+                        $sql = "UPDATE " . $tbl_doc ." SET " . substr($ct, 1)."
+                               WHERE c_id = ".$course_id." AND id = " . $document_id;
+                        Database::query($sql);
                     }
                 }
                 return $document_id;
@@ -6251,6 +6335,7 @@ class learnpath
 
         // Get all the docs.
         $documents = $this->get_documents(true);
+
         // Get all the exercises.
         $exercises = $this->get_exercises();
 
@@ -8551,7 +8636,7 @@ class learnpath
         $return .= '<li class="lp_resource_element">';
         $return .= '<img alt="" src="../img/new_test_small.gif" style="margin-right:5px;" title="" />';
         $return .= '<a href="' . api_get_path(REL_CODE_PATH) . 'exercice/exercise_admin.php?'.api_get_cidreq().'&lp_id=' . $this->lp_id . '">' .
-                    get_lang('NewExercise') . '</a>';
+            get_lang('NewExercise') . '</a>';
         $return .= '</li>';
 
         // Display hotpotatoes
@@ -8624,7 +8709,7 @@ class learnpath
         }
 
         $linksHtmlCode =
-        '<script>
+            '<script>
             function toggle_tool(tool, id){
                 if(document.getElementById(tool+"_"+id+"_content").style.display == "none"){
                     document.getElementById(tool+"_"+id+"_content").style.display = "block";
@@ -8639,28 +8724,28 @@ class learnpath
             <li class="lp_resource_element">
                 <img alt="" src="../img/linksnew.gif" style="margin-right:5px;width:16px"/>
                 <a href="'.api_get_path(REL_CODE_PATH).'link/link.php?'.$courseIdReq.
-                    '&action=addlink&lp_id='.$this->lp_id.'" title="'.get_lang('LinkAdd').'">'.get_lang('LinkAdd').'</a>
+            '&action=addlink&lp_id='.$this->lp_id.'" title="'.get_lang('LinkAdd').'">'.get_lang('LinkAdd').'</a>
             </li>';
         foreach ($categorizedLinks as $categoryId => $links) {
             $linkNodes = null;
             foreach ($links as $key => $title) {
                 if (api_get_item_visibility($course, TOOL_LINK, $key, $session_id) != 2)  {
                     $linkNodes .=
-                    '<li class="lp_resource_element" data_id="'.$key.
+                        '<li class="lp_resource_element" data_id="'.$key.
                         '" data_type="'.TOOL_LINK.'" title="'.$title.'" >
                         <a class="moved" href="#">'.
-                            $moveEverywhereIcon.
+                        $moveEverywhereIcon.
                         '</a>
                         <img alt="" src="../img/lp_link.gif" style="margin-right:5px;width:16px"/>
                         <a href="'.$selfUrl.'?'.$courseIdReq.'&action=add_item&type='.
-                            TOOL_LINK.'&file='.$key.'&lp_id='.$this->lp_id.'">'.
-                            Security::remove_XSS($title).
+                        TOOL_LINK.'&file='.$key.'&lp_id='.$this->lp_id.'">'.
+                        Security::remove_XSS($title).
                         '</a>
                     </li>';
                 }
             }
             $linksHtmlCode .=
-            '<li>
+                '<li>
                 <a style="cursor:hand" onclick="javascript: toggle_tool(\''.TOOL_LINK.'\','.$categoryId.')"
                 style="vertical-align:middle">
                     <img src="'.api_get_path(WEB_IMG_PATH).'add.gif" id="'.TOOL_LINK.'_'.$categoryId.'_opener"

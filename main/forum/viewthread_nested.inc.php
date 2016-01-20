@@ -22,7 +22,8 @@ if (isset($_GET['action']) &&
     delete_attachment(0, $_GET['id_attach']);
 }
 
-$sortDirection = isset($_GET['posts_order']) && $_GET['posts_order'] === 'desc' ? 'DESC' : 'ASC';
+// Decide whether we show the latest post first
+$sortDirection = isset($_GET['posts_order']) && $_GET['posts_order'] === 'desc' ? 'DESC' : ($origin != 'learnpath' ? 'ASC' : 'DESC');
 
 $rows = getPosts($_GET['thread'], $sortDirection, true);
 $count = 0;
@@ -33,6 +34,8 @@ $locked = api_resource_is_locked_by_gradebook($clean_thread_id, LINK_FORUM_THREA
 $sessionId = api_get_session_id();
 $currentThread = get_thread_information($_GET['thread']);
 $userId = api_get_user_id();
+
+$postCount = 1;
 
 foreach ($rows as $post) {
     // The style depends on the status of the message: approved or not.
@@ -68,19 +71,40 @@ foreach ($rows as $post) {
         $name = api_get_person_name($post['firstname'], $post['lastname']);
     }
 
-    if (api_get_course_setting('allow_user_image_forum')) {
-        $html .= '<div class="thumbnail">' . display_user_image($post['user_id'], $name, $origin) . '</div>';
+    if ($origin != 'learnpath') {
+        if (api_get_course_setting('allow_user_image_forum')) {
+            $html .= '<div class="thumbnail">' . display_user_image($post['user_id'], $name, $origin) . '</div>';
+        }
+
+        $html .= Display::tag(
+            'h4',
+            display_user_link($post['user_id'], $name, $origin, $username),
+            array('class' => 'title-username')
+        );
+    } else {
+        $html .= Display::tag(
+            'p',
+            $name,
+            array(
+                'title' => api_htmlentities($username, ENT_QUOTES),
+                'class' => 'lead'
+            )
+        );
     }
-    $html .= Display::tag(
-        'h4',
-        display_user_link($post['user_id'], $name, $origin, $username),
-        array('class' => 'title-username')
-    );
-    $html .= Display::tag(
-        'p',
-        api_convert_and_format_date($post['post_date']),
-        array('class' => 'post-date')
-    );
+
+    if ($origin != 'learnpath') {
+        $html .= Display::tag(
+            'p',
+            api_convert_and_format_date($post['post_date']),
+            array('class' => 'post-date')
+        );
+    } else {
+        $html .= Display::tag(
+            'p',
+            api_convert_and_format_date($post['post_date'], DATE_TIME_FORMAT_SHORT),
+            array('class' => 'text-muted')
+        );
+    }
 
     // get attach id
     $attachment_list = get_attachment($post['post_id']);

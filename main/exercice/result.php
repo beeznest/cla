@@ -53,6 +53,9 @@ if (!$is_allowedToEdit) {
     }
 }
 
+$htmlHeadXtra[] = '<link rel="stylesheet" href="' . api_get_path(WEB_LIBRARY_JS_PATH) . 'hotspot/css/hotspot.css">';
+$htmlHeadXtra[] = '<script src="' . api_get_path(WEB_LIBRARY_JS_PATH) . 'hotspot/js/hotspot.js"></script>';
+
 if ($show_headers) {
     $interbreadcrumb[] = array(
         "url" => "exercise.php?".api_get_cidreq(),

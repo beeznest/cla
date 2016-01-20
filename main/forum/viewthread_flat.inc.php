@@ -20,7 +20,8 @@ $_user = api_get_user_info();
 $userId = api_get_user_id();
 $groupId = api_get_group_id();
 
-$sortDirection = isset($_GET['posts_order']) && $_GET['posts_order'] === 'desc' ? 'DESC' : 'ASC';
+// Decide whether we show the latest post first
+$sortDirection = isset($_GET['posts_order']) && $_GET['posts_order'] === 'desc' ? 'DESC' : ($origin != 'learnpath' ? 'ASC' : 'DESC');
 
 if (isset($current_thread['thread_id'])) {
     $rows = getPosts($current_thread['thread_id'], $sortDirection);
@@ -36,6 +37,9 @@ if (isset($current_thread['thread_id'])) {
     $closedPost = null;
 
     if (!empty($rows)) {
+        $postCount = count($rows);
+        //$postCount = 1;
+
         foreach ($rows as $row) {
             if ($row['user_id'] == '0') {
                 $name = prepare4display($row['poster_name']);
@@ -118,20 +122,31 @@ if (isset($current_thread['thread_id'])) {
                     array('class' => 'title-username')
                 );
             } else {
+                $name = Display::tag('strong', "#" . $postCount--, ['class' => 'text-info']) . " | $name";
+
                 $html .= Display::tag(
-                    'span',
+                    'p',
                     $name,
                     array(
-                        'title' => api_htmlentities($username, ENT_QUOTES)
+                        'title' => api_htmlentities($username, ENT_QUOTES),
+                        'class' => 'lead'
                     )
                 );
             }
 
-            $html .= Display::tag(
-                'p',
-                api_convert_and_format_date($row['post_date']),
-                array('class' => 'post-date')
-            );
+            if ($origin != 'learnpath') {
+                $html .= Display::tag(
+                    'p',
+                    api_convert_and_format_date($row['post_date']),
+                    array('class' => 'post-date')
+                );
+            } else {
+                $html .= Display::tag(
+                    'p',
+                    api_convert_and_format_date($row['post_date'], DATE_TIME_FORMAT_SHORT),
+                    array('class' => 'text-muted')
+                );
+            }
 
             // get attach id
             $attachment_list = get_attachment($row['post_id']);

@@ -750,7 +750,7 @@ switch ($action) {
                         $count_skill_by_course[$course_item['code']] = $skills_in_course[$course_item['code']];
                     }
                 }
-                $item['photo'] = Display::img($user_info['avatar_small']);
+                $item['photo'] = Display::img($user_info['avatar_small'], $user_info['complete_name'], [], false);
                 $item['currently_learning'] = !empty($count_skill_by_course) ? array_sum($count_skill_by_course) : 0;
             }
         }
@@ -960,7 +960,7 @@ switch ($action) {
                     'date' => $session_date_string,
                     'course_per_session' => $count_courses_in_session,
                     'student_per_session' => $count_users_in_session,
-                    'details' => Display::url(Display::return_icon('2rightarrow.gif'), $sessionUrl)
+                    'details' => Display::url(Display::return_icon('2rightarrow.png'), $sessionUrl)
                 );
             }
         }

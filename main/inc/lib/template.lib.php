@@ -121,6 +121,7 @@ class Template
             new Twig_Filter_Function('Display::page_subheader_and_translate')
         );
         $this->twig->addFilter('icon', new Twig_Filter_Function('Template::get_icon_path'));
+        $this->twig->addFilter('img', new Twig_Filter_Function('Template::get_image'));
         $this->twig->addFilter('format_date', new Twig_Filter_Function('Template::format_date'));
         $this->twig->addFilter('api_get_local_time', new Twig_Filter_Function('api_get_local_time'));
 
@@ -199,6 +200,16 @@ class Template
         return Display::return_icon($image, '', array(), $size, false, true);
     }
 
+    /**
+     * @param string $image
+     * @param int $size
+     * @param string $name
+     * @return string
+     */
+    public static function get_image($image, $size = ICON_SIZE_SMALL, $name)
+    {
+        return Display::return_icon($image, $name, array(), $size);
+    }
     /**
      * @param string $timestamp
      * @param string $format
@@ -609,6 +620,8 @@ class Template
         // Logo
         $logo = return_logo($this->theme);
         $this->assign('logo', $logo);
+
+        $this->assign('show_media_element', 1);
     }
 
     /**
@@ -656,7 +669,7 @@ class Template
 
         $bowerJsFiles = [
             'modernizr/modernizr.js',
-            'jquery/dist/jquery.min.js',
+            'jquery/jquery.min.js',
             'bootstrap/dist/js/bootstrap.min.js',
             'jquery-ui/jquery-ui.min.js',
             'moment/min/moment-with-locales.min.js',
@@ -849,18 +862,20 @@ class Template
 
         //@todo move this in the template
         $bug_notification_link = '';
+        $iconBug = Display::return_icon('bug.png', get_lang('ReportABug'), null, ICON_SIZE_LARGE);
         if (api_get_setting('show_link_bug_notification') == 'true' && $this->user_is_logged_in) {
             $bug_notification_link = '<li class="report">
-		        						<a href="http://support.chamilo.org/projects/chamilo-18/wiki/How_to_report_bugs" target="_blank">
-		        						<img src="'.api_get_path(WEB_IMG_PATH).'bug.large.png" style="vertical-align: middle;" alt="'.get_lang('ReportABug').'" title="'.get_lang('ReportABug').'"/></a>
-		    						  </li>';
+		<a href="http://support.chamilo.org/projects/chamilo-18/wiki/How_to_report_bugs" target="_blank">
+                    '. $iconBug . '
+                </a>
+		</li>';
         }
 
         $this->assign('bug_notification_link', $bug_notification_link);
 
         $notification = return_notification_menu();
         $this->assign('notification_menu', $notification);
-        
+
         $resize = '';
         if (api_get_setting('accessibility_font_resize') == 'true') {
             $resize .= '<div class="resize_font">';
@@ -872,7 +887,7 @@ class Template
             $resize .= '</div>';
         }
         $this->assign('accessibility', $resize);
-        
+
         // Preparing values for the menu
 
         // Logout link

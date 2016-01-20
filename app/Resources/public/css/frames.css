@@ -6,7 +6,7 @@
         alex.aragon@beeznest.com
     Version: 1.0
 */
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,300italic,400italic);
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300,600,300italic,400italic);
 body{
     color: #666;
     font-family: 'Open Sans', sans-serif;
@@ -19,10 +19,4 @@ a{
 }
 a:hover{
     text-decoration: underline;
-}
-img{
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    background: #fff;
 }

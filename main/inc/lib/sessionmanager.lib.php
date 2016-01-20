@@ -1340,7 +1340,7 @@ class SessionManager
      * @param int       $duration
      * @param array     $extraFields
      * @param int       $sessionAdminId
-     * @param boolean $sendSubscritionNotification Optional.
+     * @param boolean $sendSubscriptionNotification Optional.
      *          Whether send a mail notification to users being subscribed
      * @return mixed
      */
@@ -1361,7 +1361,7 @@ class SessionManager
         $duration = null,
         $extraFields = array(),
         $sessionAdminId = 0,
-        $sendSubscritionNotification = false
+        $sendSubscriptionNotification = false
     ) {
         $name = trim(stripslashes($name));
         $coachId = intval($coachId);
@@ -1370,20 +1370,25 @@ class SessionManager
         $tbl_session = Database::get_main_table(TABLE_MAIN_SESSION);
 
         if (empty($name)) {
-            $msg = get_lang('SessionNameIsRequired');
-            return $msg;
+            Display::return_message(get_lang('SessionNameIsRequired'), 'warning');
+
+            return false;
         } elseif (empty($coachId)) {
-            $msg = get_lang('CoachIsRequired');
-            return $msg;
+            Display::return_message(get_lang('CoachIsRequired'), 'warning');
+
+            return false;
         } elseif (!empty($startDate) && !api_is_valid_date($startDate, 'Y-m-d H:i')) {
-            $msg = get_lang('InvalidStartDate');
-            return $msg;
+            Display::return_message(get_lang('InvalidStartDate'), 'warning');
+
+            return false;
         } elseif (!empty($endDate) && !api_is_valid_date($endDate, 'Y-m-d H:i')) {
-            $msg = get_lang('InvalidEndDate');
-            return $msg;
+            Display::return_message(get_lang('InvalidEndDate'), 'warning');
+
+            return false;
         } elseif (!empty($startDate) && !empty($endDate) && $startDate >= $endDate) {
-            $msg = get_lang('StartDateShouldBeBeforeEndDate');
-            return $msg;
+            Display::return_message(get_lang('StartDateShouldBeBeforeEndDate'), 'warning');
+
+            return false;
         } else {
             $sql = "SELECT id FROM $tbl_session WHERE name='" . Database::escape_string($name) . "'";
             $rs = Database::query($sql);
@@ -1395,8 +1400,9 @@ class SessionManager
             }
 
             if ($exists) {
-                $msg = get_lang('SessionNameAlreadyExists');
-                return $msg;
+                Display::return_message(get_lang('SessionNameAlreadyExists'), 'warning');
+
+                return false;
             } else {
                 $values = [
                     'name' => $name,
@@ -1405,7 +1411,7 @@ class SessionManager
                     'description'=> $description,
                     'show_description' => intval($showDescription),
                     'visibility' => $visibility,
-                    'send_subscription_notification' => $sendSubscritionNotification
+                    'send_subscription_notification' => $sendSubscriptionNotification
                 ];
 
                 if (!empty($sessionAdminId)) {
@@ -1441,7 +1447,7 @@ class SessionManager
 
                 Database::update($tbl_session, $values, array(
                     'id = ?' => $id
-                ), true);
+                ));
 
                 if (!empty($extraFields)) {
                     $extraFields['item_id'] = $id;
@@ -1469,6 +1475,7 @@ class SessionManager
         $tbl_session_rel_course_rel_user = Database::get_main_table(TABLE_MAIN_SESSION_COURSE_USER);
         $tbl_session_rel_user = Database::get_main_table(TABLE_MAIN_SESSION_USER);
         $tbl_url_session = Database::get_main_table(TABLE_MAIN_ACCESS_URL_REL_SESSION);
+        $tbl_item_properties = Database::get_course_table(TABLE_ITEM_PROPERTY);
 
         $userId = api_get_user_id();
 
@@ -1489,10 +1496,19 @@ class SessionManager
             }
         }
 
+        // Delete documents inside a session
+        $courses = SessionManager::getCoursesInSession($id_checked);
+        foreach ($courses as $courseId) {
+            $courseInfo = api_get_course_info_by_id($courseId);
+            DocumentManager::deleteDocumentsFromSession($courseInfo, $id_checked);
+        }
+
         Database::query("DELETE FROM $tbl_session_rel_course WHERE session_id IN($id_checked)");
         Database::query("DELETE FROM $tbl_session_rel_course_rel_user WHERE session_id IN($id_checked)");
         Database::query("DELETE FROM $tbl_session_rel_user WHERE session_id IN($id_checked)");
+        Database::query("DELETE FROM $tbl_item_properties WHERE session_id IN ($id_checked)");
         Database::query("DELETE FROM $tbl_url_session WHERE session_id IN($id_checked)");
+
         Database::query("DELETE FROM $tbl_session WHERE id IN ($id_checked)");
 
         $extraFieldValue = new ExtraFieldValue('session');
@@ -2625,6 +2641,7 @@ class SessionManager
         $availableFields = array(
             's.id',
             's.name',
+            'c.id'
         );
 
         $availableOperator = array(
@@ -3396,12 +3413,17 @@ class SessionManager
         $course_name = Database::escape_string($course_name);
 
         // select the courses
-        $sql = "SELECT * FROM $tbl_course c
+        $sql = "SELECT c.id, c.title FROM $tbl_course c
                 INNER JOIN $tbl_session_rel_course src
                 ON c.id = src.c_id
-		        WHERE src.session_id LIKE '$session_id'";
+		        WHERE ";
+
+        if (!empty($session_id)) {
+            $sql .= "src.session_id LIKE '$session_id' AND ";
+        }
+
         if (!empty($course_name)) {
-            $sql .= " AND UPPER(c.title) LIKE UPPER('%$course_name%') ";
+            $sql .= "UPPER(c.title) LIKE UPPER('%$course_name%') ";
         }
 
         $sql .= "ORDER BY title;";
@@ -4015,16 +4037,18 @@ class SessionManager
     /**
      * @param int $user_id
      * @param bool $ignore_visibility_for_admins
+     * @param bool $ignoreTimeLimit
+     *
      * @return array
      */
-    public static function get_sessions_by_user($user_id, $ignore_visibility_for_admins = false)
+    public static function get_sessions_by_user($user_id, $ignore_visibility_for_admins = false, $ignoreTimeLimit = false)
     {
         $sessionCategories = UserManager::get_sessions_by_category(
             $user_id,
             false,
-            $ignore_visibility_for_admins
+            $ignore_visibility_for_admins,
+            $ignoreTimeLimit
         );
-
         $sessionArray = array();
         if (!empty($sessionCategories)) {
             foreach ($sessionCategories as $category) {

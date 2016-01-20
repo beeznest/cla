@@ -107,14 +107,16 @@ class Event
         $now = api_get_utc_datetime();
         $courseId = api_get_course_int_id();
         $user_id = api_get_user_id();
+        $ip = api_get_real_ip();
 
         if ($user_id) {
             $user_id = "'".$user_id."'";
         } else {
             $user_id = "0"; // no one
         }
-        $sql = "INSERT INTO ".$TABLETRACK_ACCESS."  (access_user_id, c_id, access_date, access_session_id) VALUES
-                (".$user_id.", '".$courseId."', '".$now."','".$id_session."')";
+        $sql = "INSERT INTO ".$TABLETRACK_ACCESS."  (user_ip, access_user_id, c_id, access_date, access_session_id) VALUES
+                ('".$ip."', ".$user_id.", '".$courseId."', '".$now."','".$id_session."')";
+
         Database::query($sql);
 
         // added for "what's new" notification
@@ -172,21 +174,17 @@ class Event
         $pos2 = isset($_SERVER['HTTP_REFERER']) ? strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower(api_get_path(WEB_PATH)."index")) : false;
         // end "what's new" notification
         if ($pos !== false || $pos2 !== false) {
-            $sql = "INSERT INTO ".$TABLETRACK_ACCESS."
-                        (access_user_id,
-                         c_id,
-                         access_tool,
-                         access_date,
-                         access_session_id
-                         )
-                    VALUES
-                        (".$user_id.",".// Don't add ' ' around value, it's already done.
-                        "'".$courseId."' ,
-                        '".$tool."',
-                        '".$reallyNow."',
-                        '".$id_session."')";
-            Database::query($sql);
+            $params = [
+                'access_user_id' => $user_id,
+                'c_id' => $courseId,
+                'access_tool' => $tool,
+                'access_date' => $reallyNow,
+                'access_session_id' => $id_session,
+                'user_ip' => api_get_real_ip()
+            ];
+            Database::insert($TABLETRACK_ACCESS, $params);
         }
+
         // "what's new" notification
         $sql = "UPDATE $TABLETRACK_LASTACCESS
                 SET access_date = '$reallyNow'
@@ -613,17 +611,19 @@ class Event
                 )));
 
         } else {
-            $sql = "INSERT INTO $tbl_track_e_hotspot (hotspot_course_code, hotspot_user_id, c_id, hotspot_exe_id, hotspot_question_id, hotspot_answer_id, hotspot_correct, hotspot_coordinate)
-                VALUES (
-                '".api_get_course_id()."',
-                ".api_get_user_id()."',".
-                " ".api_get_course_int_id().", ".
-                " '".Database :: escape_string($exe_id)."', ".
-                " '".Database :: escape_string($question_id)."',".
-                " '".Database :: escape_string($answer_id)."',".
-                " '".Database :: escape_string($correct)."',".
-                " '".Database :: escape_string($coords)."')";
-            return $result = Database::query($sql);
+            return Database::insert(
+                $tbl_track_e_hotspot,
+                [
+                    'hotspot_course_code' => api_get_course_id(),
+                    'hotspot_user_id' => api_get_user_id(),
+                    'c_id' => api_get_course_int_id(),
+                    'hotspot_exe_id' => $exe_id,
+                    'hotspot_question_id' => $question_id,
+                    'hotspot_answer_id' => $answer_id,
+                    'hotspot_correct' => $correct,
+                    'hotspot_coordinate' => $coords
+                ]
+            );
         }
     }
 
@@ -1737,17 +1737,18 @@ class Event
     public static function event_course_login($courseId, $user_id, $session_id)
     {
         $course_tracking_table = Database::get_main_table(TABLE_STATISTIC_TRACK_E_COURSE_ACCESS);
-        $time = api_get_datetime();
+        $time = api_get_utc_datetime();
 
         $courseId = intval($courseId);
         $user_id = intval($user_id);
         $session_id = intval($session_id);
+        $ip = api_get_real_ip();
 
-        $sql = "INSERT INTO $course_tracking_table(c_id, user_id, login_course_date, logout_course_date, counter, session_id)
-                VALUES('".$courseId."', '".$user_id."', '$time', '$time', '1', '".$session_id."')";
+        $sql = "INSERT INTO $course_tracking_table(c_id, user_ip, user_id, login_course_date, logout_course_date, counter, session_id)
+                VALUES('".$courseId."', '".$ip."', '".$user_id."', '$time', '$time', '1', '".$session_id."')";
         Database::query($sql);
 
-        //Course catalog stats modifications see #4191
+        // Course catalog stats modifications see #4191
         CourseManager::update_course_ranking(null, null, null, null, true, false);
     }
 

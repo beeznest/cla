@@ -34,7 +34,7 @@ class HotSpot extends Question
 		parent::createForm($form, $fck_config);
 
 		if (!isset($_GET['editQuestion'])) {
-			$form->addElement('file','imageUpload',array('<img src="../img/hotspots.png" />', get_lang('UploadJpgPicture')) );
+			$form->addElement('file','imageUpload',array('<img src="../img/icons/22/hotspots.png" />', get_lang('UploadJpgPicture')) );
 
 			// setting the save button here and not in the question class.php
 			// Saving a question
@@ -67,12 +67,7 @@ class HotSpot extends Question
 
 			// fixed width ang height
 			if (file_exists($picturePath.'/'.$this->picture)) {
-				list($width,$height) = @getimagesize($picturePath.'/'.$this->picture);
-				if ($width > $height) {
-					$this->resizePicture('width', 545);
-				} else {
-					$this->resizePicture('height', 350);
-				}
+				$this->resizePicture('width', 800);
 				$this->save();
 			} else {
 				return false;
@@ -96,7 +91,7 @@ class HotSpot extends Question
  */
 class HotSpotDelineation extends HotSpot
 {
-	static $typePicture = 'hotspot_delineation.gif';
+	static $typePicture = 'hotspot-delineation.png';
 	static $explanationLangVar = 'HotspotDelineation';
 
 	function __construct()

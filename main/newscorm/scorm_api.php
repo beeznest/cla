@@ -1682,11 +1682,12 @@ var loadForumThead = function(lpId, lpItemId) {
     $.when(loadForum).done(function(forumThreadData) {
         var tabForumLink = $('.lp-view-tabs a[href="#lp-view-forum"]'),
             tabForum = tabForumLink.parent();
+            $("#navTabs").show();
 
         if (forumThreadData.error) {
             tabForumLink.removeAttr('data-toggle');
             tabForum.addClass('disabled');
-
+            $("#navTabs").hide();
             $('#lp-view-forum').html('');
 
             return;
@@ -1698,7 +1699,7 @@ var loadForumThead = function(lpId, lpItemId) {
         var forumIframe = $('<iframe>').attr({
             width:'100%',
             frameborder:'0',
-            scrolling:'no',
+            scrolling:'yes',
             tabindex:'0',
             id:'chamilo-disqus',
             src: '<?php echo api_get_path(WEB_CODE_PATH) ?>forum/viewthread.php?<?php echo api_get_cidreq() ?>&' + $.param({

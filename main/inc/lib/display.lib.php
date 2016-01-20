@@ -20,7 +20,7 @@ use ChamiloSession as Session;
  */
 class Display
 {
-    /* The main template*/
+    /** @var Template */
     public static $global_template;
     public static $preview_style = null;
 
@@ -756,8 +756,10 @@ class Display
         }
 
         $icon = api_get_cdn_path($icon);
+
         if ($return_only_path) {
             return $icon;
+
         }
 
         $img = self::img($icon, $alt_text, $additional_attributes);
@@ -773,15 +775,18 @@ class Display
     /**
      * Returns the htmlcode for an image
      *
-     * @param string $image the filename of the file (in the main/img/ folder
+     * @param string $image_path the filename of the file (in the main/img/ folder
      * @param string $alt_text the alt text (probably a language variable)
      * @param array  $additional_attributes (for instance height, width, onclick, ...)
+     * @param boolean $filterPath Optional. Whether filter the image path. Default is true
      * @author Julio Montoya 2010
      */
-    public static function img($image_path, $alt_text = '', $additional_attributes = array())
+    public static function img($image_path, $alt_text = '', $additional_attributes = array(), $filterPath = true)
     {
         // Sanitizing the parameter $image_path
-        $image_path = Security::filter_img_path($image_path);
+        if ($filterPath) {
+            $image_path = Security::filter_img_path($image_path);
+        }
 
         // alt text = the image name if there is none provided (for XHTML compliance)
         if ($alt_text == '') {
