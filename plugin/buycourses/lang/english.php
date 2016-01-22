@@ -132,3 +132,6 @@ $strings['ByUser'] = "By user";
 $strings['PaymentMethod'] = "Payment method";
 $strings['SWIFT'] = "SWIFT code";
 $strings['SWIFT_help'] = "Standard format of Bank Identifier Codes (BIC) and serves as a unique identifier for a bank or financial institution";
+$strings['Services'] = "Services";
+$strings['Service'] = "Service";
+$strings['Renewable'] = "Renewable";

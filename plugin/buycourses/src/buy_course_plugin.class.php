@@ -19,6 +19,8 @@ class BuyCoursesPlugin extends Plugin
     const TABLE_TRANSFER = 'plugin_buycourses_transfer';
     const TABLE_COMMISSION = 'plugin_buycourses_commission';
     const TABLE_PAYPAL_PAYOUTS = 'plugin_buycourses_paypal_payouts';
+    const TABLE_SERVICES = 'plugin_buycourses_services';
+    const TABLE_SERVICES_NODE = 'plugin_buycourses_service_rel_node';
     const PRODUCT_TYPE_COURSE = 1;
     const PRODUCT_TYPE_SESSION = 2;
     const PAYMENT_TYPE_PAYPAL = 1;
@@ -55,6 +57,7 @@ class BuyCoursesPlugin extends Plugin
             array(
                 'show_main_menu_tab' => 'boolean',
                 'include_sessions' => 'boolean',
+                'include_services' => 'boolean',
                 'paypal_enable' => 'boolean',
                 'transfer_enable' => 'boolean',
                 'commissions_enable' => 'boolean',
@@ -76,7 +79,9 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_SALE,
             self::TABLE_CURRENCY,
             self::TABLE_COMMISSION,
-            self::TABLE_PAYPAL_PAYOUTS
+            self::TABLE_PAYPAL_PAYOUTS,
+            self::TABLE_SERVICES,
+            self::TABLE_SERVICES_NODE
         );
         $em = Database::getManager();
         $cn = $em->getConnection();
@@ -103,7 +108,9 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_SALE,
             self::TABLE_CURRENCY,
             self::TABLE_COMMISSION,
-            self::TABLE_PAYPAL_PAYOUTS
+            self::TABLE_PAYPAL_PAYOUTS,
+            self::TABLE_SERVICES_NODE,
+            self::TABLE_SERVICES
         );
 
         foreach ($tablesToBeDeleted as $tableToBeDeleted) {
@@ -1604,6 +1611,140 @@ class BuyCoursesPlugin extends Plugin
             $commissionTable,
             ['commission' => intval($params['commission'])]
         );
+    }
+    
+    /**
+     * Register adicional service
+     * @param array params $service
+     * @return database response
+     */
+    public function storeService($service)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        
+        return Database::insert(
+            $servicesTable,
+            [
+                'name' => $service['name'],
+                'description' => $service['description'],
+                'price' => $service['price'],
+                'duration_days' => intval($service['duration_days']),
+                'renewable' => intval($service['renewable']),
+                'applies_to' => intval($service['applies_to']),
+                'owner_id' => intval($service['owner_id']),
+                'visibility' => intval($service['visibility'])
+            ]
+        );
+    }
+    
+    /**
+     * update a service
+     * @param array $service
+     * @param integer $id
+     * @return database response
+     */
+    public function updateService($service, $id)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        
+        return Database::update(
+            $servicesTable,
+            [
+                'name' => $service['name'],
+                'description' => $service['description'],
+                'price' => $service['price'],
+                'duration_days' => intval($service['duration_days']),
+                'renewable' => intval($service['renewable']),
+                'applies_to' => intval($service['applies_to']),
+                'owner_id' => intval($service['owner_id']),
+                'visibility' => intval($service['visibility'])
+            ],
+            ['id = ?' => intval($id)]
+        );
+    }
+    
+    /**
+     * Remove a service
+     * @param int $id The transfer account ID
+     * @return int Rows affected. Otherwise return false
+     */
+    public function deleteService($id)
+    {
+        return Database::delete(
+            Database::get_main_table(self::TABLE_SERVICES),
+            ['id = ?' => intval($id)]
+        );
+    }
+    
+    /**
+     * List adicional services
+     * @param integer $id service id
+     * @return array
+     */
+    public function getServices($id = null)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        $userTable = Database::get_main_table(TABLE_MAIN_USER);
+        
+        $conditions = null;
+        $showData = "all";
+        
+        if ($id) {
+            $conditions = ['WHERE' => ['s.id = ?' => $id]];
+            $showData = "first";
+        }
+        
+        $innerJoins = "INNER JOIN $userTable u ON s.owner_id = u.id";
+        $currency = $this->getSelectedCurrency();
+        $isoCode = $currency['iso_code'];
+        $services = Database::select(
+            "s.*, '$isoCode' as currency, u.firstname, u.lastname",
+            "$servicesTable s $innerJoins",
+            $conditions,
+            $showData
+        );
+        
+        return $services;
+    }
+    
+    /**
+     * Lists current service details
+     * @param string $name Optional. The name filter
+     * @param int $min Optional. The minimum price filter
+     * @param int $max Optional. The maximum price filter
+     * @return array
+     */
+    public function getCatalogServiceList($name = null, $min = 0, $max = 0)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        $userTable = Database::get_main_table(TABLE_MAIN_USER);
+        
+        if (empty($name) && empty($min) && empty($max)) {
+            return $this->getServices();
+        } else {
+            $conditions = ['WHERE' => ['s.name LIKE "%?%"' => [$name, ]]];
+        }
+        
+        $conditions = null;
+        $showData = "all";
+        
+        if ($id) {
+            $conditions = ['WHERE' => ['s.id = ?' => $id]];
+            $showData = "first";
+        }
+        
+        $innerJoins = "INNER JOIN $userTable u ON s.owner_id = u.id";
+        $currency = $this->getSelectedCurrency();
+        $isoCode = $currency['iso_code'];
+        $services = Database::select(
+            "s.*, '$isoCode' as currency, u.firstname, u.lastname",
+            "$servicesTable s $innerJoins",
+            $conditions,
+            $showData
+        );
+                
+        
+        
     }
 
 }

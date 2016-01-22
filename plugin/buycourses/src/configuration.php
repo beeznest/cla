@@ -19,6 +19,7 @@ api_protect_admin_script(true);
 Display::addFlash(Display::return_message(get_lang('Info').' - '.$plugin->get_lang('CoursesInSessionsDoesntDisplayHere'), 'info'));
 
 $courses = $plugin->getCoursesForConfiguration();
+$services = $plugin->getServices();
 
 //view
 $interbreadcrumb[] = [
@@ -35,6 +36,7 @@ $tpl = new Template($templateName);
 $tpl->assign('product_type_course', BuyCoursesPlugin::PRODUCT_TYPE_COURSE);
 $tpl->assign('product_type_session', BuyCoursesPlugin::PRODUCT_TYPE_SESSION);
 $tpl->assign('courses', $courses);
+$tpl->assign('services',$services);
 $tpl->assign('sessions_are_included', $includeSession);
 
 if ($includeSession) {

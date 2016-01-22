@@ -5049,6 +5049,30 @@ SQL;
 
         return $users;
     }
+    
+    /**
+    * @param string $keyword
+    * @return array|null
+    */
+   function searchUserByKeyword($keyword)
+   {
+       if (empty($keyword)) {
+           return null;
+       }
+
+       $tableUser = Database::get_main_table(TABLE_MAIN_USER);
+
+       $keyword = Database::escape_string($keyword);
+
+       $sql = "SELECT *
+               FROM $tableUser
+               WHERE
+                   (
+                       username LIKE '%$keyword%' OR firstname LIKE '%$keyword%' OR lastname LIKE '%$keyword%'
+                   )";
+       $result = Database::query($sql);
+       return Database::store_result($result, 'ASSOC');
+   }
 
     /**
      * @param int $optionSelected

@@ -226,7 +226,7 @@ switch ($action) {
         
         break;
         
-        case 'cancelPayout':
+    case 'cancelPayout':
         if (api_is_anonymous()) {
             break;
         }

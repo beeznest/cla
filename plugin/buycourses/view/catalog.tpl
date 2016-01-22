@@ -1,16 +1,21 @@
 <link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
 
 <div id="buy-courses-tabs">
-    {% if sessions_are_included %}
         <ul class="nav nav-tabs buy-courses-tabs" role="tablist">
             <li id="buy-courses-tab" class="{{ showing_courses ? 'active' : '' }}" role="presentation">
                 <a href="course_catalog.php" aria-controls="buy-courses" role="tab">{{ 'Courses'|get_lang }}</a>
             </li>
-            <li id="buy-sessions-tab" class="{{ showing_sessions ? 'active' : '' }}" role="presentation">
-                <a href="session_catalog.php" aria-controls="buy-sessions" role="tab">{{ 'Sessions'|get_lang }}</a>
-            </li>
+            {% if sessions_are_included %}
+                <li id="buy-sessions-tab" class="{{ showing_sessions ? 'active' : '' }}" role="presentation">
+                    <a href="session_catalog.php" aria-controls="buy-sessions" role="tab">{{ 'Sessions'|get_lang }}</a>
+                </li>
+            {% endif %}
+            {% if services_are_included %}
+                <li id="buy-sessions-tab" class="{{ showing_services ? 'active' : '' }}" role="presentation">
+                    <a href="service_catalog.php" aria-controls="buy-services" role="tab">{{ 'Services'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                </li>
+            {% endif %}
         </ul>
-    {% endif %}
 
     <div class="tab-content">
         <div class="tab-pane active" aria-labelledby="buy-sessions-tab" role="tabpanel">
@@ -97,6 +102,44 @@
                                                     </a>
                                                 </div>
                                             {% elseif session.enrolled == "TMP" %}
+                                                <div class="alert alert-info">{{ 'WaitingToReceiveThePayment'|get_plugin_lang('BuyCoursesPlugin') }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </article>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                            
+                        {% if showing_services %}
+                            {% for service in services %}
+                                <div class="col-md-4 col-sm-6">
+                                    <article class="thumbnail">
+                                        <img alt="{{ service.title }}" class="img-responsive" src="{{ service.course_img ? service.course_img : 'session_default.png'|icon() }}">
+                                        <div class="caption">
+                                            {% set service_description_url = _p.web_ajax ~ 'course_home.ajax.php?' ~ {'code': service.code, 'a': 'show_course_information'}|url_encode() %}
+                                            <h3>
+                                                <a class="ajax" href="{{ service_description_url }}" data-title="{{ service.title }}">{{ service.title }}</a>
+                                            </h3>
+                                            <ul class="list-unstyled">
+                                                {% for teacher in service.teachers %}
+                                                    <li><em class="fa fa-user"></em> {{ teacher }}</li>
+                                                    {% endfor %}
+                                            </ul>
+                                            <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
+                                            {% if service.enrolled == "YES" %}
+                                                <div class="alert alert-success">
+                                                    <em class="fa fa-check-square-o fa-fw"></em> {{ 'TheUserIsAlreadyRegisteredInTheCourse'|get_plugin_lang('BuyCoursesPlugin') }}
+                                                </div>
+                                            {% elseif service.enrolled == "NO" %}
+                                                <div class="text-center">
+                                                    <a class="ajax btn btn-primary" title="" href="{{ service_description_url }}" data-title="{{ service.title }}">
+                                                        <em class="fa fa-file-text"></em> {{ 'SeeDescription'|get_plugin_lang('BuyCoursesPlugin') }}
+                                                    </a>
+                                                    <a class="btn btn-success" title="" href="{{ _p.web_plugin ~ 'buycourses/src/process.php?' ~ {'i': service.id, 't': 1}|url_encode() }}">
+                                                        <em class="fa fa-shopping-cart"></em> {{ 'Buy'|get_plugin_lang('BuyCoursesPlugin') }}
+                                                    </a>
+                                                </div>
+                                            {% elseif service.enrolled == "TMP" %}
                                                 <div class="alert alert-info">{{ 'WaitingToReceiveThePayment'|get_plugin_lang('BuyCoursesPlugin') }}</div>
                                             {% endif %}
                                         </div>

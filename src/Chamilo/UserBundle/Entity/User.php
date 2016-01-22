@@ -717,6 +717,14 @@ class User extends BaseUser //implements ParticipantInterface, ThemeUser
     }
 
     /**
+     * @return string
+     */
+    public function getCompleteNameWithUsername()
+    {
+        return api_get_person_name($this->firstname, $this->lastname).' ('.$this->username.')';
+    }
+
+    /**
      * Returns the list of classes for the user
      * @return string
      */

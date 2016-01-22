@@ -209,6 +209,46 @@ $saleTable->addForeignKeyConstraint(
     ['onDelete' => 'CASCADE']
 );
 
+
+$servicesTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICES);
+$servicesTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$servicesTable->addColumn('name', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('description', \Doctrine\DBAL\Types\Type::TEXT);
+$servicesTable->addColumn('price', \Doctrine\DBAL\Types\Type::FLOAT);
+$servicesTable->addColumn('duration_days', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('renewable', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('applies_to', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('owner_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('visibility', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->setPrimaryKey(['id']);
+
+$servicesNodeTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICES_NODE);
+$servicesNodeTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$servicesNodeTable->addColumn(
+        'service_id',
+        \Doctrine\DBAL\Types\Type::INTEGER,
+        ['unsigned' => true]
+);
+$servicesNodeTable->addColumn('node_type', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('node_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('date_start', \Doctrine\DBAL\Types\Type::DATETIME);
+$servicesNodeTable->addColumn('date_end', \Doctrine\DBAL\Types\Type::DATETIME);
+$servicesNodeTable->setPrimaryKey(['id']);
+$servicesNodeTable->addForeignKeyConstraint(
+    $servicesTable,
+    ['service_id'],
+    ['id'],
+    ['onDelete' => 'CASCADE']
+);
+
 $queries = $pluginSchema->toSql($platform);
 
 foreach ($queries as $query) {
