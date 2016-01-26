@@ -59,7 +59,7 @@ $form->addCheckBox('renewable', $plugin->get_lang('Renewable'));
 $form->addElement(
     'radio',
     'applies_to',
-    $plugin->get_lang('ApliesTo'),
+    $plugin->get_lang('AppliesTo'),
     get_lang('None'),
     0
 );

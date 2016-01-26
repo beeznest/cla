@@ -114,16 +114,23 @@
                             {% for service in services %}
                                 <div class="col-md-4 col-sm-6">
                                     <article class="thumbnail">
-                                        <img alt="{{ service.title }}" class="img-responsive" src="{{ service.course_img ? service.course_img : 'session_default.png'|icon() }}">
                                         <div class="caption">
-                                            {% set service_description_url = _p.web_ajax ~ 'course_home.ajax.php?' ~ {'code': service.code, 'a': 'show_course_information'}|url_encode() %}
                                             <h3>
-                                                <a class="ajax" href="{{ service_description_url }}" data-title="{{ service.title }}">{{ service.title }}</a>
+                                                {{ service.name }}
                                             </h3>
                                             <ul class="list-unstyled">
-                                                {% for teacher in service.teachers %}
-                                                    <li><em class="fa fa-user"></em> {{ teacher }}</li>
-                                                    {% endfor %}
+                                                {% if service.applies_to == 0 %}
+                                                <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'None' | get_lang }}</li>
+                                                {% elseif service.applies_to == 1 %}
+                                                <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'User' | get_lang }}</li>
+                                                {% elseif service.applies_to == 2 %}
+                                                <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'Course' | get_lang }}</li>
+                                                {% elseif service.applies_to == 3 %}
+                                                <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'Session' | get_lang }}</li>
+                                                {% endif %}
+                                                <li><em class="fa fa-clock-o"></em> {{ 'Duration'|get_plugin_lang('BuyCoursesPlugin') }} : {{ service.duration_days }} {{ 'Days' | get_lang }}</li>
+                                                <li><em class="fa fa-user"></em> {{ service.owner_name }}</li>
+                                                <li><em class="fa fa-align-justify"></em> {{ service.description }}</li>
                                             </ul>
                                             <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
                                             {% if service.enrolled == "YES" %}
@@ -132,10 +139,7 @@
                                                 </div>
                                             {% elseif service.enrolled == "NO" %}
                                                 <div class="text-center">
-                                                    <a class="ajax btn btn-primary" title="" href="{{ service_description_url }}" data-title="{{ service.title }}">
-                                                        <em class="fa fa-file-text"></em> {{ 'SeeDescription'|get_plugin_lang('BuyCoursesPlugin') }}
-                                                    </a>
-                                                    <a class="btn btn-success" title="" href="{{ _p.web_plugin ~ 'buycourses/src/process.php?' ~ {'i': service.id, 't': 1}|url_encode() }}">
+                                                    <a class="btn btn-success" title="" href="{{ _p.web_plugin ~ 'buycourses/src/service_process.php?' ~ {'i': service.id, 't': service.applies_to}|url_encode() }}">
                                                         <em class="fa fa-shopping-cart"></em> {{ 'Buy'|get_plugin_lang('BuyCoursesPlugin') }}
                                                     </a>
                                                 </div>

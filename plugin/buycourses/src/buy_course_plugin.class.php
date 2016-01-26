@@ -31,6 +31,12 @@ class BuyCoursesPlugin extends Plugin
     const SALE_STATUS_CANCELED = -1;
     const SALE_STATUS_PENDING = 0;
     const SALE_STATUS_COMPLETED = 1;
+    const SERVICE_STATUS_PENDING = 0;
+    const SERVICE_STATUS_COMPLETED = 1;
+    const SERVICE_STATUS_CANCELED = -1;
+    const SERVICE_TYPE_USER = 1;
+    const SERVICE_TYPE_COURSE = 2;
+    const SERVICE_TYPE_SESSION = 3;
 
     /**
      *
@@ -1697,13 +1703,47 @@ class BuyCoursesPlugin extends Plugin
         $innerJoins = "INNER JOIN $userTable u ON s.owner_id = u.id";
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
-        $services = Database::select(
+        $return = Database::select(
             "s.*, '$isoCode' as currency, u.firstname, u.lastname",
             "$servicesTable s $innerJoins",
             $conditions,
             $showData
         );
         
+        $services = [];
+        
+        if ($id) {
+            $services['id'] = $return['id'];
+            $services['name'] = $return['name'];
+            $services['description'] = $return['description'];
+            $services['price'] = $return['price'];
+            $services['currency'] = $return['currency'];
+            $services['duration_days'] = $return['duration_days'];
+            $services['renewable'] = $return['renewable'];
+            $services['applies_to'] = $return['applies_to'];
+            $services['owner_id'] = $return['owner_id'];
+            $services['owner_name'] = api_get_person_name($return['firstname'], $return['lastname']);
+            $services['visibility'] = $return['visibility'];
+            $services['enrolled'] = "NO";
+            
+            return $services;
+        }
+        
+        foreach ($return as $index => $service) {
+            $services[$index]['id'] = $service['id'];
+            $services[$index]['name'] = $service['name'];
+            $services[$index]['description'] = $service['description'];
+            $services[$index]['price'] = $service['price'];
+            $services[$index]['currency'] = $service['currency'];
+            $services[$index]['duration_days'] = $service['duration_days'];
+            $services[$index]['renewable'] = $service['renewable'];
+            $services[$index]['applies_to'] = $service['applies_to'];
+            $services[$index]['owner_id'] = $service['owner_id'];
+            $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
+            $services[$index]['visibility'] = $service['visibility'];
+            $services[$index]['enrolled'] = "NO";
+        }
+                
         return $services;
     }
     
@@ -1712,39 +1752,200 @@ class BuyCoursesPlugin extends Plugin
      * @param string $name Optional. The name filter
      * @param int $min Optional. The minimum price filter
      * @param int $max Optional. The maximum price filter
+     * @param int $appliesTo Optional.
+     * @param int $renewable Optional.
      * @return array
      */
-    public function getCatalogServiceList($name = null, $min = 0, $max = 0)
+    public function getCatalogServiceList($name = null, $min = 0, $max = 0, $appliesTo = '', $renewable = '')
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         $userTable = Database::get_main_table(TABLE_MAIN_USER);
         
-        if (empty($name) && empty($min) && empty($max)) {
-            return $this->getServices();
-        } else {
-            $conditions = ['WHERE' => ['s.name LIKE "%?%"' => [$name, ]]];
+        $whereConditions = [
+            's.id <> ? ' => 0
+        ];
+        
+        if (!empty($name)) {
+            $whereConditions['AND s.name LIKE %?%'] = $name;
+        }
+
+        if (!empty($min)) {
+            $whereConditions['AND s.price >= ?'] = $min;
+        }
+
+        if (!empty($max)) {
+            $whereConditions['AND s.price <= ?'] = $max;
+        }
+       
+        if (!$appliesTo == '') {
+            $whereConditions['AND s.applies_to = ?'] = $appliesTo;
         }
         
-        $conditions = null;
-        $showData = "all";
-        
-        if ($id) {
-            $conditions = ['WHERE' => ['s.id = ?' => $id]];
-            $showData = "first";
+        if (!$renewable == '') {
+            $whereConditions['AND s.renewable = ?'] = $renewable;
         }
         
         $innerJoins = "INNER JOIN $userTable u ON s.owner_id = u.id";
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
-        $services = Database::select(
+        $return = Database::select(
             "s.*, '$isoCode' as currency, u.firstname, u.lastname",
             "$servicesTable s $innerJoins",
+            ['WHERE' => $whereConditions]
+        );
+        
+        $services = [];
+        
+        foreach ($return as $index => $service) {
+            $services[$index]['id'] = $service['id'];
+            $services[$index]['name'] = $service['name'];
+            $services[$index]['description'] = $service['description'];
+            $services[$index]['price'] = $service['price'];
+            $services[$index]['currency'] = $service['currency'];
+            $services[$index]['duration_days'] = $service['duration_days'];
+            $services[$index]['renewable'] = $service['renewable'];
+            $services[$index]['applies_to'] = $service['applies_to'];
+            $services[$index]['owner_id'] = $service['owner_id'];
+            $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
+            $services[$index]['visibility'] = $service['visibility'];
+            $services[$index]['enrolled'] = "NO";
+        }
+                
+        return $services;
+        
+    }
+    
+    /**
+     * Register a Service sale
+     * @param int $serviceId The service ID
+     * @param int $paymentType The payment type
+     * @param int $infoSelect The ID for Service Type
+     * @return boolean
+     */
+    public function registerServiceSale($serviceId, $paymentType, $infoSelect)
+    {
+        if (!in_array($paymentType, [self::PAYMENT_TYPE_PAYPAL, self::PAYMENT_TYPE_TRANSFER])) {
+            return false;
+        }
+
+        $service = $this->getServices($serviceId);
+
+        if (empty($service)) {
+            return false;
+        }
+        
+        $currency = $this->getSelectedCurrency();
+
+        $values = [
+            'service_id' => $serviceId,
+            'reference' => $this->generateReference(
+                api_get_user_id(),
+                $service['applies_to'],
+                $infoSelect
+            ),
+            'currency_id' => $currency['id'],
+            'price' => $service['price'],
+            'node_type' => $service['applies_to'],
+            'node_id' => intval($infoSelect),
+            'buyer_id' => api_get_user_id(),
+            'buy_date' => api_get_utc_datetime(),
+            'date_start' => api_get_utc_datetime(),
+            'date_end' => date_format(date_add(date_create(api_get_utc_datetime()), date_interval_create_from_date_string($service['duration_days'].' days')), 'Y-m-d H:i:s'),
+            'status' => self::SERVICE_STATUS_PENDING,
+            'payment_type' => intval($paymentType)
+        ];
+
+        return Database::insert(self::TABLE_SERVICES_NODE, $values);
+    }
+    
+    /**
+     * List services sales
+     * @param integer $id service id
+     * @return array
+     */
+    public function getServiceSale($id = null)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
+        $userTable = Database::get_main_table(TABLE_MAIN_USER);
+        
+        $conditions = null;
+        $showData = "all";
+        
+        if ($id) {
+            $conditions = ['WHERE' => ['ss.id = ?' => $id]];
+            $showData = "first";
+        }
+        
+        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id INNER JOIN $userTable u ON ss.buyer_id = u.id";
+        $currency = $this->getSelectedCurrency();
+        $isoCode = $currency['iso_code'];
+        $return = Database::select(
+            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, '$isoCode' as currency, u.firstname, u.lastname",
+            "$servicesSaleTable ss $innerJoins",
             $conditions,
             $showData
         );
-                
+        
+        $buyer = api_get_user_info();
+        $servicesSale = [];
+        
+        if ($id) {
+            $servicesSale['id'] = $return['id'];
+            $servicesSale['service']['id'] = $return['service_id'];
+            $servicesSale['service']['name'] = $return['name'];
+            $servicesSale['service']['description'] = $return['description'];
+            $servicesSale['service']['price'] = $return['service_price'];
+            $servicesSale['service']['duration_days'] = $return['duration_days'];
+            $servicesSale['service']['renewable'] = $return['renewable'];
+            $servicesSale['service']['applies_to'] = $return['applies_to'];
+            $servicesSale['service']['owner']['id'] = $return['owner_id'];
+            $servicesSale['service']['owner']['name'] = api_get_person_name($return['firstname'], $return['lastname']);
+            $servicesSale['service']['visibility'] = $return['visibility'];
+            $servicesSale['reference'] = $return['reference'];
+            $servicesSale['currency_id'] = $return['currency_id'];
+            $servicesSale['price'] = $return['price'];
+            $servicesSale['node_type'] = $return['node_type'];
+            $servicesSale['node_id'] = $return['node_id'];
+            $servicesSale['buyer']['id'] = $buyer['user_id'];
+            $servicesSale['buyer']['name'] = api_get_person_name($buyer['firstname'], $buyer['lastname']);
+            $servicesSale['buy_date'] = $return['buy_date'];
+            $servicesSale['date_start'] = $return['date_start'];
+            $servicesSale['date_end'] = $return['date_end'];
+            $servicesSale['status'] = $return['status'];
+            $servicesSale['payment_type'] = $return['payment_type'];
+            
+            return $servicesSale;
+        }
         
         
+        foreach ($return as $index => $service) {
+            $servicesSale[$index]['id'] = $service['id'];
+            $servicesSale[$index]['service']['id'] = $service['service_id'];
+            $servicesSale[$index]['service']['name'] = $service['name'];
+            $servicesSale[$index]['service']['description'] = $service['description'];
+            $servicesSale[$index]['service']['price'] = $service['service_price'];
+            $servicesSale[$index]['service']['duration_days'] = $service['duration_days'];
+            $servicesSale[$index]['service']['renewable'] = $service['renewable'];
+            $servicesSale[$index]['service']['applies_to'] = $service['applies_to'];
+            $servicesSale[$index]['service']['owner']['id'] = $service['owner_id'];
+            $servicesSale[$index]['service']['owner']['name'] = api_get_person_name($service['firstname'], $service['lastname']);
+            $servicesSale[$index]['service']['visibility'] = $service['visibility'];
+            $servicesSale[$index]['reference'] = $service['reference'];
+            $servicesSale[$index]['currency_id'] = $service['currency_id'];
+            $servicesSale[$index]['price'] = $service['price'];
+            $servicesSale[$index]['node_type'] = $service['node_type'];
+            $servicesSale[$index]['node_id'] = $service['node_id'];
+            $servicesSale[$index]['buyer']['id'] = $service['user_id'];
+            $servicesSale[$index]['buyer']['name'] = api_get_person_name($buyer['firstname'], $buyer['lastname']);
+            $servicesSale[$index]['buy_date'] = $service['buy_date'];
+            $servicesSale[$index]['date_start'] = $service['date_start'];
+            $servicesSale[$index]['date_end'] = $service['date_end'];
+            $servicesSale[$index]['status'] = $service['status'];
+            $servicesSale[$index]['payment_type'] = $service['payment_type'];
+        }
+
+        return $servicesSale;
     }
 
 }

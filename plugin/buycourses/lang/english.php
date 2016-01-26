@@ -135,3 +135,7 @@ $strings['SWIFT_help'] = "Standard format of Bank Identifier Codes (BIC) and ser
 $strings['Services'] = "Services";
 $strings['Service'] = "Service";
 $strings['Renewable'] = "Renewable";
+$strings['TheUserIsAlreadyOwnThisService'] = "You have already purchased this Service.";
+$strings['AppliesTo'] = "Applies to";
+$strings['AdditionalInfo'] = "Additional info";
+$strings['PleaseSelectTheCorrectInfoToApplyTheService'] = "Please select the correct info to apply the service";

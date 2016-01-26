@@ -218,7 +218,11 @@ $servicesTable->addColumn(
 );
 $servicesTable->addColumn('name', \Doctrine\DBAL\Types\Type::STRING);
 $servicesTable->addColumn('description', \Doctrine\DBAL\Types\Type::TEXT);
-$servicesTable->addColumn('price', \Doctrine\DBAL\Types\Type::FLOAT);
+$servicesTable->addColumn(
+    'price',
+    \Doctrine\DBAL\Types\Type::DECIMAL,
+    ['scale' => 2]
+);
 $servicesTable->addColumn('duration_days', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('renewable', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('applies_to', \Doctrine\DBAL\Types\Type::INTEGER);
@@ -237,10 +241,28 @@ $servicesNodeTable->addColumn(
         \Doctrine\DBAL\Types\Type::INTEGER,
         ['unsigned' => true]
 );
+$servicesNodeTable->addColumn('reference', \Doctrine\DBAL\Types\Type::STRING);
+$servicesNodeTable->addColumn('currency_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn(
+    'price',
+    \Doctrine\DBAL\Types\Type::DECIMAL,
+    ['scale' => 2]
+);
 $servicesNodeTable->addColumn('node_type', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->addColumn('node_id', \Doctrine\DBAL\Types\Type::INTEGER);
-$servicesNodeTable->addColumn('date_start', \Doctrine\DBAL\Types\Type::DATETIME);
-$servicesNodeTable->addColumn('date_end', \Doctrine\DBAL\Types\Type::DATETIME);
+$servicesNodeTable->addColumn('buyer_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('buy_date', \Doctrine\DBAL\Types\Type::DATETIME);
+$servicesNodeTable->addColumn(
+        'date_start',
+        \Doctrine\DBAL\Types\Type::DATETIME,
+        ['notnull' => false]
+);
+$servicesNodeTable->addColumn(
+        'date_end',
+        \Doctrine\DBAL\Types\Type::DATETIME
+);
+$servicesNodeTable->addColumn('status', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('payment_type', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->setPrimaryKey(['id']);
 $servicesNodeTable->addForeignKeyConstraint(
     $servicesTable,

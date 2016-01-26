@@ -135,3 +135,7 @@ $strings['SWIFT_help'] = "Format standard des codes d'identification de banque (
 $strings['Services'] = "Services";
 $strings['Service'] = "Service";
 $strings['Renewable'] = "Renouvelable";
+$strings['TheUserIsAlreadyOwnThisService'] = "Vous avez déjà acheté ce Service.";
+$strings['AppliesTo'] = "s'applique à";
+$strings['AdditionalInfo'] = "Information additionnelle";
+$strings['PleaseSelectTheCorrectInfoToApplyTheService'] = "S'il vous plaît Sélectionnez les informations correctes pour appliquer le Service";

@@ -137,3 +137,7 @@ $strings['Service'] = "Servicio";
 $strings['NewService'] = "Nuevo Servicio";
 $strings['ServiceName'] = "Nombre de Servicio";
 $strings['Renewable'] = "Renovable";
+$strings['TheUserIsAlreadyOwnThisService'] = "Usted ya ha comprado este Servicio.";
+$strings['AppliesTo'] = "Aplicable a";
+$strings['AdditionalInfo'] = "Información adicional";
+$strings['PleaseSelectTheCorrectInfoToApplyTheService'] = "Porfavor Seleccione la información correcta para aplicar el servicio";

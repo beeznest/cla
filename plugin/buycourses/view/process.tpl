@@ -43,6 +43,32 @@
                         {% endfor %}
                     </dl>
                 </div>
+            {% elseif buying_service %}
+                <div class="col-sm-6 col-md-5">
+                    <p>
+                        <img alt="{{ service.name }}" class="img-responsive" src="{{ service.image ? service.image : 'session_default.png'|icon() }}">
+                    </p>
+                    <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
+                </div>
+                <div class="col-sm-6 col-md-7">
+                    <h3>
+                        {{ service.name }}
+                    </h3>
+                    <ul class="list-unstyled">
+                        {% if service.applies_to == 0 %}
+                        <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'None' | get_lang }}</li>
+                        {% elseif service.applies_to == 1 %}
+                        <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'User' | get_lang }}</li>
+                        {% elseif service.applies_to == 2 %}
+                        <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'Course' | get_lang }}</li>
+                        {% elseif service.applies_to == 3 %}
+                        <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'Session' | get_lang }}</li>
+                        {% endif %}
+                        <li><em class="fa fa-clock-o"></em> {{ 'Duration'|get_plugin_lang('BuyCoursesPlugin') }} : {{ service.duration_days }} {{ 'Days' | get_lang }}</li>
+                        <li><em class="fa fa-user"></em> {{ service.owner_name }}</li>
+                        <li><em class="fa fa-align-justify"></em> {{ service.description }}</li>
+                    </ul>            
+                </div>
             {% endif %}
         </div>
     </div>

@@ -180,7 +180,7 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                {{ item.lastname }}, {{ item.firstname }}
+                                {{ item.owner_name }}
                             </td>
                             <td class="text-right" width="200">
                                 {{ "#{item.price} #{tem.currency ?: item.currency}" }}
