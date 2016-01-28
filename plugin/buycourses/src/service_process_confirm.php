@@ -18,7 +18,7 @@ if (empty($serviceSaleId)) {
 }
 
 $serviceSale = $plugin->getServiceSale($serviceSaleId);
-
+var_dump($serviceSale);
 if (empty($serviceSale)) {
     api_not_allowed(true);
 }
@@ -82,7 +82,7 @@ switch ($serviceSale['payment_type']) {
         }
 
         $transferAccounts = $plugin->getTransferAccounts();
-        $userInfo = api_get_user_info($sale['user_id']);
+        $userInfo = api_get_user_info($serviceSale['buyer']['id']);
 
         $form = new FormValidator('success', 'POST', api_get_self(), null, null, FormValidator::LAYOUT_INLINE);
 
@@ -90,9 +90,9 @@ switch ($serviceSale['payment_type']) {
             $formValues = $form->getSubmitValues();
 
             if (isset($formValues['cancel'])) {
-                $plugin->cancelSale($sale['id']);
+                $plugin->cancelSale($serviceSale['id']);
 
-                unset($_SESSION['bc_sale_id']);
+                unset($_SESSION['bc_service_sale_id']);
 
                 header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/index.php');
                 exit;
@@ -101,13 +101,15 @@ switch ($serviceSale['payment_type']) {
             $messageTemplate = new Template();
             $messageTemplate->assign('user', $userInfo);
             $messageTemplate->assign(
-                'sale',
+                'service_sale',
                 [
-                    'date' => api_format_date($sale['date'], DATE_FORMAT_LONG_NO_DAY),
-                    'product' => $sale['product_name'],
+                    'name' => $serviceSale['service']['name'],
+                    'buy_date' => api_format_date($serviceSale['buy_date'], DATE_FORMAT_LONG),
+                    'start_date' => api_format_date($serviceSale['start_date'], DATE_FORMAT_LONG),
+                    'end_date' => api_format_date($serviceSale['end_date'], DATE_FORMAT_LONG),
                     'currency' => $currency['iso_code'],
-                    'price' => $sale['price'],
-                    'reference' => $sale['reference']
+                    'price' => $serviceSale['price'],
+                    'reference' => $serviceSale['reference']
                 ]
             );
             $messageTemplate->assign('transfer_accounts', $transferAccounts);
@@ -130,7 +132,7 @@ switch ($serviceSale['payment_type']) {
                 )
             );
 
-            unset($_SESSION['bc_sale_id']);
+            unset($_SESSION['bc_service_sale_id']);
             header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/course_catalog.php');
             exit;
         }
@@ -140,18 +142,9 @@ switch ($serviceSale['payment_type']) {
 
         $template = new Template();
 
-        if ($buyingCourse) {
-            $template->assign('course', $course);
-        } elseif ($buyingSession) {
-            $template->assign('session', $session);
-        }
-
-        $template->assign('buying_course', $buyingCourse);
-        $template->assign('buying_session', $buyingSession);
-
-        $template->assign('title', $sale['product_name']);
-        $template->assign('price', $sale['price']);
-        $template->assign('currency', $sale['currency_id']);
+        $template->assign('title', $serviceSale['service']['name']);
+        $template->assign('price', $serviceSale['price']);
+        $template->assign('currency', $serviceSale['currency_id']);
         $template->assign('user', $userInfo);
         $template->assign('transfer_accounts', $transferAccounts);
         $template->assign('form', $form->returnForm());
