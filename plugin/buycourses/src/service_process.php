@@ -84,18 +84,20 @@ if ($typeUser) {
     }
     $form->addSelect('info_select',get_lang('User'), $selectOptions);
 } elseif ($typeCourse) {
-    $courses = $em->getRepository('ChamiloCoreBundle:Course')->findAll();
+    $user = $em->getRepository('ChamiloUserBundle:User')->find($currentUserId);
+    $courses = $user->getCourses();
     if (!empty($courses)) {
         foreach ($courses as $course) {
-            $selectOptions[$courses->getId()] = $courses->getTitle();
+            $selectOptions[$course->getCourse()->getId()] = $course->getCourse()->getTitle();
         }
     }
     $form->addSelect('info_select',get_lang('Course'), $selectOptions);
 } elseif ($typeSession) {
-    $sessions = $em->getRepository('ChamiloCoreBundle:Session')->findAll();
+    $user = $em->getRepository('ChamiloUserBundle:User')->find($currentUserId);
+    $sessions = $user->getSessionCourseSubscriptions();
     if (!empty($sessions)) {
         foreach ($sessions as $session) {
-            $selectOptions[$session->getId()] = $session->getName();
+            $selectOptions[$session->getSession()->getId()] = $session->getSession()->getName();
         }
     }
     $form->addSelect('info_select',get_lang('Session'), $selectOptions);

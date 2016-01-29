@@ -114,6 +114,15 @@
                             {% for service in services %}
                                 <div class="col-md-4 col-sm-6">
                                     <article class="thumbnail">
+                                        {% if service.applies_to == 0 %}
+                                            <img alt="{{ service.name }}" class="img-responsive" src="{{ 'session_default.png'|icon() }}">
+                                        {% elseif service.applies_to == 1 %}
+                                            <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-user.png">
+                                        {% elseif service.applies_to == 2 %}
+                                            <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-course.png">
+                                        {% elseif service.applies_to == 3 %}
+                                            <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-session.png">
+                                        {% endif %}
                                         <div class="caption">
                                             <h3>
                                                 {{ service.name }}

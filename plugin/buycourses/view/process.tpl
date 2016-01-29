@@ -1,5 +1,3 @@
-<script type='text/javascript' src="../js/buycourses.js"></script>
-
 <div class="row">
     <div class="col-md-7">
         <h3 class="page-header">{{ 'PurchaseData'|get_plugin_lang('BuyCoursesPlugin') }}</h3>
@@ -45,9 +43,16 @@
                 </div>
             {% elseif buying_service %}
                 <div class="col-sm-6 col-md-5">
-                    <p>
-                        <img alt="{{ service.name }}" class="img-responsive" src="{{ service.image ? service.image : 'session_default.png'|icon() }}">
-                    </p>
+                    {% if service.applies_to == 0 %}
+                        <img alt="{{ service.name }}" class="img-responsive" src="{{ 'session_default.png'|icon() }}">
+                    {% elseif service.applies_to == 1 %}
+                        <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-user.png">
+                    {% elseif service.applies_to == 2 %}
+                        <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-course.png">
+                    {% elseif service.applies_to == 3 %}
+                        <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-session.png">
+                    {% endif %}
+                        
                     <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
                 </div>
                 <div class="col-sm-6 col-md-7">

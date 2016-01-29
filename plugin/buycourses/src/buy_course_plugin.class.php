@@ -1863,7 +1863,7 @@ class BuyCoursesPlugin extends Plugin
      * @param integer $id service id
      * @return array
      */
-    public function getServiceSale($id = null)
+    public function getServiceSale($id = null, $buyerId = null)
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
@@ -1875,6 +1875,14 @@ class BuyCoursesPlugin extends Plugin
         if ($id) {
             $conditions = ['WHERE' => ['ss.id = ?' => $id]];
             $showData = "first";
+        }
+        
+        if ($buyerId) {
+            $conditions = ['WHERE' => ['ss.buyer_id = ?' => $buyerId]];
+        }
+        
+        if ($id && $buyerId) {
+            $conditions = ['WHERE' => ['ss.id = ? AND ss.buyer_id = ?' => [$id, $buyerId]]];
         }
         
         $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id INNER JOIN $userTable u ON ss.buyer_id = u.id";
