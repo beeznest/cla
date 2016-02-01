@@ -13,10 +13,11 @@ require_once '../../../main/inc/global.inc.php';
 
 $plugin = BuyCoursesPlugin::create();
 $includeSessions = $plugin->get('include_sessions') === 'true';
+$includeServices = $plugin->get('include_services') === 'true';
 
 $userInfo = api_get_user_info();
 
-$payouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED, false, $userInfo['id']);
+$payouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED, false, $userInfo['user_id']);
 
 $payoutList = [];
 
@@ -47,6 +48,7 @@ $templateName = get_lang('TabsDashboard');
 $tpl = new Template($templateName);
 $tpl->assign('showing_courses', true);
 $tpl->assign('sessions_are_included', $includeSessions);
+$tpl->assign('services_are_included', $includeServices);
 $tpl->assign('payout_list', $payoutList);
 
 $content = $tpl->fetch('buycourses/view/payout_panel.tpl');

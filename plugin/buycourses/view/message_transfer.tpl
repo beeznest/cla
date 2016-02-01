@@ -3,14 +3,18 @@
     <p>{{ 'PurchaseDetailsIntro'|get_plugin_lang('BuyCoursesPlugin') }}</p>
     <dl>
         <dt>{{ 'OrderDate'|get_plugin_lang('BuyCoursesPlugin') }}</dt>
-        <dd>{{ sale.date }}</dd>
+        <dd>{{ sale.buy_date }}</dd>
+        <dt>{{ 'Service'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'StartDate'|get_plugin_lang('BuyCoursesPlugin') }}</dt>
+        <dd>{{ sale.start_date }}</dd>
+        <dt>{{ 'Service'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'EndDate'|get_plugin_lang('BuyCoursesPlugin') }}</dt>
+        <dd>{{ sale.end_date }}</dd>
         <dt>{{ 'OrderReference'|get_plugin_lang('BuyCoursesPlugin') }}</dt>
-        <dd>sale.reference</dd>
+        <dd>{{ sale.reference }}</dd>
         <dt>{{ 'UserName'|get_lang }}</dt>
-        <dd>{{ user.complete_name }}</dd>
+        <dd>{{ sale.buyer }}</dd>
         <dt>{{ 'Course'|get_lang }}</dt>
-        <dd>{{ sale.product }}</dd>
-        <dt>{{ 'ProductName'|get_plugin_lang('BuyCoursesPlugin') }}</dt>
+        <dd>{{ sale.name }}</dd>
+        <dt>{{ 'Service'|get_plugin_lang('BuyCoursesPlugin') }}</dt>
         <dd>{{ sale.currency ~ ' ' ~ sale.price }}</dd>
     </dl>
     <p>{{ 'BankAccountIntro'|get_plugin_lang('BuyCoursesPlugin')|format(sale.product) }}</p>

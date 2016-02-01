@@ -34,7 +34,7 @@ if ($form->validate()) {
 }
 
 $form->addHeader($plugin->get_lang('SearchFilter'));
-$form->addText('name', get_lang('ServiceName'), false);
+$form->addText('name', $plugin->get_lang('ServiceName'), false);
 $form->addElement(
     'number',
     'min',
@@ -83,7 +83,7 @@ if (api_is_platform_admin()) {
     ];
 }
 
-$templateName = $plugin->get_lang('CourseListOnSale');
+$templateName = $plugin->get_lang('ServiceListOnSale');
 $tpl = new Template($templateName);
 $tpl->assign('search_filter_form', $form->returnForm());
 $tpl->assign('showing_services', true);

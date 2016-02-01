@@ -7,6 +7,6 @@
 /**
  * Config
  */
-unset($_SESSION['bc_sale_id']);
+unset($_SESSION['bc_service_sale_id']);
 
-header('Location: course_catalog.php');
+header('Location: service_catalog.php');

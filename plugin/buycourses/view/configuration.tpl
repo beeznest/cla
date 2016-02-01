@@ -135,7 +135,7 @@
     <div role="tabpanel" class="tab-pane" id="services">
         <div class="table-responsive">
             <a href="{{ _p.web_plugin ~ 'buycourses/src/services_add.php' }}" class="btn btn-primary">
-                <em class="fa fa-cart-plus fa-fw"></em> {{ 'NewService'|get_lang }}
+                <em class="fa fa-cart-plus fa-fw"></em> {{ 'NewService'| get_plugin_lang('BuyCoursesPlugin') }}
             </a>
             </br>
             </br>

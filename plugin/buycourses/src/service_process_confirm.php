@@ -18,7 +18,7 @@ if (empty($serviceSaleId)) {
 }
 
 $serviceSale = $plugin->getServiceSale($serviceSaleId);
-var_dump($serviceSale);
+
 if (empty($serviceSale)) {
     api_not_allowed(true);
 }
@@ -45,7 +45,7 @@ switch ($serviceSale['payment_type']) {
             $serviceSale['price'],
             $currency['iso_code'],
             'paypal',
-            api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/success.php',
+            api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_success.php',
             api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/error.php',
             $extra
         );
@@ -99,11 +99,11 @@ switch ($serviceSale['payment_type']) {
             }
 
             $messageTemplate = new Template();
-            $messageTemplate->assign('user', $userInfo);
             $messageTemplate->assign(
                 'service_sale',
                 [
                     'name' => $serviceSale['service']['name'],
+                    'buyer' => $serviceSale['buyer']['name'],
                     'buy_date' => api_format_date($serviceSale['buy_date'], DATE_FORMAT_LONG),
                     'start_date' => api_format_date($serviceSale['start_date'], DATE_FORMAT_LONG),
                     'end_date' => api_format_date($serviceSale['end_date'], DATE_FORMAT_LONG),
@@ -113,10 +113,10 @@ switch ($serviceSale['payment_type']) {
                 ]
             );
             $messageTemplate->assign('transfer_accounts', $transferAccounts);
-
+            $buyer = api_get_user_info($serviceSale['buyer']['id']);
             api_mail_html(
-                $userInfo['complete_name'],
-                $userInfo['email'],
+                $buyer['complete_name'],
+                $buyer['email'],
                 $plugin->get_lang('bc_subject'),
                 $messageTemplate->fetch('buycourses/view/message_transfer.tpl')
             );
@@ -145,7 +145,6 @@ switch ($serviceSale['payment_type']) {
         $template->assign('title', $serviceSale['service']['name']);
         $template->assign('price', $serviceSale['price']);
         $template->assign('currency', $serviceSale['currency_id']);
-        $template->assign('user', $userInfo);
         $template->assign('transfer_accounts', $transferAccounts);
         $template->assign('form', $form->returnForm());
 

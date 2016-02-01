@@ -845,6 +845,23 @@ class BuyCoursesPlugin extends Plugin
             ['id = ?' => intval($saleId)]
         );
     }
+    
+    /**
+     * Update the service sale status
+     * @param int $serviceSaleId The service sale ID
+     * @param int $newStatus The new status
+     * @return boolean
+     */
+    private function updateServiceSaleStatus($serviceSaleId, $newStatus = self::SERVICE_STATUS_PENDING)
+    {
+        $serviceSaleTable = Database::get_main_table(self::TABLE_SERVICES_NODE);
+
+        return Database::update(
+            $serviceSaleTable,
+            ['status' => intval($newStatus)],
+            ['id = ?' => intval($serviceSaleId)]
+        );
+    }
 
     /**
      * Complete sale process. Update sale status to completed
@@ -1889,7 +1906,7 @@ class BuyCoursesPlugin extends Plugin
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
         $return = Database::select(
-            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, '$isoCode' as currency, u.firstname, u.lastname",
+            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, '$isoCode' as currency, u.user_id, u.firstname, u.lastname",
             "$servicesSaleTable ss $innerJoins",
             $conditions,
             $showData
@@ -1912,6 +1929,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale['service']['visibility'] = $return['visibility'];
             $servicesSale['reference'] = $return['reference'];
             $servicesSale['currency_id'] = $return['currency_id'];
+            $servicesSale['currency'] = $return['currency'];
             $servicesSale['price'] = $return['price'];
             $servicesSale['node_type'] = $return['node_type'];
             $servicesSale['node_id'] = $return['node_id'];
@@ -1941,6 +1959,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale[$index]['service']['visibility'] = $service['visibility'];
             $servicesSale[$index]['reference'] = $service['reference'];
             $servicesSale[$index]['currency_id'] = $service['currency_id'];
+            $servicesSale[$index]['currency'] = $service['currency'];
             $servicesSale[$index]['price'] = $service['price'];
             $servicesSale[$index]['node_type'] = $service['node_type'];
             $servicesSale[$index]['node_id'] = $service['node_id'];
@@ -1954,6 +1973,33 @@ class BuyCoursesPlugin extends Plugin
         }
 
         return $servicesSale;
+    }
+    
+    /**
+     * Update service sale status to canceled
+     * @param int $serviceSaleId The sale ID
+     */
+    public function cancelServiceSale($serviceSaleId)
+    {
+        $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_CANCELED);
+    }
+    
+    /**
+     * Complete service sale process. Update service sale status to completed
+     * @param int $serviceSaleId The service sale ID
+     * @return boolean
+     */
+    public function completeServiceSale($serviceSaleId)
+    {
+        $serviceSale = $this->getServiceSale($serviceSaleId);
+
+        if ($serviceSale['status'] == self::SERVICE_STATUS_COMPLETED) {
+            return true;
+        }
+
+        $this->updateSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
+
+        return true;
     }
 
 }
