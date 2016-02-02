@@ -147,3 +147,6 @@ $strings['EditService'] = "Editar Servicio";
 $strings['StartDate'] = "Fecha de Inicio";
 $strings['EndDate'] = "Fecha de Fin";
 $strings['SubscriptionToServiceXSuccessful'] = "Tu subscripción al servicio \"%s\" se realizó correctamente.";
+$strings['ServicePayPalPaymentOKPleaseConfirm'] = "PayPal nos indicó que todo estaba listo para ejecutar el pago. Por seguridad, le pedimos confirme una última vez su pedido dando clic en el botón de confirmación a bajo. Una vez le haya dado clic, el servicio se activará y el monto correspondiente será retirado de su cuenta PayPal. Gracias por su compra!";
+$strings['EnableService'] = "Activar Servicio";
+$strings['ServiceType'] = "Tipo de Servicio";

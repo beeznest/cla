@@ -22,7 +22,7 @@
                 <th class="text-center">{{ 'OrderDate'|get_plugin_lang('BuyCoursesPlugin') }}</th>
                 <th class="text-center">{{ 'PaymentMethod'|get_plugin_lang('BuyCoursesPlugin') }}</th>
                 <th class="text-center">{{ 'Price'|get_plugin_lang('BuyCoursesPlugin') }}</th>
-                <th class="text-center">{{ 'ProductType'|get_plugin_lang('BuyCoursesPlugin') }}</th>
+                <th class="text-center">{{ 'ServiceType'|get_plugin_lang('BuyCoursesPlugin') }}</th>
                 <th>{{ 'Name'|get_lang }}</th>
                 <th>{{ 'UserName'|get_lang }}</th>
                 <th class="text-center">{{ 'Options'|get_lang }}</th>
@@ -44,13 +44,21 @@
                     <td class="text-center">{{ sale.date }}</td>
                     <td class="text-center">{{ sale.payment_type }}</td>
                     <td class="text-right">{{ sale.currency ~ ' ' ~ sale.price }}</td>
-                    <td class="text-center">{{ sale.product_type }}</td>
-                    <td>{{ sale.product_name }}</td>
+                    {% if sale.service_type == 0 %}
+                        <td class="text-center">{{ 'None' | get_lang }}</td>
+                    {% elseif sale.service_type == 1 %}
+                        <td class="text-center">{{ 'User' | get_lang }}</td>
+                    {% elseif sale.service_type == 2 %}
+                        <td class="text-center">{{ 'Course' | get_lang }}</td>
+                    {% elseif sale.service_type == 3 %}
+                        <td class="text-center">{{ 'Session' | get_lang }}</td>
+                    {% endif %}
+                    <td>{{ sale.service_name }}</td>
                     <td>{{ sale.complete_user_name }}</td>
                     <td class="text-center">
                         {% if sale.status == sale_status_pending %}
                             <a href="{{ _p.web_self ~ '?' ~ {'order': sale.id, 'action': 'confirm'}|url_encode() }}" class="btn btn-success btn-sm">
-                                <em class="fa fa-user-plus fa-fw"></em> {{ 'SubscribeUser'|get_plugin_lang('BuyCoursesPlugin') }}
+                                <em class="fa fa-user-plus fa-fw"></em> {{ 'EnableService'|get_plugin_lang('BuyCoursesPlugin') }}
                             </a>
                             <a href="{{ _p.web_self ~ '?' ~ {'order': sale.id, 'action': 'cancel'}|url_encode() }}" class="btn btn-danger btn-sm">
                                 <em class="fa fa-times fa-fw"></em> {{ 'DeleteOrder'|get_plugin_lang('BuyCoursesPlugin') }}

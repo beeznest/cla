@@ -104,10 +104,10 @@ switch ($serviceSale['payment_type']) {
                 [
                     'name' => $serviceSale['service']['name'],
                     'buyer' => $serviceSale['buyer']['name'],
-                    'buy_date' => api_format_date($serviceSale['buy_date'], DATE_FORMAT_LONG),
-                    'start_date' => api_format_date($serviceSale['start_date'], DATE_FORMAT_LONG),
-                    'end_date' => api_format_date($serviceSale['end_date'], DATE_FORMAT_LONG),
-                    'currency' => $currency['iso_code'],
+                    'buy_date' => api_format_date($serviceSale['buy_date'], DATE_TIME_FORMAT_LONG_24H),
+                    'start_date' => api_format_date($serviceSale['start_date'], DATE_TIME_FORMAT_LONG_24H),
+                    'end_date' => api_format_date($serviceSale['end_date'], DATE_TIME_FORMAT_LONG_24H),
+                    'currency' => $currency['currency'],
                     'price' => $serviceSale['price'],
                     'reference' => $serviceSale['reference']
                 ]
@@ -133,7 +133,7 @@ switch ($serviceSale['payment_type']) {
             );
 
             unset($_SESSION['bc_service_sale_id']);
-            header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/course_catalog.php');
+            header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
             exit;
         }
 
@@ -145,6 +145,9 @@ switch ($serviceSale['payment_type']) {
         $template->assign('title', $serviceSale['service']['name']);
         $template->assign('price', $serviceSale['price']);
         $template->assign('currency', $serviceSale['currency_id']);
+        $template->assign('buying_service', $serviceSale);
+        $template->assign('user', $userInfo);
+        $template->assign('service', $serviceSale);
         $template->assign('transfer_accounts', $transferAccounts);
         $template->assign('form', $form->returnForm());
 

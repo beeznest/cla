@@ -964,6 +964,19 @@ class BuyCoursesPlugin extends Plugin
     }
     
     /**
+     * Get the statuses for sales
+     * @return array
+     */
+    public function getServiceSaleStatuses()
+    {
+        return [
+            self::SERVICE_STATUS_CANCELED => $this->get_lang('SaleStatusCanceled'),
+            self::SERVICE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
+            self::SERVICE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
+        ];
+    }
+    
+    /**
      * Get the statuses for Payouts
      * @return array
      */
@@ -1880,33 +1893,36 @@ class BuyCoursesPlugin extends Plugin
      * @param integer $id service id
      * @return array
      */
-    public function getServiceSale($id = null, $buyerId = null)
+    public function getServiceSale($id = null, $buyerId = null, $status = null)
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
-        $userTable = Database::get_main_table(TABLE_MAIN_USER);
         
         $conditions = null;
         $showData = "all";
         
         if ($id) {
-            $conditions = ['WHERE' => ['ss.id = ?' => $id]];
+            $conditions = ['WHERE' => ['ss.id = ?' => $id], 'ORDER' => 'id ASC'];
             $showData = "first";
         }
         
         if ($buyerId) {
-            $conditions = ['WHERE' => ['ss.buyer_id = ?' => $buyerId]];
+            $conditions = ['WHERE' => ['ss.buyer_id = ?' => $buyerId], 'ORDER' => 'id ASC'];
+        }
+        
+        if (is_numeric($status)) {
+            $conditions = ['WHERE' => ['ss.status = ?' => $status], 'ORDER' => 'id ASC'];
         }
         
         if ($id && $buyerId) {
-            $conditions = ['WHERE' => ['ss.id = ? AND ss.buyer_id = ?' => [$id, $buyerId]]];
+            $conditions = ['WHERE' => ['ss.id = ? AND ss.buyer_id = ?' => [$id, $buyerId]], 'ORDER' => 'id ASC'];
         }
         
-        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id INNER JOIN $userTable u ON ss.buyer_id = u.id";
+        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id";
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
         $return = Database::select(
-            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, '$isoCode' as currency, u.user_id, u.firstname, u.lastname",
+            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, '$isoCode' as currency",
             "$servicesSaleTable ss $innerJoins",
             $conditions,
             $showData
@@ -1916,6 +1932,10 @@ class BuyCoursesPlugin extends Plugin
         $servicesSale = [];
         
         if ($id) {
+            
+            $owner = api_get_user_info($return['owner_id']);
+            $buyer = api_get_user_info($return['buyer_id']);
+            
             $servicesSale['id'] = $return['id'];
             $servicesSale['service']['id'] = $return['service_id'];
             $servicesSale['service']['name'] = $return['name'];
@@ -1925,7 +1945,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale['service']['renewable'] = $return['renewable'];
             $servicesSale['service']['applies_to'] = $return['applies_to'];
             $servicesSale['service']['owner']['id'] = $return['owner_id'];
-            $servicesSale['service']['owner']['name'] = api_get_person_name($return['firstname'], $return['lastname']);
+            $servicesSale['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
             $servicesSale['service']['visibility'] = $return['visibility'];
             $servicesSale['reference'] = $return['reference'];
             $servicesSale['currency_id'] = $return['currency_id'];
@@ -1946,6 +1966,10 @@ class BuyCoursesPlugin extends Plugin
         
         
         foreach ($return as $index => $service) {
+            
+            $owner = api_get_user_info($service['owner_id']);
+            $buyer = api_get_user_info($service['buyer_id']);
+            
             $servicesSale[$index]['id'] = $service['id'];
             $servicesSale[$index]['service']['id'] = $service['service_id'];
             $servicesSale[$index]['service']['name'] = $service['name'];
@@ -1955,7 +1979,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale[$index]['service']['renewable'] = $service['renewable'];
             $servicesSale[$index]['service']['applies_to'] = $service['applies_to'];
             $servicesSale[$index]['service']['owner']['id'] = $service['owner_id'];
-            $servicesSale[$index]['service']['owner']['name'] = api_get_person_name($service['firstname'], $service['lastname']);
+            $servicesSale[$index]['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
             $servicesSale[$index]['service']['visibility'] = $service['visibility'];
             $servicesSale[$index]['reference'] = $service['reference'];
             $servicesSale[$index]['currency_id'] = $service['currency_id'];
@@ -1963,7 +1987,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale[$index]['price'] = $service['price'];
             $servicesSale[$index]['node_type'] = $service['node_type'];
             $servicesSale[$index]['node_id'] = $service['node_id'];
-            $servicesSale[$index]['buyer']['id'] = $service['user_id'];
+            $servicesSale[$index]['buyer']['id'] = $service['buyer_id'];
             $servicesSale[$index]['buyer']['name'] = api_get_person_name($buyer['firstname'], $buyer['lastname']);
             $servicesSale[$index]['buy_date'] = $service['buy_date'];
             $servicesSale[$index]['date_start'] = $service['date_start'];
@@ -1997,7 +2021,7 @@ class BuyCoursesPlugin extends Plugin
             return true;
         }
 
-        $this->updateSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
+        $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
 
         return true;
     }

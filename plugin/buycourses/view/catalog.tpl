@@ -11,7 +11,7 @@
                 </li>
             {% endif %}
             {% if services_are_included %}
-                <li id="buy-sessions-tab" class="{{ showing_services ? 'active' : '' }}" role="presentation">
+                <li id="buy-services-tab" class="{{ showing_services ? 'active' : '' }}" role="presentation">
                     <a href="service_catalog.php" aria-controls="buy-services" role="tab">{{ 'Services'|get_plugin_lang('BuyCoursesPlugin') }}</a>
                 </li>
             {% endif %}

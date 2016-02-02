@@ -28,6 +28,7 @@
                 <th class="text-center">{{ 'PaymentMethod'|get_plugin_lang('BuyCoursesPlugin') }}</th>
                 <th class="text-center">{{ 'Price'|get_plugin_lang('BuyCoursesPlugin') }}</th>
                 <th class="text-center">{{ 'OrderDate'|get_plugin_lang('BuyCoursesPlugin') }}</th>
+                <th class="text-center">{{ 'Expire'|get_lang }}</th>
                 <th class="text-center">{{ 'OrderReference'|get_plugin_lang('BuyCoursesPlugin') }}</th>
             </tr>
         </thead>
@@ -38,6 +39,7 @@
                     <td class="text-center">{{ sale.payment_type }}</td>
                     <td class="text-right">{{ sale.currency ~ ' ' ~ sale.price }}</td>
                     <td class="text-center">{{ sale.date }}</td>
+                    <td class="text-center">{{ sale.date_end }}</td>
                     <td class="text-center">{{ sale.reference }}</td>
                 </tr>
             {% endfor %}

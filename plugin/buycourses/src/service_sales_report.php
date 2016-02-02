@@ -19,32 +19,32 @@ $commissionsEnable = $plugin->get('commissions_enable');
 $includeServices = $plugin->get('include_services');
 
 if (isset($_GET['order'])) {
-    $sale = $plugin->getSale($_GET['order']);
+    $serviceSale = $plugin->getServiceSale($_GET['order']);
 
-    if (empty($sale)) {
+    if (empty($serviceSale)) {
         api_not_allowed(true);
     }
 
     $urlToRedirect = api_get_self() . '?';
-
+    var_dump($serviceSale);
     switch ($_GET['action']) {
         case 'confirm':
-            $plugin->completeSale($sale['id']);
-            $plugin->storePayouts($sale['id']);
+            $plugin->completeServiceSale($serviceSale['id']);
+            
             Display::addFlash(
                 Display::return_message(
-                    sprintf($plugin->get_lang('SubscriptionToCourseXSuccessful'), $sale['product_name']),
+                    sprintf($plugin->get_lang('SubscriptionToServiceXSuccessful'), $serviceSale['service']['name']),
                     'success'
                 )
             );
 
             $urlToRedirect .= http_build_query([
-                'status' => BuyCoursesPlugin::SALE_STATUS_COMPLETED,
-                'sale' => $sale['id']
+                'status' => BuyCoursesPlugin::SERVICE_STATUS_COMPLETED,
+                'sale' => $serviceSale['id']
             ]);
             break;
         case 'cancel':
-            $plugin->cancelSale($sale['id']);
+            $plugin->cancelServiceSale($serviceSale['id']);
 
             Display::addFlash(
                 Display::return_message(
@@ -54,8 +54,8 @@ if (isset($_GET['order'])) {
             );
 
             $urlToRedirect .= http_build_query([
-                'status' => BuyCoursesPlugin::SALE_STATUS_CANCELED,
-                'sale' => $sale['id']
+                'status' => BuyCoursesPlugin::SERVICE_STATUS_CANCELED,
+                'sale' => $serviceSale['id']
             ]);
             break;
     }
@@ -64,12 +64,11 @@ if (isset($_GET['order'])) {
     exit;
 }
 
-$productTypes = $plugin->getProductTypes();
-$saleStatuses = $plugin->getSaleStatuses();
+$saleStatuses = $plugin->getServiceSaleStatuses();
 $paymentTypes = $plugin->getPaymentTypes();
 
 $selectedFilterType = '0';
-$selectedStatus = isset($_GET['status']) ? $_GET['status'] : BuyCoursesPlugin::SALE_STATUS_PENDING;
+$selectedStatus = isset($_GET['status']) ? $_GET['status'] : BuyCoursesPlugin::SERVICE_STATUS_PENDING;
 $selectedSale = isset($_GET['sale']) ? intval($_GET['sale']) : 0;
 $searchTerm = '';
 
@@ -81,7 +80,7 @@ if ($form->validate()) {
     $searchTerm = $form->getSubmitValue('user');
 
     if ($selectedStatus === false) {
-        $selectedStatus = BuyCoursesPlugin::SALE_STATUS_PENDING;
+        $selectedStatus = BuyCoursesPlugin::SERVICE_STATUS_PENDING;
     }
 
     if ($selectedFilterType === false) {
@@ -108,28 +107,29 @@ $form->setDefaults([
 
 switch ($selectedFilterType) {
     case '0':
-        $sales = $plugin->getSaleListByStatus($selectedStatus);
+        $servicesSales = $plugin->getServiceSale(null, null, $selectedStatus);
         break;
     case '1':
-        $sales = $plugin->getSaleListByUser($searchTerm);
+        $servicesSales = $plugin->getServiceSale(null, $searchTerm);
         break;
 }
 
-$saleList = [];
+$serviceSaleList = [];
 
-foreach ($sales as $sale) {
-    $saleList[] = [
+foreach ($servicesSales as $sale) {
+    $serviceSaleList[] = [
         'id' => $sale['id'],
         'reference' => $sale['reference'],
         'status' => $sale['status'],
-        'date' => api_format_date($sale['date'], DATE_TIME_FORMAT_LONG_24H),
-        'currency' => $sale['iso_code'],
+        'date' => api_format_date($sale['buy_date'], DATE_TIME_FORMAT_LONG_24H),
+        'currency' => $sale['currency'],
         'price' => $sale['price'],
-        'product_name' => $sale['product_name'],
-        'product_type' => $productTypes[$sale['product_type']],
-        'complete_user_name' => api_get_person_name($sale['firstname'], $sale['lastname']),
+        'service_type' => $sale['service']['applies_to'],
+        'service_name' => $sale['service']['name'],
+        'complete_user_name' => $sale['buyer']['name'],
         'payment_type' => $paymentTypes[$sale['payment_type']]
     ];
+    
 }
 
 //View
@@ -171,14 +171,14 @@ if ($commissionsEnable == "true") {
 $template->assign('form', $form->returnForm());
 $template->assign('selected_sale', $selectedSale);
 $template->assign('selected_status', $selectedStatus);
-$template->assign('showing_courses_sessions', true);
+$template->assign('showing_services', true);
 $template->assign('services_are_included', $includeServices);
-$template->assign('sale_list', $saleList);
-$template->assign('sale_status_canceled', BuyCoursesPlugin::SALE_STATUS_CANCELED);
-$template->assign('sale_status_pending', BuyCoursesPlugin::SALE_STATUS_PENDING);
-$template->assign('sale_status_completed', BuyCoursesPlugin::SALE_STATUS_COMPLETED);
+$template->assign('sale_list', $serviceSaleList);
+$template->assign('sale_status_canceled', BuyCoursesPlugin::SERVICE_STATUS_CANCELED);
+$template->assign('sale_status_pending', BuyCoursesPlugin::SERVICE_STATUS_PENDING);
+$template->assign('sale_status_completed', BuyCoursesPlugin::SERVICE_STATUS_COMPLETED);
 
-$content = $template->fetch('buycourses/view/sales_report.tpl');
+$content = $template->fetch('buycourses/view/service_sales_report.tpl');
 
 
 $template->assign('content', $content);

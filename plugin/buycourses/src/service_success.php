@@ -175,6 +175,8 @@ $tpl = new Template($templateName);
 $tpl->assign('title', $serviceSale['service']['name']);
 $tpl->assign('price', $serviceSale['price']);
 $tpl->assign('currency', $serviceSale['currency_id']);
+$tpl->assign('service', $serviceSale);
+$tpl->assign('buying_service', true);
 $tpl->assign('user', api_get_user_info($serviceSale['buyer']['id']));
 $tpl->assign('form', $form->returnForm());
 
