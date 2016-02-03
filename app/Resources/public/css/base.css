@@ -168,6 +168,11 @@ a.thumbnail:hover{
   text-align: center;
 }
 
+.serviceCheckFont {
+  color: #CD5C5C;
+  font-weight: bold;
+}
+
 #notice_block p, #notice-block p{
     color: #666;
     font-size: 12px;

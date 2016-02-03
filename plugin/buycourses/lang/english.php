@@ -148,3 +148,7 @@ $strings['SubscriptionToServiceXSuccessful'] = "Your subscription to the service
 $strings['ServicePayPalPaymentOKPleaseConfirm'] = "PayPal reports the transaction is ready to be executed. To acknowledge that you are OK to proceed, please click the confirmation button below. Once clicked, the service will be activated and the funds will be transferred from your PayPal account to our shop. Thank you for your custom!";
 $strings['EnableService'] = "Enable Service";
 $strings['ServiceType'] = "Service Type";
+$strings['ServiceListOnSale'] = "Service List on Sale";
+$strings['SeeServices'] = "See Services";
+$strings['NoServices'] = "No Services";
+$strings['UserServices'] = "User Services";

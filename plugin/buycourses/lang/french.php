@@ -148,3 +148,7 @@ $strings['SubscriptionToServiceXSuccessful'] = "Votre abonnement au service \"%s
 $strings['ServicePayPalPaymentOKPleaseConfirm'] = "PayPal nous indique que la transaction est prête à être exécutée. Par mesure de sécurité, nous vous demandons de bien vouloir confirmer une dernière fois la transaction en cliquant sur le bouton de confirmation ci-dessous. Une fois cliqué, le service sera activé, et les fonds correspondants seront soustraits de votre compte PayPal. Merci de votre fidélité!";
 $strings['EnableService'] = "Activer le Service";
 $strings['ServiceType'] = "Type de Service";
+$strings['ServiceListOnSale'] = "Liste de Service Sur la Vente";
+$strings['SeeServices'] = "Voir les Services";
+$strings['NoServices'] = "Aucun Service";
+$strings['UserServices'] = "Services aux Usagers";

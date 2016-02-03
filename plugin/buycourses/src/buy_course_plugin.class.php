@@ -58,7 +58,7 @@ class BuyCoursesPlugin extends Plugin
                 Alex Aragón - BeezNest (Design icons and css styles) <br/>
                 Imanol Losada - BeezNest (introduction of sessions purchase) <br/>
                 Angel Fernando Quiroz Campos - BeezNest (cleanup and new reports) <br/>
-                José Loguercio Silva - BeezNest (pay teachers and commissions)
+                José Loguercio Silva - BeezNest (Payouts, Comissions and Buy Services)
             ",
             array(
                 'show_main_menu_tab' => 'boolean',
@@ -1891,9 +1891,13 @@ class BuyCoursesPlugin extends Plugin
     /**
      * List services sales
      * @param integer $id service id
+     * @param integer $buyerId buyer id
+     * @param integer $status status
+     * @param integer $nodeType The node Type ( User = 1 , Course = 2 , Session = 3 )
+     * @param integer $nodeId the nodeId
      * @return array
      */
-    public function getServiceSale($id = null, $buyerId = null, $status = null)
+    public function getServiceSale($id = null, $buyerId = null, $status = null, $nodeType = null, $nodeId = null)
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
@@ -1902,7 +1906,7 @@ class BuyCoursesPlugin extends Plugin
         $showData = "all";
         
         if ($id) {
-            $conditions = ['WHERE' => ['ss.id = ?' => $id], 'ORDER' => 'id ASC'];
+            $conditions = ['WHERE' => ['ss.id = ?' => $id]];
             $showData = "first";
         }
         
@@ -1916,6 +1920,10 @@ class BuyCoursesPlugin extends Plugin
         
         if ($id && $buyerId) {
             $conditions = ['WHERE' => ['ss.id = ? AND ss.buyer_id = ?' => [$id, $buyerId]], 'ORDER' => 'id ASC'];
+        }
+        
+        if ($nodeType && $nodeId) {
+            $conditions = ['WHERE' => ['ss.node_type = ? AND ss.node_id = ?' => [$nodeType, $nodeId]], 'ORDER' => 'id ASC'];
         }
         
         $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id";
@@ -2024,6 +2032,24 @@ class BuyCoursesPlugin extends Plugin
         $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
 
         return true;
+    }
+    
+    /**
+     * Check if a node got an activated service
+     * @param int $nodeType The node Type ( User = 1 , Course = 2 , Session = 3 )
+     * @param int $nodeId The node ID
+     * @return Mixed Array if true, false if not
+     */
+    public function CheckServiceSubscribed($nodeType, $nodeId)
+    {
+        
+        $checked = $this->getServiceSale(null, null, null, $nodeType, $nodeId);
+        
+        if ($checked) {
+           return $checked; 
+        }
+        
+        return false;
     }
 
 }
