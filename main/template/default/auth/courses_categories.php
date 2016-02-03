@@ -213,6 +213,13 @@ if ($showCourses && $action != 'display_sessions') {
             $course_unsubscribe_allowed = ($course['unsubscribe'] == 1);
             $count_connections = $course['count_connections'];
             $creation_date = substr($course['creation_date'],0,10);
+            
+            $plugin = BuyCoursesPlugin::create();
+            $includeServices = $plugin->get('include_services') === 'true';
+            $serviceNode = null;
+            if ($includeServices) {
+                $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_COURSE, $course['real_id']);
+            }
 
             $icon_title = null;
             $html = null;
@@ -224,7 +231,7 @@ if ($showCourses && $action != 'display_sessions') {
 
             // display course title and button bloc
             $html .= '<div class="items-course-info">';
-            $html .= return_title($course);
+            $html .= return_title($course, $serviceNode);
             // display button line
             $html .= '<div class="toolbar">';
             $html .= '<div class="btn-group">';
@@ -261,12 +268,41 @@ if ($showCourses && $action != 'display_sessions') {
                 }
 
             }
+            $html .= return_service_list_button($course['real_id']);
             $html .= '</div>';
             $html .= '</div>';
             $html .= '</div>';
             $html .= '</div>';
             $html .= '</div>';
             echo $html;
+            
+            ?>
+                <script>
+                    $('#course-<?php echo $course['real_id']; ?>-services').popover({
+                        placement: 'bottom',
+                        html: true,
+                        trigger: 'click',
+                        content: function () {
+                            var content = '';
+
+                            <?php if ($serviceNode) {?>
+                                content += '<ul>';
+                                <?php foreach ($serviceNode as $service) { ?>
+                                    content += '<li>';
+                                    content += '<?php echo $service['service']['name'] ?>';
+                                    content += '</li>';
+                                <?php }?>
+                                content += '</ul>';
+                            <?php } else { ?>
+                                content = "<?php echo $plugin->get_lang('NoServices') ?>";
+                            <?php } ?>
+
+                            return content;
+                        }
+                    });
+                </script>
+            <?php
+
 
         }
     } else {
@@ -319,8 +355,9 @@ function return_thumbnail($course, $icon_title)
 /**
  * Display the title of a course in course catalog
  * @param $course
+ * @param $serviceNode (if buycourse-additional services is enabled)
  */
-function return_title($course)
+function return_title($course, $serviceNode = null)
 {
     $html = '';
     $linkCourse = api_get_course_url($course['code']);
@@ -328,7 +365,7 @@ function return_title($course)
     $ajax_url = api_get_path(WEB_AJAX_PATH).'course.ajax.php?a=add_course_vote';
     $teachers = CourseManager::get_teacher_list_from_course_code_to_string($course['code']);
     $rating = Display::return_rating_system('star_'.$course['real_id'], $ajax_url.'&course_id='.$course['real_id'], $course['point_info']);
-    $html .=  '<h4 class="title"><a href="' . $linkCourse . '">' . cut($title, 60) . '</a></h4>';
+    $html .= $serviceNode ? '<h4 class="title"><a class="serviceCheckFont" href="' . $linkCourse . '">' . cut($title, 60) . ' <i class="fa fa-diamond"></i></a></h4>' : '<h4 class="title"><a href="' . $linkCourse . '">' . cut($title, 60) . '</a></h4>';
     $html .= '<div class="teachers">'.$teachers.'</div>';
     $html .= '<div class="ranking">'. $rating . '</div>';
 
@@ -394,6 +431,18 @@ function return_register_button($course, $stok, $code, $search_term)
 {
     $html = ' <a class="btn btn-success btn-sm" title="' . get_lang('Subscribe') . '" href="'.api_get_self().'?action=subscribe_course&sec_token='.$stok.'&subscribe_course='.$course['code'].'&search_term='.$search_term.'&category_code='.$code.'">' .
     Display::returnFontAwesomeIcon('sign-in') . '</a>';
+    return $html;
+}
+
+/**
+ * Display the service list button of a course in the course catalog
+ * @param $id_course
+ */
+function return_service_list_button($id_course)
+{
+    $plugin = BuyCoursesPlugin::create();
+    $html = ' <a class="btn btn-warning btn-sm" title="' . $plugin->get_lang('Services') . '"  role="button" data-toggle="popover" id="course-'.$id_course.'-services">' .
+    Display::returnFontAwesomeIcon('tags') . '</a>';
     return $html;
 }
 
