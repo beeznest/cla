@@ -151,4 +151,5 @@ $strings['ServiceType'] = "Type de Service";
 $strings['ServiceListOnSale'] = "Liste de Service Sur la Vente";
 $strings['SeeServices'] = "Voir les Services";
 $strings['NoServices'] = "Aucun Service";
-$strings['UserServices'] = "Services aux Usagers";
+$strings['UserServices'] = "Services de l'utilisateur";
+$strings['UserServices'] = "Panneau de l'utilisateur";

@@ -60,6 +60,11 @@ if (api_is_platform_admin()) {
         'url' => 'paymentsetup.php',
         'name' => $plugin->get_lang('PaymentsConfiguration')
     ];
+} else {
+    $interbreadcrumb[] = [
+        'url' => '../index.php',
+        'name' => $plugin->get_lang('UserPanel')
+    ];
 }
 
 $templateName = $plugin->get_lang('CourseListOnSale');

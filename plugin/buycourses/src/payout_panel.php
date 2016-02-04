@@ -17,6 +17,10 @@ $includeServices = $plugin->get('include_services') === 'true';
 
 $userInfo = api_get_user_info();
 
+if (!$userInfo) {
+    api_not_allowed();
+}
+
 $payouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED, false, $userInfo['user_id']);
 
 $payoutList = [];
@@ -35,14 +39,7 @@ foreach ($payouts as $payout) {
         'status' => $payout['status']
     ];
 }
-
-$toolbar = Display::toolbarButton(
-    $plugin->get_lang('CourseListOnSale'),
-    'course_catalog.php',
-    'search-plus',
-    'primary',
-    ['title' => $plugin->get_lang('CourseListOnSale')]
-);
+$interbreadcrumb[] = ['url' => '../index.php', 'name' => $plugin->get_lang('UserPanel')];
 
 $templateName = get_lang('TabsDashboard');
 $tpl = new Template($templateName);
@@ -53,7 +50,6 @@ $tpl->assign('payout_list', $payoutList);
 
 $content = $tpl->fetch('buycourses/view/payout_panel.tpl');
 
-$tpl->assign('actions', $toolbar);
 $tpl->assign('header', $templateName);
 $tpl->assign('content', $content);
 $tpl->display_one_col_template();

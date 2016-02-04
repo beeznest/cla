@@ -37,6 +37,8 @@ class BuyCoursesPlugin extends Plugin
     const SERVICE_TYPE_USER = 1;
     const SERVICE_TYPE_COURSE = 2;
     const SERVICE_TYPE_SESSION = 3;
+    const SERVICE_RECURRING_PAYMENT_ENABLED = 1;
+    const SERVICE_RECURRING_PAYMENT_DISABLED = 0;
 
     /**
      *
@@ -986,6 +988,19 @@ class BuyCoursesPlugin extends Plugin
             self::PAYOUT_STATUS_CANCELED => $this->get_lang('PayoutStatusCanceled'),
             self::PAYOUT_STATUS_PENDING => $this->get_lang('PayoutStatusPending'),
             self::PAYOUT_STATUS_COMPLETED => $this->get_lang('PayoutStatusCompleted')
+        ];
+    }
+    
+    /**
+     * Get the list of service types
+     * @return array
+     */
+    public function getServiceTypes()
+    {
+        return [
+            self::SERVICE_TYPE_USER => get_lang('User'),
+            self::SERVICE_TYPE_COURSE => get_lang('Course'),
+            self::SERVICE_TYPE_SESSION => get_lang('Session')
         ];
     }
 
@@ -1968,6 +1983,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale['date_end'] = $return['date_end'];
             $servicesSale['status'] = $return['status'];
             $servicesSale['payment_type'] = $return['payment_type'];
+            $servicesSale['recurring_payment'] = $return['recurring_payment'];
             
             return $servicesSale;
         }
@@ -2002,6 +2018,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale[$index]['date_end'] = $service['date_end'];
             $servicesSale[$index]['status'] = $service['status'];
             $servicesSale[$index]['payment_type'] = $service['payment_type'];
+            $servicesSale[$index]['recurring_payment'] = $service['recurring_payment'];
         }
 
         return $servicesSale;
@@ -2037,7 +2054,7 @@ class BuyCoursesPlugin extends Plugin
     /**
      * Check if a node got an activated service
      * @param int $nodeType The node Type ( User = 1 , Course = 2 , Session = 3 )
-     * @param int $nodeId The node ID
+     * @param int $nodeId The node IDz
      * @return Mixed Array if true, false if not
      */
     public function CheckServiceSubscribed($nodeType, $nodeId)
@@ -2051,5 +2068,24 @@ class BuyCoursesPlugin extends Plugin
         
         return false;
     }
+    
+    /**
+     * Enable Recurring Payment in a Service
+     * @param int $serviceSaleId the service Sale Id
+     * @param int $recurringPaymentStatus The recurring Payment Status ID
+     * @return boolean true, false
+     */
+    public function updateRecurringPayments($serviceSaleId, $recurringPaymentStatus)
+    {
+        
+        $serviceSaleTable = Database::get_main_table(self::TABLE_SERVICES_NODE);
+
+        return Database::update(
+            $serviceSaleTable,
+            ['recurring_payment' => intval($recurringPaymentStatus)],
+            ['id = ?' => intval($serviceSaleId)]
+        );
+    }
+    
 
 }

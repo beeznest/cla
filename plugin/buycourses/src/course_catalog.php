@@ -58,8 +58,8 @@ if (api_is_platform_admin()) {
     ];
 } else {
     $interbreadcrumb[] = [
-        'url' => 'course_panel.php',
-        'name' => get_lang('TabsDashboard')
+        'url' => '../index.php',
+        'name' => $plugin->get_lang('UserPanel')
     ];
 }
 

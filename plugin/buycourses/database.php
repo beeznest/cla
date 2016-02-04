@@ -263,6 +263,7 @@ $servicesNodeTable->addColumn(
 );
 $servicesNodeTable->addColumn('status', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->addColumn('payment_type', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('recurring_payment', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->setPrimaryKey(['id']);
 $servicesNodeTable->addForeignKeyConstraint(
     $servicesTable,

@@ -17,6 +17,10 @@ $includeServices = $plugin->get('include_services') === 'true';
 
 $userInfo = api_get_user_info();
 
+if (!$userInfo) {
+    api_not_allowed();
+}
+
 $productTypes = $plugin->getProductTypes();
 $saleStatuses = $plugin->getSaleStatuses();
 $paymentTypes = $plugin->getPaymentTypes();
@@ -40,13 +44,7 @@ foreach ($sales as $sale) {
     }
 }
 
-$toolbar = Display::toolbarButton(
-    $plugin->get_lang('CourseListOnSale'),
-    'course_catalog.php',
-    'search-plus',
-    'primary',
-    ['title' => $plugin->get_lang('CourseListOnSale')]
-);
+$interbreadcrumb[] = ['url' => '../index.php', 'name' => $plugin->get_lang('UserPanel')];
 
 $templateName = get_lang('TabsDashboard');
 $tpl = new Template($templateName);
@@ -57,7 +55,6 @@ $tpl->assign('sale_list', $saleList);
 
 $content = $tpl->fetch('buycourses/view/course_panel.tpl');
 
-$tpl->assign('actions', $toolbar);
 $tpl->assign('header', $templateName);
 $tpl->assign('content', $content);
 $tpl->display_one_col_template();

@@ -113,3 +113,4 @@ $strings['ServiceListOnSale'] = "Lista de Serviço na Venda";
 $strings['SeeServices'] = "Veja Serviços";
 $strings['NoServices'] = "Nenhum Serviço";
 $strings['UserServices'] = "Serviços de Usuário";
+$strings['UserPanel'] = "Painel de Usuário";
