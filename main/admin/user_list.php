@@ -451,7 +451,17 @@ function email_filter($email) {
 * @return string HTML-code with a mailto-link
 */
 function user_filter($name, $params, $row) {
-	return '<a href="'.api_get_path(WEB_PATH).'whoisonline.php?origin=user_list&id='.$row[0].'">'.$name.'</a>';
+    $plugin = BuyCoursesPlugin::create();
+    $includeServices = $plugin->get('include_services') === 'true';
+    $serviceNode = null;
+    $class = "";
+    if ($includeServices) {
+        $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_USER, $row[0]);
+        if ($serviceNode) {
+            $class = 'serviceCheckFont';
+        }
+    }
+	return '<a class="'.$class.'"  href="'.api_get_path(WEB_PATH).'whoisonline.php?origin=user_list&id='.$row[0].'">'.$name.'</a>';
 }
 
 /**
