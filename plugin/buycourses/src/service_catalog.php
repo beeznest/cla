@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\Criteria;
 $cidReset = true;
 
 require_once '../../../main/inc/global.inc.php';
-
+var_dump($_SESSION['RECURRING']);
 $plugin = BuyCoursesPlugin::create();
 $includeSessions = $plugin->get('include_services') === 'true';
 $includeServices = $plugin->get('include_services') === 'true';

@@ -24,18 +24,6 @@ if (!$userInfo) {
 $paymentTypes = $plugin->getPaymentTypes();
 $serviceTypes = $plugin->getServiceTypes();
 
-$orderId = isset($_REQUEST['order']) ? $_REQUEST['order'] : false;
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
-
-switch ($action) {
-    case 'enable_recurring_payment':
-        $plugin->updateRecurringPayments($orderId, BuyCoursesPlugin::SERVICE_RECURRING_PAYMENT_ENABLED);
-        break;
-    case 'disable_recurring_payment':
-        $plugin->updateRecurringPayments($orderId, BuyCoursesPlugin::SERVICE_RECURRING_PAYMENT_DISABLED);
-        break;     
-}
-
 $serviceSales = $plugin->getServiceSale(null, $userInfo['user_id']);
 $saleList = [];
 

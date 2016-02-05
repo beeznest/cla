@@ -1545,9 +1545,10 @@ class BuyCoursesPlugin extends Plugin
     /**
      * Verify if the beneficiary have a paypal account
      * @param int $userId
+     * @param boolean $returnAccount True if you want to return the paypal account
      * @return true if the user have a paypal account, false if not
      */
-    public function verifyPaypalAccountByBeneficiary($userId)
+    public function verifyPaypalAccountByBeneficiary($userId, $returnAccount = false)
     {
         $extraFieldTable = Database::get_main_table(TABLE_EXTRA_FIELD);
         $extraFieldValues = Database::get_main_table(TABLE_EXTRA_FIELD_VALUES);
@@ -1582,6 +1583,10 @@ class BuyCoursesPlugin extends Plugin
         
         if ($paypalAccount['value'] === '') {
             return false;
+        }
+        
+        if ($returnAccount) {
+            return $paypalAccount['value'];
         }
         
         return true;
@@ -1897,7 +1902,9 @@ class BuyCoursesPlugin extends Plugin
             'date_start' => api_get_utc_datetime(),
             'date_end' => date_format(date_add(date_create(api_get_utc_datetime()), date_interval_create_from_date_string($service['duration_days'].' days')), 'Y-m-d H:i:s'),
             'status' => self::SERVICE_STATUS_PENDING,
-            'payment_type' => intval($paymentType)
+            'payment_type' => intval($paymentType),
+            'recurring_payment' => self::SERVICE_RECURRING_PAYMENT_ENABLED,
+            'recurring_profile_id' => 'None'
         ];
 
         return Database::insert(self::TABLE_SERVICES_NODE, $values);
@@ -2049,6 +2056,22 @@ class BuyCoursesPlugin extends Plugin
         $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
 
         return true;
+    }
+    
+    /**
+     * Set the Recurring Profile ID
+     * @param string recurring profile Id
+     * @return Mixed
+     */
+    public function updateRecurringProfileId($serviceSaleId, $recurringProfileId)
+    {
+        $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
+
+        return Database::update(
+            $servicesSaleTable,
+            ['recurring_profile_id' => $recurringProfileId],
+            ['id = ?' => intval($serviceSaleId)]
+        );
     }
     
     /**

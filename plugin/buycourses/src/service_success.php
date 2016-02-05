@@ -78,6 +78,32 @@ if ($form->validate()) {
                         'success'
                     )
                 );
+                
+                
+                $paypalAccount = $plugin->verifyPaypalAccountByBeneficiary($serviceSale['buyer']['id'], true);
+    
+                $extra = "&L_PAYMENTREQUEST_0_ITEMCATEGORY0=Digital";
+                $extra .= "&L_PAYMENTREQUEST_0_NAME0={$serviceSale['service']['name']}";
+                $extra .= "&L_PAYMENTREQUEST_0_AMT0={$serviceSale['price']}";
+                $extra .= "&L_PAYMENTREQUEST_0_QTY0=1";
+
+                $recurringPaymentProfile = CreateRecurringPaymentsProfile(
+                    $serviceSale['buyer']['name'],
+                    $serviceSale['date_start'],
+                    $serviceSale['reference'],
+                    $serviceSale['service']['name'],
+                    'Day',
+                    $serviceSale['service']['duration_days'],
+                    $serviceSale['price'],
+                    $serviceSale['currency'],
+                    $paypalAccount,
+                    $extra
+                );
+                
+                if ($recurringPaymentProfile['ACK'] == 'Success') {
+                    $plugin->updateRecurringProfileId($serviceSale['id'], $recurringPaymentProfile['PROFILEID']);
+                }
+                
                 break;
             }
 

@@ -31,7 +31,7 @@
                 <th class="text-center">{{ 'OrderDate'|get_plugin_lang('BuyCoursesPlugin') }}</th>
                 <th class="text-center">{{ 'Expire'|get_lang }}</th>
                 <th class="text-center">{{ 'OrderReference'|get_plugin_lang('BuyCoursesPlugin') }}</th>
-                <th class="text-center">{{ 'RecurringPayment'|get_plugin_lang('BuyCoursesPlugin') }}</th>
+                <th class="text-center">{{ 'AutoBilling'|get_plugin_lang('BuyCoursesPlugin') }}</th>
             </tr>
         </thead>
         <tbody>
