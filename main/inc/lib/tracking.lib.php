@@ -3712,10 +3712,13 @@ class Tracking
                     AND session_course_user.session_id = '.intval($session_id).'
                     AND session_course_user.user_id = stats_login.user_id ';
         }
-        $sql = 'SELECT user_id, MAX(login_course_date) max_date
+
+        $sql = 'SELECT stats_login.user_id, MAX(login_course_date) max_date
                 FROM '.$tbl_track_login.' stats_login '.$inner.'
                 INNER JOIN '.$tableCourse.' c
                 ON (c.id = stats_login.c_id)
+                INNER JOIN '.$table_course_rel_user.' course_user
+                ON course_user.user_id = stats_login.user_id AND course_user.c_id = c.id
                 GROUP BY user_id
                 HAVING DATE_SUB( "' . $now . '", INTERVAL '.$since.' DAY) > max_date ';
 
@@ -5390,25 +5393,23 @@ class Tracking
             get_lang('Status'),
             array(1 => get_lang('Active'), 0 => get_lang('Inactive'))
         );
-        if (isset($_configuration['save_user_last_login']) &&
-            $_configuration['save_user_last_login']
-        ) {
-            $form->addElement(
-                'select',
-                'sleeping_days',
-                get_lang('InactiveDays'),
-                array(
-                    '',
-                    1 => 1,
-                    5 => 5,
-                    15 => 15,
-                    30 => 30,
-                    60 => 60,
-                    90 => 90,
-                    120 => 120,
-                )
-            );
-        }
+
+        $form->addElement(
+            'select',
+            'sleeping_days',
+            get_lang('InactiveDays'),
+            array(
+                '',
+                1 => 1,
+                5 => 5,
+                15 => 15,
+                30 => 30,
+                60 => 60,
+                90 => 90,
+                120 => 120,
+            )
+        );
+
         $form->addButtonSearch(get_lang('Search'));
 
         return $form;
@@ -5668,7 +5669,7 @@ class TrackingCourseLog
     	        WHERE
                     track_resource.c_id = $course_id AND
                     track_resource.insert_user_id = user.user_id AND
-                    session_id = $session_id ";
+                    session_id " .(empty($session_id) ? ' IS NULL ' : " = $session_id ");
 
     	if (isset($_GET['keyword'])) {
     		$keyword = Database::escape_string(trim($_GET['keyword']));
@@ -5726,7 +5727,7 @@ class TrackingCourseLog
                 WHERE
                   track_resource.c_id = $course_id AND
                   track_resource.insert_user_id = user.user_id AND
-                  session_id = $session_id ";
+                  session_id " .(empty($session_id) ? ' IS NULL ' : " = $session_id ");
 
     	if (isset($_GET['keyword'])) {
     		$keyword = Database::escape_string(trim($_GET['keyword']));

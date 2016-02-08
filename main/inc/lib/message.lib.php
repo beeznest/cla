@@ -69,7 +69,9 @@ class MessageManager
             return false;
         }
         $sql = "SELECT * FROM $table
-                WHERE user_receiver_id=".api_get_user_id()." AND msg_status=".MESSAGE_STATUS_UNREAD;
+                WHERE
+                    user_receiver_id=".api_get_user_id()." AND
+                    msg_status=".MESSAGE_STATUS_UNREAD;
         $result = Database::query($sql);
         $i = Database::num_rows($result);
 
@@ -108,6 +110,7 @@ class MessageManager
                 WHERE $condition_msg_status AND user_receiver_id=".api_get_user_id();
         $sql_result = Database::query($sql);
         $result = Database::fetch_array($sql_result);
+
         return $result['number_messages'];
     }
 
@@ -249,7 +252,7 @@ class MessageManager
         $inbox_last_id = null;
 
         //Just in case we replace the and \n and \n\r while saving in the DB
-        $content = str_replace(array("\n", "\n\r"), '<br />', $content);
+        //$content = str_replace(array("\n", "\n\r"), '<br />', $content);
 
         $now = api_get_utc_datetime();
         if (!empty($receiver_user_id) || !empty($group_id)) {
@@ -645,8 +648,9 @@ class MessageManager
             $path_message_attach = $path_user_info['dir'].'message_attachments/';
             if (is_file($path_message_attach.$path)) {
                 if (rename($path_message_attach.$path, $path_message_attach.$new_path)) {
-                    $sql_upd = "UPDATE $table_message_attach set path='$new_path' WHERE id ='$attach_id'";
-                    Database::query($sql_upd);
+                    $sql = "UPDATE $table_message_attach set path='$new_path'
+                            WHERE id ='$attach_id'";
+                    Database::query($sql);
                 }
             }
         }
@@ -799,7 +803,10 @@ class MessageManager
         }
 
         $sql = "SELECT * FROM $table_message
-                WHERE parent_id='$parent_id' AND msg_status <> ".MESSAGE_STATUS_OUTBOX." $condition_group_id
+                WHERE
+                    parent_id='$parent_id' AND
+                    msg_status <> ".MESSAGE_STATUS_OUTBOX."
+                    $condition_group_id
                 ORDER BY send_date DESC $condition_limit ";
         $rs = Database::query($sql);
         $data = array();

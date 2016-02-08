@@ -3274,11 +3274,11 @@ class learnpath
             if ($this->get_lp_session_id() == api_get_session_id()) {
                 $html .= '<div id="actions_lp" class="actions_lp"><hr>';
                 $html .= '<div class="btn-group">';
-                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&gradebook=$gradebook&action=build&lp_id=" . $this->lp_id . "' target='_parent'>" .
+                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&gradebook=$gradebook&action=build&lp_id=" . $this->lp_id . "&isStudentView=false' target='_parent'>" .
                     Display::returnFontAwesomeIcon('street-view') . get_lang('Overview') . "</a>";
-                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&action=add_item&type=step&lp_id=" . $this->lp_id . "' target='_parent'>" .
+                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&action=add_item&type=step&lp_id=" . $this->lp_id . "&isStudentView=false' target='_parent'>" .
                     Display::returnFontAwesomeIcon('pencil') . get_lang('Edit') . "</a>";
-                $html .= '<a class="btn btn-sm btn-default" href="lp_controller.php?'.api_get_cidreq()."&gradebook=$gradebook&action=edit&lp_id=" . $this->lp_id.'">' .
+                $html .= '<a class="btn btn-sm btn-default" href="lp_controller.php?'.api_get_cidreq()."&gradebook=$gradebook&action=edit&lp_id=" . $this->lp_id.'&isStudentView=false">' .
                     Display::returnFontAwesomeIcon('cog') . get_lang('Settings').'</a>';
                 $html .= '</div>';
                 $html .= '</div>';
@@ -5668,10 +5668,10 @@ class learnpath
                             )
                             ) {
                                 $forumIconUrl = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
-                                        'action' => 'dissociate_forum',
-                                        'id' => $arrLP[$i]['id'],
-                                        'lp_id' => $this->lp_id
-                                    ]);
+                                    'action' => 'dissociate_forum',
+                                    'id' => $arrLP[$i]['id'],
+                                    'lp_id' => $this->lp_id
+                                ]);
                                 $forumIcon = Display::url(
                                     Display::return_icon('forum.png', get_lang('DissociateForumToLPItem'), [], ICON_SIZE_TINY),
                                     $forumIconUrl,
@@ -5679,10 +5679,10 @@ class learnpath
                                 );
                             } else {
                                 $forumIconUrl = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
-                                        'action' => 'create_forum',
-                                        'id' => $arrLP[$i]['id'],
-                                        'lp_id' => $this->lp_id
-                                    ]);
+                                    'action' => 'create_forum',
+                                    'id' => $arrLP[$i]['id'],
+                                    'lp_id' => $this->lp_id
+                                ]);
                                 $forumIcon = Display::url(
                                     Display::return_icon('forum.png', get_lang('AssociateForumToLPItem'), [], ICON_SIZE_TINY),
                                     $forumIconUrl,
@@ -6008,7 +6008,7 @@ class learnpath
 
         $filename = $title;
 
-        $content = isset($content) ? $content : $_POST['content_lp'];
+        $content = !empty($content) ? $content : $_POST['content_lp'];
 
         $tmp_filename = $filename;
 
@@ -10346,15 +10346,15 @@ EOD;
                     $exerciseItem->db_id
                 );
 
-                $exerciseResult = 0;
+                $exerciseResultInfo = end($exerciseResultInfo);
 
-                foreach ($exerciseResultInfo as $result) {
-                    $exerciseResult += $result['exe_result'] * 100 / $result['exe_weighting'];
+                if (!$exerciseResultInfo) {
+                    continue;
                 }
 
-                $exerciseAverage = $exerciseResult / (count($exerciseResultInfo) > 0 ? count($exerciseResultInfo) : 1);
+                $exerciseResult = $exerciseResultInfo['exe_result'] * 100 / $exerciseResultInfo['exe_weighting'];
 
-                $totalResult += $exerciseAverage;
+                $totalResult += $exerciseResult;
             }
 
             $totalExerciseAverage = $totalResult / (count($exercisesItems) > 0 ? count($exercisesItems) : 1);
@@ -10381,18 +10381,14 @@ EOD;
                 $finalEvaluationItem->db_id
             );
 
-            $evaluationResult = 0;
+            $evaluationResultInfo = end($evaluationResultInfo);
 
-            foreach ($evaluationResultInfo as $result) {
-                $evaluationResult += $result['exe_result'] * 100 / $result['exe_weighting'];
-            }
+            if ($evaluationResultInfo) {
+                $evaluationResult = $evaluationResultInfo['exe_result'] * 100 / $evaluationResultInfo['exe_weighting'];
 
-            $averageDivisor = count($evaluationResultInfo) > 0 ? count($evaluationResultInfo) : 1;
-
-            $evaluationAverage = $evaluationResult / $averageDivisor;
-
-            if ($evaluationAverage >= 80) {
-                $stars++;
+                if ($evaluationResult >= 80) {
+                    $stars++;
+                }
             }
         }
 
@@ -10464,13 +10460,13 @@ EOD;
                     $exerciseItem->db_id
                 );
 
-                $exerciseResult = 0;
+                $exerciseResultInfo = end($exerciseResultInfo);
 
-                foreach ($exerciseResultInfo as $result) {
-                    $exerciseResult += $result['exe_result'];
+                if (!$exerciseResultInfo) {
+                    continue;
                 }
 
-                $totalExercisesResult += $exerciseResult;
+                $totalExercisesResult += $exerciseResultInfo['exe_result'];
             }
         }
 
@@ -10484,8 +10480,10 @@ EOD;
                 $finalEvaluationItem->db_id
             );
 
-            foreach ($evaluationResultInfo as $result) {
-                $totalEvaluationResult += $result['exe_result'];
+            $evaluationResultInfo = end($evaluationResultInfo);
+
+            if ($evaluationResultInfo) {
+                $totalEvaluationResult += $evaluationResultInfo['exe_result'];
             }
         }
 

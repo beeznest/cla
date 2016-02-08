@@ -5341,7 +5341,7 @@ class CourseManager
      * @param FormValidator $form
      * @param array $to_already_selected
      *
-     * @param HTML_QuickForm_element
+     * @return HTML_QuickForm_element
      */
     public static function addUserGroupMultiSelect(&$form, $to_already_selected)
     {
@@ -5409,7 +5409,6 @@ class CourseManager
     public static function addGroupMultiSelect($form, $group_id, $to = array())
     {
         $group_users = GroupManager::get_subscribed_users($group_id);
-
         $array = self::buildSelectOptions(null, $group_users, $to);
 
         $result = array();
@@ -5783,5 +5782,27 @@ class CourseManager
         }
 
         return $params;
+    }
+
+    /**
+     * Get the course id based on the original id and field name in the extra fields.
+     * Returns 0 if course was not found
+     *
+     * @param string $original_course_id_value Original course id
+     * @param string $original_course_id_name Original field name
+     * @return int Course id
+     */
+    public static function get_course_id_from_original_id($original_course_id_value, $original_course_id_name)
+    {
+        $extraFieldValue = new ExtraFieldValue('course');
+        $value = $extraFieldValue->get_item_id_from_field_variable_and_field_value(
+            $original_course_id_name,
+            $original_course_id_value
+        );
+
+        if ($value) {
+            return $value['item_id'];
+        }
+        return 0;
     }
 }
