@@ -153,3 +153,4 @@ $strings['SeeServices'] = "See Services";
 $strings['NoServices'] = "No Services";
 $strings['UserServices'] = "User Services";
 $strings['UserPanel'] = "User Panel";
+$strings['AdditionalInfoRequired'] = "Select the additional info";
