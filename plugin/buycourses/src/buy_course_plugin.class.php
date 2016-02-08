@@ -39,6 +39,8 @@ class BuyCoursesPlugin extends Plugin
     const SERVICE_TYPE_SESSION = 3;
     const SERVICE_RECURRING_PAYMENT_ENABLED = 1;
     const SERVICE_RECURRING_PAYMENT_DISABLED = 0;
+    const AUTOBILLING_ENABLED = 'NoAutoBill';
+    const AUTOBILLING_DISABLED = 'AddToNextBilling';
 
     /**
      *
@@ -1903,7 +1905,7 @@ class BuyCoursesPlugin extends Plugin
             'date_end' => date_format(date_add(date_create(api_get_utc_datetime()), date_interval_create_from_date_string($service['duration_days'].' days')), 'Y-m-d H:i:s'),
             'status' => self::SERVICE_STATUS_PENDING,
             'payment_type' => intval($paymentType),
-            'recurring_payment' => self::SERVICE_RECURRING_PAYMENT_ENABLED,
+            'recurring_payment' => self::SERVICE_RECURRING_PAYMENT_DISABLED,
             'recurring_profile_id' => 'None'
         ];
 
@@ -1991,6 +1993,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale['status'] = $return['status'];
             $servicesSale['payment_type'] = $return['payment_type'];
             $servicesSale['recurring_payment'] = $return['recurring_payment'];
+            $servicesSale['recurring_profile_id'] = $return['recurring_profile_id'];
             
             return $servicesSale;
         }
@@ -2026,6 +2029,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale[$index]['status'] = $service['status'];
             $servicesSale[$index]['payment_type'] = $service['payment_type'];
             $servicesSale[$index]['recurring_payment'] = $service['recurring_payment'];
+            $servicesSale[$index]['recurring_profile_id'] = $service['recurring_profile_id'];
         }
 
         return $servicesSale;

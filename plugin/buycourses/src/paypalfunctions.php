@@ -296,8 +296,6 @@ function DirectPayment($paymentType, $paymentAmount, $creditCardType, $creditCar
  * @param   Beneficiarie:		Array that contains the Beneficiearie paypal account and the payout amount
  * @param	Currency Code:  	The currency Iso code
  * @return: The NVP Collection object of the MassPay Call Response.
- * 
- * @author Jose Loguercio Silva <jose.loguercio@beeznest.com>
  */
 function MassPayment(array $beneficiaries, $currencyCode) {
     
@@ -320,8 +318,8 @@ function MassPayment(array $beneficiaries, $currencyCode) {
 /**
  * Purpose: 	This function create a recurring payment profile
  * Inputs:
- * @param	SubscriberName:    Full name of the person receiving the product or service paid for by the recurring payment. If not present, the name in the buyer's PayPal account is used.
- * @param	ProfileStartDate: The date when billing for this profile begins. (note : The profile may take up to 24 hours for activation).
+ * @param   SubscriberName:    Full name of the person receiving the product or service paid for by the recurring payment. If not present, the name in the buyer's PayPal account is used.
+ * @param   ProfileStartDate: The date when billing for this profile begins. (note : The profile may take up to 24 hours for activation).
  * @param   ProfileReference:  The merchant's own unique reference or invoice number.
  * @param   ProfileDescription: The profile Descrtiption
  * @param   BillingPeriod: Unit for billing during this subscription period. It is one of the following values: Day, Week, SemiMonth, Month, Year) For SemiMonth, billing is done on the 1st and 15th of each month.
@@ -348,8 +346,10 @@ function CreateRecurringPaymentsProfile($subscriberName, $profileStartDate, $ref
     $nvpstr .= "&DESC=$desc";
     $nvpstr .= "&BILLINGPERIOD=$billingPeriod";
     $nvpstr .= "&BILLINGFREQUENCY=$billingFrequency";
+    $nvpstr .= "&MAXFAILEDPAYMENTS=3";
     $nvpstr .= "&AMT=$atm";
     $nvpstr .= "&CURRENCYCODE=$currencyCode";
+    $nvpstr .= "&AUTOBILLOUTAMT=NoAutoBill";
     $nvpstr .= "&EMAIL=$paypalAccount";
     $nvpstr .= "&PAYERID=$payerID";
     $nvpstr .= $extra;
@@ -359,7 +359,27 @@ function CreateRecurringPaymentsProfile($subscriberName, $profileStartDate, $ref
     return $resArray;
 }
 
+/**
+ * Purpose: 	This function update a recurring payment profile (just for now only to enable / disable Autobilling
+ * Inputs:
+ * @param   ProfileID: The recurring Profile ID.
+ * @param   AutoBillingOption: The option for Auto Billing ( NoAutoBill, AddToNextBilling ).
+ * @return: The NVP Collection object of the UpdateRecurringPaymentsProfile Call Response.
+ */
+function UpdateRecurringPaymentsProfile($profileId, $autoBillingOption) {
+    
+    $nvpstr = "&PROFILEID=$profileId";
+    $nvpstr .= "&AUTOBILLOUTAMT=$autoBillingOption";
+    
+    $resArray = hash_call("UpdateRecurringPaymentsProfile", $nvpstr);
 
+    return $resArray;
+}
+
+/**
+ * Purpose: 	Create an Individial Billing Agreement
+ * @return: The NVP Collection object of the CreateBillingAgreement Call Response.
+ */
 function CreateBillingAgreement()
 {
     $token = urlencode($_SESSION['TOKEN']);
