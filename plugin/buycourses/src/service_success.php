@@ -102,6 +102,16 @@ if ($form->validate()) {
                 
                 if ($recurringPaymentProfile['ACK'] == 'Success') {
                     $plugin->updateRecurringProfileId($serviceSale['id'], $recurringPaymentProfile['PROFILEID']);
+                } else {
+                    $erroMessage = vsprintf(
+                        $plugin->get_lang('ErrorOccurred'),
+                        [$recurringPaymentProfile['L_ERRORCODE0'], $recurringPaymentProfile['L_LONGMESSAGE0']]
+                    );
+                    Display::addFlash(
+                        Display::return_message($erroMessage, 'error', false)
+                    );
+                    header('Location: service_catalog.php');
+                    exit;
                 }
                 
                 break;

@@ -45,6 +45,14 @@ $form = new FormValidator('confirm_sale');
 if ($form->validate()) {
     $formValues = $form->getSubmitValues();
     
+    if (!$formValues['info_select']) {
+        Display::addFlash(
+            Display::return_message($plugin->get_lang('AdditionalInfoRequired'), 'error', false)
+        );
+        header('Location:' . api_get_self() . '?' . $queryString);
+        exit;
+    }
+    
     if (!$formValues['payment_type']) {
         Display::addFlash(
             Display::return_message($plugin->get_lang('NeedToSelectPaymentType'), 'error', false)

@@ -114,3 +114,4 @@ $strings['SeeServices'] = "Veja Serviços";
 $strings['NoServices'] = "Nenhum Serviço";
 $strings['UserServices'] = "Serviços de Usuário";
 $strings['UserPanel'] = "Painel de Usuário";
+$strings['AdditionalInfoRequired'] = "Selecione a informação adicional";

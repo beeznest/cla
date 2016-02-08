@@ -10,7 +10,6 @@
 $cidReset = true;
 
 require_once '../../../main/inc/global.inc.php';
-
 $plugin = BuyCoursesPlugin::create();
 $includeServices = $plugin->get('include_services') === 'true';
 $includeSessions = $plugin->get('include_sessions') === 'true';
@@ -38,7 +37,8 @@ foreach ($serviceSales as $sale) {
         'currency' => $sale['currency'],
         'price' => $sale['price'],
         'payment_type' => $paymentTypes[$sale['payment_type']],
-        'recurring_payment' => $sale['recurring_payment']
+        'recurring_payment' => $sale['recurring_payment'],
+        'recurring_profile_id' => $sale['recurring_profile_id']
     ];
 }
 
