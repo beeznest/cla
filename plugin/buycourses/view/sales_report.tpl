@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
 <ul class="nav nav-tabs buy-courses-sessions-tabs" role="tablist">
     <li id="buy-courses-sessions-tab" class="{{ showing_courses_sessions ? 'active' : '' }}" role="presentation">
-        <a href="sales_report.php" aria-controls="buy-courses_sessions" role="tab">{{ 'Courses'|get_lang }} & {{ 'Sessions'|get_lang }}</a>
+        <a href="sales_report.php" aria-controls="buy-courses_sessions" role="tab">{{ 'CoursesAndSessions'|get_lang }}</a>
     </li>
     {% if services_are_included %}
         <li id="buy-services-tab" class="{{ showing_services ? 'active' : '' }}" role="presentation">

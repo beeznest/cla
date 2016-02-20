@@ -85,7 +85,7 @@
                             <div class="information-item">
                                 <h3 class="title-session">
                                     <a href="{{ _p.web ~ 'session/' ~ session.id ~ '/about/' }}" title="{{ session.name }} " class="{{ session.services ? 'serviceCheckFont' : '' }}">
-                                        {{ session.name }} {{ session.services ? '<i class="fa fa-diamond"></i>' : '' }}
+                                        {{ session.name }} {{ session.services ? '<em class="fa fa-diamond"></em>' : '' }}
                                     </a>
                                 </h3>
                                 <ul class="list-unstyled">

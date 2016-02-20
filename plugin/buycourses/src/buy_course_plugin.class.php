@@ -1672,7 +1672,7 @@ class BuyCoursesPlugin extends Plugin
     }
     
     /**
-     * Register adicional service
+     * Register addicional service
      * @param array params $service
      * @return database response
      */
@@ -1683,8 +1683,8 @@ class BuyCoursesPlugin extends Plugin
         return Database::insert(
             $servicesTable,
             [
-                'name' => $service['name'],
-                'description' => $service['description'],
+                'name' => Security::remove_XSS($service['name']),
+                'description' => remove_XSS($service['description']),
                 'price' => $service['price'],
                 'duration_days' => intval($service['duration_days']),
                 'renewable' => intval($service['renewable']),
@@ -2090,7 +2090,12 @@ class BuyCoursesPlugin extends Plugin
         $checked = $this->getServiceSale(null, null, null, $nodeType, $nodeId);
         
         if ($checked) {
-           return $checked; 
+            
+            foreach ($checked as $service) {
+                
+            }
+
+            return $checked; 
         }
         
         return false;

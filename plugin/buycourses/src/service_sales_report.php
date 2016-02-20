@@ -26,7 +26,7 @@ if (isset($_GET['order'])) {
     }
 
     $urlToRedirect = api_get_self() . '?';
-    var_dump($serviceSale);
+    
     switch ($_GET['action']) {
         case 'confirm':
             $plugin->completeServiceSale($serviceSale['id']);
@@ -68,7 +68,7 @@ $saleStatuses = $plugin->getServiceSaleStatuses();
 $paymentTypes = $plugin->getPaymentTypes();
 
 $selectedFilterType = '0';
-$selectedStatus = isset($_GET['status']) ? $_GET['status'] : BuyCoursesPlugin::SERVICE_STATUS_PENDING;
+$selectedStatus = isset($_GET['status']) ? invtal($_GET['status']) : BuyCoursesPlugin::SERVICE_STATUS_PENDING;
 $selectedSale = isset($_GET['sale']) ? intval($_GET['sale']) : 0;
 $searchTerm = '';
 
@@ -141,7 +141,7 @@ $template = new Template($templateName);
 
 $toolbar = '';
 
-if ($paypalEnable == "true" && $commissionsEnable == "true") {
+if ($paypalEnable == 'true' && $commissionsEnable == 'true') {
 
     $toolbar .= Display::toolbarButton(
         $plugin->get_lang('PaypalPayoutCommissions'),
@@ -155,7 +155,7 @@ if ($paypalEnable == "true" && $commissionsEnable == "true") {
     
 }
 
-if ($commissionsEnable == "true") {
+if ($commissionsEnable == 'true') {
 
     $toolbar .= Display::toolbarButton(
         $plugin->get_lang('PayoutReport'),

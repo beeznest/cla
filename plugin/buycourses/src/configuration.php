@@ -36,7 +36,7 @@ $tpl = new Template($templateName);
 $tpl->assign('product_type_course', BuyCoursesPlugin::PRODUCT_TYPE_COURSE);
 $tpl->assign('product_type_session', BuyCoursesPlugin::PRODUCT_TYPE_SESSION);
 $tpl->assign('courses', $courses);
-$tpl->assign('services',$services);
+$tpl->assign('services', $services);
 $tpl->assign('sessions_are_included', $includeSession);
 
 if ($includeSession) {

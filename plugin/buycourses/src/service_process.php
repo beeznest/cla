@@ -22,7 +22,7 @@ $includeServices = $plugin->get('include_services');
 $paypalEnabled = $plugin->get('paypal_enable') === 'true';
 $transferEnabled = $plugin->get('transfer_enable') === 'true';
 
-if ($includeServices !== "true") {
+if ($includeServices !== 'true') {
     api_not_allowed(true);
 }
 

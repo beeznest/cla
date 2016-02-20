@@ -122,13 +122,13 @@ if ($query != '' || ($query_vars['search_type']=='1' && count($query_vars)>2) ) 
             $plugin = BuyCoursesPlugin::create();
             $includeServices = $plugin->get('include_services') === 'true';
             $serviceNode = null;
-            $class = "";
-            $icon = "";
+            $class = '';
+            $icon = '';
             if ($includeServices) {
                 $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_USER, $user_info['user_id']);
                 if ($serviceNode) {
                     $class = 'serviceCheckFont';
-                    $icon = '<i class="fa fa-diamond"></i>';
+                    $icon = '<em class="fa fa-diamond"></em>';
                 }
             }
             

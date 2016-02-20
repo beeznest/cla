@@ -8,7 +8,7 @@
                             <div class="items-course-info">
                                 <h4 class="title">
                                     <a title="{{ hot_course.extra_info.title}}" href="{{ hot_course.extra_info.course_public_url }}" class="{{ hot_course.extra_info.services ? 'serviceCheckFont' : '' }}">
-                                        {{ hot_course.extra_info.title}} {{ hot_course.extra_info.services ? '<i class="fa fa-diamond"></i>' : '' }}
+                                        {{ hot_course.extra_info.title}} {{ hot_course.extra_info.services ? '<em class="fa fa-diamond"></em>' : '' }}
                                     </a>
                                 </h4>
                                 <div class="teachers">{{ hot_course.extra_info.teachers }}</div>

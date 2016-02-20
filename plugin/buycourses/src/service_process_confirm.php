@@ -65,7 +65,7 @@ switch ($serviceSale['payment_type']) {
             exit;
         }
 
-        RedirectToPayPal($expressCheckout["TOKEN"]);
+        RedirectToPayPal($expressCheckout['TOKEN']);
         break;
     case BuyCoursesPlugin::PAYMENT_TYPE_TRANSFER:
 

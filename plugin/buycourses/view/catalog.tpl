@@ -139,7 +139,9 @@
                                                 {% endif %}
                                                 <li><em class="fa fa-clock-o"></em> {{ 'Duration'|get_plugin_lang('BuyCoursesPlugin') }} : {{ service.duration_days }} {{ 'Days' | get_lang }}</li>
                                                 <li><em class="fa fa-user"></em> {{ service.owner_name }}</li>
-                                                <li><em class="fa fa-align-justify"></em> {{ service.description }}</li>
+                                                {% if service.description %}
+                                                    <li><em class="fa fa-align-justify"></em> {{ service.description }}</li>
+                                                {% endif %}
                                             </ul>
                                             <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
                                             {% if service.enrolled == "YES" %}

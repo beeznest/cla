@@ -15,7 +15,7 @@
                         
                         <ul class="list-user-data">
                             <li class="item {{ user_services ? 'serviceCheckFont' : '' }}">
-                                {{ user.complete_name }} {{ user_services ? '<i class="fa fa-diamond"></i>' : '' }}
+                                {{ user.complete_name }} {{ user_services ? '<em class="fa fa-diamond"></em>' : '' }}
                             </li>
                             {% if vcard_user_link  %}
                                 <li class="item">

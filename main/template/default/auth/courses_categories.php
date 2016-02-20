@@ -354,8 +354,8 @@ function return_thumbnail($course, $icon_title)
 
 /**
  * Display the title of a course in course catalog
- * @param $course
- * @param $serviceNode (if buycourse-additional services is enabled)
+ * @param array $course the course info
+ * @param array $serviceNode (if buycourse-additional services is enabled)
  */
 function return_title($course, $serviceNode = null)
 {
@@ -365,7 +365,7 @@ function return_title($course, $serviceNode = null)
     $ajax_url = api_get_path(WEB_AJAX_PATH).'course.ajax.php?a=add_course_vote';
     $teachers = CourseManager::get_teacher_list_from_course_code_to_string($course['code']);
     $rating = Display::return_rating_system('star_'.$course['real_id'], $ajax_url.'&course_id='.$course['real_id'], $course['point_info']);
-    $html .= $serviceNode ? '<h4 class="title"><a class="serviceCheckFont" href="' . $linkCourse . '">' . cut($title, 60) . ' <i class="fa fa-diamond"></i></a></h4>' : '<h4 class="title"><a href="' . $linkCourse . '">' . cut($title, 60) . '</a></h4>';
+    $html .= $serviceNode ? '<h4 class="title"><a class="serviceCheckFont" href="' . $linkCourse . '">' . cut($title, 60) . ' <em class="fa fa-diamond"></em></a></h4>' : '<h4 class="title"><a href="' . $linkCourse . '">' . cut($title, 60) . '</a></h4>';
     $html .= '<div class="teachers">'.$teachers.'</div>';
     $html .= '<div class="ranking">'. $rating . '</div>';
 
@@ -436,11 +436,12 @@ function return_register_button($course, $stok, $code, $search_term)
 
 /**
  * Display the service list button of a course in the course catalog
- * @param $id_course
+ * @param int $id_course
  */
 function return_service_list_button($id_course)
 {
     $plugin = BuyCoursesPlugin::create();
+    $id_course = intval($id_course);
     $html = ' <a class="btn btn-warning btn-sm" title="' . $plugin->get_lang('Services') . '"  role="button" data-toggle="popover" id="course-'.$id_course.'-services">' .
     Display::returnFontAwesomeIcon('tags') . '</a>';
     return $html;

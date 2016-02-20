@@ -5058,7 +5058,9 @@ SQL;
         return $users;
     }
     
-    /**
+   /**
+    * Search a user by a keyword (like a part of a firstname or lastname or username)
+    * 
     * @param string $keyword
     * @return array|null
     */

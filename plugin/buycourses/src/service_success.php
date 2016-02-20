@@ -89,7 +89,7 @@ if ($form->validate()) {
 
                 $recurringPaymentProfile = CreateRecurringPaymentsProfile(
                     $serviceSale['buyer']['name'],
-                    $serviceSale['date_start'],
+                    $serviceSale['date_end'],
                     $serviceSale['reference'],
                     $serviceSale['service']['name'],
                     'Day',
@@ -183,7 +183,7 @@ if ($form->validate()) {
     exit;
 }
 
-$token = isset($_GET['token']) ? $_GET['token'] : null;
+$token = isset($_GET['token']) ? Security::remove_XSS($_GET['token']) : null;
 
 if (empty($token)) {
     api_not_allowed(true);

@@ -13,7 +13,7 @@ $cidReset = true;
 
 require_once '../../../main/inc/global.inc.php';
 
-$serviceId = isset($_REQUEST['id']) ? $_REQUEST['id'] : null;
+$serviceId = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : null;
 
 if (!$serviceId) {
     header('Location: configuration.php');
