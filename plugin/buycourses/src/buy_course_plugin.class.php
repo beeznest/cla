@@ -25,15 +25,15 @@ class BuyCoursesPlugin extends Plugin
     const PRODUCT_TYPE_SESSION = 2;
     const PAYMENT_TYPE_PAYPAL = 1;
     const PAYMENT_TYPE_TRANSFER = 2;
-    const PAYOUT_STATUS_CANCELED = 2;
+    const PAYOUT_STATUS_CANCELLED = 2;
     const PAYOUT_STATUS_PENDING = 0;
     const PAYOUT_STATUS_COMPLETED = 1;
-    const SALE_STATUS_CANCELED = -1;
+    const SALE_STATUS_CANCELLED = -1;
     const SALE_STATUS_PENDING = 0;
     const SALE_STATUS_COMPLETED = 1;
     const SERVICE_STATUS_PENDING = 0;
     const SERVICE_STATUS_COMPLETED = 1;
-    const SERVICE_STATUS_CANCELED = -1;
+    const SERVICE_STATUS_CANCELLED = -1;
     const SERVICE_TYPE_USER = 1;
     const SERVICE_TYPE_COURSE = 2;
     const SERVICE_TYPE_SESSION = 3;
@@ -913,7 +913,7 @@ class BuyCoursesPlugin extends Plugin
      */
     public function cancelSale($saleId)
     {
-        $this->updateSaleStatus($saleId, self::SALE_STATUS_CANCELED);
+        $this->updateSaleStatus($saleId, self::SALE_STATUS_CANCELLED);
     }
 
     /**
@@ -961,7 +961,7 @@ class BuyCoursesPlugin extends Plugin
     public function getSaleStatuses()
     {
         return [
-            self::SALE_STATUS_CANCELED => $this->get_lang('SaleStatusCanceled'),
+            self::SALE_STATUS_CANCELLED => $this->get_lang('SaleStatusCanceled'),
             self::SALE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
             self::SALE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
         ];
@@ -974,7 +974,7 @@ class BuyCoursesPlugin extends Plugin
     public function getServiceSaleStatuses()
     {
         return [
-            self::SERVICE_STATUS_CANCELED => $this->get_lang('SaleStatusCanceled'),
+            self::SERVICE_STATUS_CANCELLED => $this->get_lang('SaleStatusCanceled'),
             self::SERVICE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
             self::SERVICE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
         ];
@@ -987,7 +987,7 @@ class BuyCoursesPlugin extends Plugin
     public function getPayoutStatuses()
     {
         return [
-            self::PAYOUT_STATUS_CANCELED => $this->get_lang('PayoutStatusCanceled'),
+            self::PAYOUT_STATUS_CANCELLED => $this->get_lang('PayoutStatusCanceled'),
             self::PAYOUT_STATUS_PENDING => $this->get_lang('PayoutStatusPending'),
             self::PAYOUT_STATUS_COMPLETED => $this->get_lang('PayoutStatusCompleted')
         ];
@@ -2041,7 +2041,7 @@ class BuyCoursesPlugin extends Plugin
      */
     public function cancelServiceSale($serviceSaleId)
     {
-        $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_CANCELED);
+        $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_CANCELLED);
     }
     
     /**

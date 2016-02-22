@@ -54,7 +54,7 @@ if (isset($_GET['order'])) {
             );
 
             $urlToRedirect .= http_build_query([
-                'status' => BuyCoursesPlugin::SERVICE_STATUS_CANCELED,
+                'status' => BuyCoursesPlugin::SERVICE_STATUS_CANCELLED,
                 'sale' => $serviceSale['id']
             ]);
             break;
@@ -174,7 +174,7 @@ $template->assign('selected_status', $selectedStatus);
 $template->assign('showing_services', true);
 $template->assign('services_are_included', $includeServices);
 $template->assign('sale_list', $serviceSaleList);
-$template->assign('sale_status_canceled', BuyCoursesPlugin::SERVICE_STATUS_CANCELED);
+$template->assign('sale_status_cancelled', BuyCoursesPlugin::SERVICE_STATUS_CANCELLED);
 $template->assign('sale_status_pending', BuyCoursesPlugin::SERVICE_STATUS_PENDING);
 $template->assign('sale_status_completed', BuyCoursesPlugin::SERVICE_STATUS_COMPLETED);
 

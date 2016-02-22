@@ -91,7 +91,7 @@ switch ($action) {
         
         $completedPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED);
         $pendingPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_PENDING);
-        $canceledPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_CANCELED);
+        $canceledPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_CANCELLED);
         $currency = $plugin->getSelectedCurrency();
         
         foreach ($completedPayouts as $completed) {
@@ -233,7 +233,7 @@ switch ($action) {
 
         // $payoutId only gets used in setStatusPayout(), where it is filtered
         $payoutId = isset($_POST['id']) ? $_POST['id'] : '';
-        $plugin->setStatusPayouts($payoutId, BuyCoursesPlugin::PAYOUT_STATUS_CANCELED);
+        $plugin->setStatusPayouts($payoutId, BuyCoursesPlugin::PAYOUT_STATUS_CANCELLED);
         
         echo '';
         
