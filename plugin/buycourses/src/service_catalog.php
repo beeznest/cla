@@ -83,7 +83,7 @@ if (api_is_platform_admin()) {
     ];
 }
 
-$templateName = $plugin->get_lang('ServiceListOnSale');
+$templateName = $plugin->get_lang('ListOfServicesOnSale');
 $tpl = new Template($templateName);
 $tpl->assign('search_filter_form', $form->returnForm());
 $tpl->assign('showing_services', true);

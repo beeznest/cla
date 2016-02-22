@@ -203,7 +203,7 @@ if ($shippingDetails['ACK'] !== 'Success') {
     exit;
 }
 
-$interbreadcrumb[] = array("url" => "service_catalog.php", "name" => $plugin->get_lang('ServiceListOnSale'));
+$interbreadcrumb[] = array("url" => "service_catalog.php", "name" => $plugin->get_lang('ListOfServicesOnSale'));
 
 $templateName = $plugin->get_lang('PaymentMethods');
 $tpl = new Template($templateName);
