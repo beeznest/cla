@@ -961,7 +961,7 @@ class BuyCoursesPlugin extends Plugin
     public function getSaleStatuses()
     {
         return [
-            self::SALE_STATUS_CANCELLED => $this->get_lang('SaleStatusCanceled'),
+            self::SALE_STATUS_CANCELLED => $this->get_lang('SaleStatusCancelled'),
             self::SALE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
             self::SALE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
         ];
@@ -974,7 +974,7 @@ class BuyCoursesPlugin extends Plugin
     public function getServiceSaleStatuses()
     {
         return [
-            self::SERVICE_STATUS_CANCELLED => $this->get_lang('SaleStatusCanceled'),
+            self::SERVICE_STATUS_CANCELLED => $this->get_lang('SaleStatusCancelled'),
             self::SERVICE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
             self::SERVICE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
         ];
@@ -987,7 +987,7 @@ class BuyCoursesPlugin extends Plugin
     public function getPayoutStatuses()
     {
         return [
-            self::PAYOUT_STATUS_CANCELLED => $this->get_lang('PayoutStatusCanceled'),
+            self::PAYOUT_STATUS_CANCELLED => $this->get_lang('PayoutStatusCancelled'),
             self::PAYOUT_STATUS_PENDING => $this->get_lang('PayoutStatusPending'),
             self::PAYOUT_STATUS_COMPLETED => $this->get_lang('PayoutStatusCompleted')
         ];
@@ -1684,7 +1684,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesTable,
             [
                 'name' => Security::remove_XSS($service['name']),
-                'description' => remove_XSS($service['description']),
+                'description' => Security::remove_XSS($service['description']),
                 'price' => $service['price'],
                 'duration_days' => intval($service['duration_days']),
                 'renewable' => intval($service['renewable']),
@@ -2036,7 +2036,7 @@ class BuyCoursesPlugin extends Plugin
     }
     
     /**
-     * Update service sale status to canceled
+     * Update service sale status to cancelled
      * @param int $serviceSaleId The sale ID
      */
     public function cancelServiceSale($serviceSaleId)

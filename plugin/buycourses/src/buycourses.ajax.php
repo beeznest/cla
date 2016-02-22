@@ -91,7 +91,7 @@ switch ($action) {
         
         $completedPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED);
         $pendingPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_PENDING);
-        $canceledPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_CANCELLED);
+        $cancelledPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_CANCELLED);
         $currency = $plugin->getSelectedCurrency();
         
         foreach ($completedPayouts as $completed) {
@@ -106,9 +106,9 @@ switch ($action) {
             $stats['pending_total_amount'] = number_format($stats['pending_total_amount'], 2);
         }
         
-        foreach ($canceledPayouts as $canceled) {
-            $stats['canceled_count'] = count($canceledPayouts);
-            $stats['canceled_total_amount'] += $canceled['commission'];
+        foreach ($cancelledPayouts as $cancelled) {
+            $stats['canceled_count'] = count($cancelledPayouts);
+            $stats['canceled_total_amount'] += $cancelled['commission'];
             $stats['canceled_total_amount'] = number_format($stats['canceled_total_amount'], 2);
         }
         
@@ -118,7 +118,7 @@ switch ($action) {
             . '<ul>'
                 . '<li>'. get_plugin_lang("PayoutsTotalCompleted", "BuyCoursesPlugin") .' <b>'. $stats['completed_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['completed_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
                 . '<li>'. get_plugin_lang("PayoutsTotalPending", "BuyCoursesPlugin") .' <b>'. $stats['pending_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['pending_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
-                . '<li>'. get_plugin_lang("PayoutsTotalCanceled", "BuyCoursesPlugin") .' <b>'. $stats['canceled_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['canceled_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
+                . '<li>'. get_plugin_lang("PayoutsTotalCancelled", "BuyCoursesPlugin") .' <b>'. $stats['canceled_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['canceled_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
             . '</ul>'
         . '</p>';
         $html .= '</div>';
@@ -166,7 +166,7 @@ switch ($action) {
                 . '<li>'. get_plugin_lang("TotalPayout", "BuyCoursesPlugin") .' <b>'. $isoCode .' '. $totalPayout .'</b></li>'
             . '</ul>'
         . '</p>';
-        $html .= '<p>'. get_plugin_lang("CautionThisProcessCantBeCanceled", "BuyCoursesPlugin") .'</p>';
+        $html .= '<p>'. get_plugin_lang("CautionThisProcessCantBeCancelled", "BuyCoursesPlugin") .'</p>';
         $html .= '</br></br>';
         $html .= '<div id="spinner" class="text-center"></div>';
                 

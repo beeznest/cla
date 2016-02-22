@@ -1,5 +1,9 @@
 .buy-courses-tabs {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.buy-courses-cross-out {
+  text-decoration:line-through;
 }
 
 // spinner wobblebar

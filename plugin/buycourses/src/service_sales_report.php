@@ -48,7 +48,7 @@ if (isset($_GET['order'])) {
 
             Display::addFlash(
                 Display::return_message(
-                    $plugin->get_lang('OrderCanceled'),
+                    $plugin->get_lang('OrderCancelled'),
                     'warning'
                 )
             );

@@ -34,7 +34,7 @@
                     <td class="text-center">{{ sale.reference }}</td>
                     <td class="text-center">
                         {% if sale.status == sale_status_cancelled %}
-                            {{ 'SaleStatusCanceled'|get_plugin_lang('BuyCoursesPlugin') }}
+                            {{ 'SaleStatusCancelled'|get_plugin_lang('BuyCoursesPlugin') }}
                         {% elseif sale.status == sale_status_pending %}
                             {{ 'SaleStatusPending'|get_plugin_lang('BuyCoursesPlugin') }}
                         {% elseif sale.status == sale_status_completed %}

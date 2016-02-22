@@ -23,6 +23,10 @@ if (!$userInfo) {
 $paymentTypes = $plugin->getPaymentTypes();
 $serviceTypes = $plugin->getServiceTypes();
 
+$serviceSaleStatuses['status_cancelled'] = BuyCoursesPlugin::SERVICE_STATUS_CANCELLED;
+$serviceSaleStatuses['status_pending'] = BuyCoursesPlugin::SERVICE_STATUS_PENDING;
+$serviceSaleStatuses['status_completed'] = BuyCoursesPlugin::SERVICE_STATUS_COMPLETED;
+
 $serviceSales = $plugin->getServiceSale(null, $userInfo['user_id']);
 $saleList = [];
 
@@ -38,7 +42,8 @@ foreach ($serviceSales as $sale) {
         'price' => $sale['price'],
         'payment_type' => $paymentTypes[$sale['payment_type']],
         'recurring_payment' => $sale['recurring_payment'],
-        'recurring_profile_id' => $sale['recurring_profile_id']
+        'recurring_profile_id' => $sale['recurring_profile_id'],
+        'status' => $sale['status']  
     ];
 }
 
@@ -49,6 +54,7 @@ $tpl = new Template($templateName);
 $tpl->assign('showing_courses', true);
 $tpl->assign('services_are_included', $includeServices);
 $tpl->assign('sessions_are_included', $includeSessions);
+$tpl->assign('service_sale_statuses', $serviceSaleStatuses);
 $tpl->assign('sale_list', $saleList);
 
 $content = $tpl->fetch('buycourses/view/service_panel.tpl');

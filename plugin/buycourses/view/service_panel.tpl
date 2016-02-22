@@ -36,7 +36,7 @@
         </thead>
         <tbody>
             {% for sale in sale_list %}
-                <tr>
+                <tr class="{{ sale.status == service_sale_statuses.status_cancelled ? 'buy-courses-cross-out' : '' }}">
                     <td>{{ sale.name }}</td>
                     <td class="text-center">{{ sale.service_type }}</td>
                     <td class="text-center">{{ sale.payment_type }}</td>
@@ -45,14 +45,20 @@
                     <td class="text-center">{{ sale.date_end }}</td>
                     <td class="text-center">{{ sale.reference }}</td>
                     <td class="text-center">
-                    {% if sale.recurring_payment == 1 %}
-                        <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'profile': sale.recurring_profile_id, 'order': sale.id, 'action': 'disable_recurring_payment'}|url_encode() }}" class="btn btn-danger btn-sm">
-                            <em class="fa fa-paypal fa-fw"></em> {{ 'Disable'|get_lang }}
-                        </a>
-                    {% else %}
-                        <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'profile': sale.recurring_profile_id, 'order': sale.id, 'action': 'enable_recurring_payment'}|url_encode() }}" class="btn btn-success btn-sm">
-                            <em class="fa fa-paypal fa-fw"></em> {{ 'Enable'|get_lang }}
-                        </a>
+                    {% if sale.status == service_sale_statuses.status_completed %}
+                        {% if sale.recurring_payment == 1 %}
+                            <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'profile': sale.recurring_profile_id, 'order': sale.id, 'action': 'disable_recurring_payment'}|url_encode() }}" class="btn btn-danger btn-sm">
+                                <em class="fa fa-paypal fa-fw"></em> {{ 'Disable'|get_lang }}
+                            </a>
+                        {% else %}
+                            <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'profile': sale.recurring_profile_id, 'order': sale.id, 'action': 'enable_recurring_payment'}|url_encode() }}" class="btn btn-success btn-sm">
+                                <em class="fa fa-paypal fa-fw"></em> {{ 'Enable'|get_lang }}
+                            </a>
+                        {% endif %}
+                    {% elseif %}
+                        
+                        
+                        
                     {% endif %}
                     </td>
                 </tr>

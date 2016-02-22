@@ -10,7 +10,7 @@ $strings['unregistered_users_enable'] = "Permitir que usuários anônimos";
 
 $strings['banktransfer'] = "Transferência Bancária";
 $strings['SaleStatusPending'] = "Venda pendente";
-$strings['SaleStatusCanceled'] = "Venda cancelada";
+$strings['SaleStatusCancelled'] = "Venda cancelada";
 $strings['SaleStatusCompleted'] = "Venda concluída";
 $strings['CourseListOnSale'] = "Lista de cursos à venda";
 $strings['AvailableCourses'] = "Campos disponíveis";
@@ -47,7 +47,7 @@ $strings['BankAccountInformation'] = "Detalhes da conta bancária";
 $strings['BankAccount'] = "Contas bancárias";
 $strings['OnceItIsConfirmedYouWillReceiveAnEmailWithTheBankInformationAndAnOrderReference'] = "Uma vez confirmada, você receberá um e-mail com os dados bancários e uma referência de ordem.";
 $strings['SubscriptionToCourseXSuccessful'] = "Sua inscrição para \"%s\ foi concluída com sucesso.";
-$strings['OrderCanceled'] = "Ordem cancelada";
+$strings['OrderCancelled'] = "Ordem cancelada";
 $strings['OrderStatus'] = "Status do pedido";
 $strings['SearchByStatus'] = "Pesquisar por estado";
 $strings['OrderReference'] = "Código de encomenda";
