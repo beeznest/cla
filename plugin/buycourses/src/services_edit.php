@@ -95,6 +95,13 @@ $form->addElement(
     get_lang('Session'),
     3
 );
+$form->addElement(
+    'radio',
+    'applies_to',
+    null,
+    $plugin->get_lang('SubscriptionPackage'),
+    4
+);
 $form->addSelect(
     'owner_id',
     get_lang('Owner'),

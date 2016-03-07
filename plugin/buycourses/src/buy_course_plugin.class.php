@@ -37,6 +37,7 @@ class BuyCoursesPlugin extends Plugin
     const SERVICE_TYPE_USER = 1;
     const SERVICE_TYPE_COURSE = 2;
     const SERVICE_TYPE_SESSION = 3;
+    const SERVICE_TYPE_SUBSCRIPTION_PACKAGE = 4;
     const SERVICE_RECURRING_PAYMENT_ENABLED = 1;
     const SERVICE_RECURRING_PAYMENT_DISABLED = 0;
     const AUTOBILLING_ENABLED = 'NoAutoBill';
@@ -1002,7 +1003,8 @@ class BuyCoursesPlugin extends Plugin
         return [
             self::SERVICE_TYPE_USER => get_lang('User'),
             self::SERVICE_TYPE_COURSE => get_lang('Course'),
-            self::SERVICE_TYPE_SESSION => get_lang('Session')
+            self::SERVICE_TYPE_SESSION => get_lang('Session'),
+            self::SERVICE_TYPE_SUBSCRIPTION_PACKAGE => $this->get_lang('SubscriptionPackage')
         ];
     }
 

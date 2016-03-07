@@ -155,3 +155,4 @@ $strings['NoServices'] = "Aucun Service";
 $strings['UserServices'] = "Services de l'utilisateur";
 $strings['UserServices'] = "Panneau de l'utilisateur";
 $strings['AdditionalInfoRequired'] = "Sélectionnez le plus d'infos";
+$strings['SubscriptionPackage'] = "Paquet d'abonnements";

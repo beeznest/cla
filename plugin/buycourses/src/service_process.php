@@ -35,6 +35,7 @@ $serviceId = intval($_REQUEST['i']);
 $typeUser = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_USER;
 $typeCourse = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_COURSE;
 $typeSession = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_SESSION;
+$typeSubscriptionPackage = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_SUBSCRIPTION_PACKAGE;
 $queryString = 'i=' . intval($_REQUEST['i']) . '&t=' . intval($_REQUEST['t']);
 
 $serviceInfo = $plugin->getServices(intval($_REQUEST['i']));
@@ -109,6 +110,8 @@ if ($typeUser) {
         }
     }
     $form->addSelect('info_select',get_lang('Session'), $selectOptions);
+} elseif ($typeSubscriptionPackage) {
+    $form->addText('info_select', $plugin->get_lang('PackageName'), true, ['cols-size' => [5, 7, 0]]);
 }
 
 $form->addHeader($plugin->get_lang('PaymentMethods'));

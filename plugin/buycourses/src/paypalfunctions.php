@@ -360,6 +360,23 @@ function CreateRecurringPaymentsProfile($subscriberName, $profileStartDate, $ref
 }
 
 /**
+ * Purpose: 	This function manage a recurring payment profile Status
+ * Inputs:
+ * @param   ProfileID: The recurring Profile ID.
+ * @param   StatusAction: The status for the current profile ( Cancel, Suspend, Reactivate ).
+ * @return: The NVP Collection object of the ManageRecurringPaymentsProfileStatus Call Response.
+ */
+function ManageRecurringPaymentsProfileStatus($profileId, $statusAction) {
+    
+    $nvpstr = "&PROFILEID=$profileId";
+    $nvpstr .= "&ACTION=$statusAction";
+    
+    $resArray = hash_call("ManageRecurringPaymentsProfileStatus", $nvpstr);
+
+    return $resArray;
+}
+
+/**
  * Purpose: 	This function update a recurring payment profile (just for now only to enable / disable Autobilling
  * Inputs:
  * @param   ProfileID: The recurring Profile ID.
