@@ -55,9 +55,13 @@
                                 <em class="fa fa-paypal fa-fw"></em> {{ 'Enable'|get_lang }}
                             </a>
                         {% endif %}
-                    {% elseif %}
+                    {% elseif sale.status == service_sale_statuses.status_pending %}
                         
+                        {{ 'Pending'|get_lang }}
                         
+                    {% elseif sale.status == service_sale_statuses.status_cancelled %}
+                        
+                        {{ 'Cancelled'|get_lang }}
                         
                     {% endif %}
                     </td>
