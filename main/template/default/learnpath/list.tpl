@@ -12,7 +12,21 @@
 
 {% for lp_data in data %}
     <h3 class="page-header">
-        {{ lp_data.category.getName() }}
+        {% if is_allowed_to_edit %}
+            {% if (categories|length) > 1 %}
+                {{ lp_data.category.getName() }}
+            {% endif %}
+        {% else %}
+            {% if (categories|length) > 1 %}
+                {% if lp_data.lp_list is not empty and lp_data.category.getId() != 0 %}
+                    {{ lp_data.category.getName() }}
+                {% elseif lp_data.lp_list is not empty and lp_data.category.getId() == 0 %}
+                    {{ lp_data.category.getName() }}
+                {% elseif lp_data.lp_list is not empty and lp_data.category.getId() != 0 %}
+                    {{ lp_data.category.getName() }}
+                {% endif %}
+            {% endif %}
+        {% endif %}
 
         {% if lp_data.category.getId() > 0 and is_allowed_to_edit %}
             <a href="{{ 'lp_controller.php?' ~ _p.web_cid_query ~ '&action=add_lp_category&id=' ~ lp_data.category.getId() }}" title="{{ "Edit"|get_lang }}">

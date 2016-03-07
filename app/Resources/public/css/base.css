@@ -62,6 +62,37 @@ a.thumbnail:hover{
   margin-left: 20px;
   text-align: left;
 }
+.gallery .img-gallery{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 5px;
+}
+.gallery .photo{
+    display: block;
+    padding-bottom: 100%;
+    overflow: hidden;
+    
+}
+.gallery .frame{
+    background-color: #eeeeee;
+    display: block;
+    width: 100%;
+}
+.gallery .canvas-one{
+    margin-bottom: 30px;
+}
+.gallery .canvas-two{
+    margin-right: 30px;
+    flex-shrink: 1;
+    -webkit-flex-shrink: 1;
+    -ms-flex-negative:1 ;
+    display: block;
+    position: relative;
+    
+}
 /*------------------------*/
 .cursor-pointer {
     cursor: pointer;
@@ -285,8 +316,7 @@ ul#navigation .report a {
     margin-top: 5px;
 }
 .file_upload input{
-    position: relative;
-    border: none;
+    position: absolute;
 }
 #results .jqgrid_whitespace .date-time{
     font-size: 12px;
@@ -481,6 +511,15 @@ ul#navigation .report a {
 }
 #exercise-description.panel-default{
     border: 1px solid #DDD;
+}
+#exercise-description .panel-heading a span{
+    margin-left: 25px;
+}
+#exercise-description .panel-heading a{
+    background: url("../../main/img/icons/22/arrow-up-collapse.png") no-repeat left center;
+}
+#exercise-description .panel-heading a.collapsed{
+    background: url("../../main/img/icons/22/arrow-down-collapse.png") no-repeat left center;
 }
 /*****************************************************
  *              AGENDA                               *
@@ -1615,7 +1654,13 @@ div.admin_section h4 {
 
 
 /* Groups boxes */
-
+.toolbar-groups{
+    margin-bottom: 30px;
+}
+.form-group  label span{
+    display: block;
+    font-size: 12px;
+}
 .group_invitation_grid_container { width:100%;}
 .group_invitation_grid_item {
     border:1px dotted #CCCCCC;
@@ -1870,13 +1915,20 @@ div.admin_section h4 {
   box-shadow: 0px 1px 1px rgba(0,0,0,0.05);
   margin-bottom: 35px;
 }
-
+.question_row_score{
+    margin-bottom: 20px;
+    display: block;
+}
 .question_item {
     height:50px;
     padding:5px;
     margin:10px 0px 10px 0px;
 }
-
+.question-return{
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
 .option_item {
     width:150px;
     padding:3px;
@@ -5819,9 +5871,16 @@ a.sessionView {
     padding-right: 15px;
     visibility: visible;
   }
+  .items-course{
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+  }
 }
 /* Landscape phones and down */
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+  
   #learning_path_breadcrumb_zone {
   }
   #learning_path_main{
@@ -5896,6 +5955,7 @@ a.sessionView {
   #show_graph{
    text-align: center;
   }
+  
 }
 @media (min-width : 480px) and (max-width: 767px) {
   #touch-button{
@@ -5903,6 +5963,9 @@ a.sessionView {
   }
   .sidebar-scorm{
     width: 100%;
+  }
+  .items-course{
+    padding: 15px;
   }
   #control-bottom.well{
     padding: 10px;
@@ -5937,8 +6000,41 @@ a.sessionView {
     footer #footer_right{
         text-align: center;
     }
+    .items-course{
+        padding: 5px;
+        min-height: 300px;
+    }
+    .col-xs-6{
+        width: 100%;
+    }
+    .gallery .canvas-two{
+        width: 100%;
+    }
 }
 
 .elfinder-cwd-filename {
     color: black !important;
+}
+
+
+#dropzone {
+    position: relative;
+    overflow: hidden;
+    direction: ltr;
+    cursor: pointer;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+    line-height: 50px;
+    background-color: #D4E6F0;
+    border: 2px dashed #bbbbbb;
+    font-size: 120%;
+    margin-bottom: 0;
 }

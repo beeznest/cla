@@ -417,9 +417,8 @@ foreach ($categories as $item) {
                             api_get_self() . '?' . api_get_cidreq() . "&lp_id=$id&action=toggle_publish&new_status=v"
                         );
                     } else {
-                        $dsp_publish = "<a href='".api_get_self(
-                            )."?".api_get_cidreq(
-                            )."&lp_id=$id&action=toggle_publish&new_status=i'>".Display::return_icon(
+                        $dsp_publish = "<a href='".api_get_self()."?".api_get_cidreq()."&lp_id=$id&action=toggle_publish&new_status=i'>".
+                            Display::return_icon(
                                 'lp_publish.png',
                                 get_lang('LearnpathDoNotPublish'),
                                 '',
@@ -496,7 +495,6 @@ foreach ($categories as $item) {
 
                 /* SCREEN LP VIEW */
                 if ($current_session == $details['lp_session']) {
-
                     switch ($details['lp_view_mode']) {
                         case 'fullscreen':
                             $dsp_default_view = Display::url(
@@ -610,11 +608,7 @@ foreach ($categories as $item) {
                             array(),
                             ICON_SIZE_SMALL
                         ),
-                        api_get_self()."?".api_get_cidreq(
-                        )."&action=export&lp_id=$id&export_name=".api_replace_dangerous_char(
-                            $name,
-                            'strict'
-                        ).".zip"
+                        api_get_self()."?".api_get_cidreq()."&action=export&lp_id=$id&export_name=".api_replace_dangerous_char($name, 'strict' ).".zip"
                     );
                 } else {
                     $dsp_disk = Display::return_icon(
@@ -819,9 +813,9 @@ $template = new Template($nameTools);
 $template->assign('is_allowed_to_edit', $is_allowed_to_edit);
 $template->assign('is_invitee', api_is_invitee());
 $template->assign('actions', $actions);
+$template->assign('categories', $categories);
 $template->assign('message', $message);
 $template->assign('introduction_section', $introductionSection);
-
 $template->assign('data', $data);
 $template->assign('lp_is_shown', $lpIsShown);
 

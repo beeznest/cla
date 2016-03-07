@@ -1124,7 +1124,6 @@ $NomPageAdmin = "Administration";
 $SysInfo = "Systeminformation";
 $DiffTranslation = "Vergleiche die Übersetzungen";
 $StatOf = "Statistik über";
-$SpeeSubscribe = "Schnelle Anmeldung als Kursprüfer";
 $LogIdentLogout = "Anmeldeliste";
 $ServerStatus = "Status des MySQL Servers :";
 $DataBase = "Datenbank";
@@ -2809,7 +2808,6 @@ $ModifyQuestion = "Fragen ändern";
 $Example = "Beispiel";
 $CheckAll = "Alle prüfen";
 $NbAnnoucement = "Ankündigung";
-$OtherCourses = "andere Kurse";
 $Doc = "Dokument";
 $PlataformAdmin = "Administrator";
 $Groups = "Gruppen";
@@ -6654,9 +6652,9 @@ Die Array-Struktur wird in Datei main/auth/external_login/ldap.conf.php erkl&aum
 <h4>II. LDAP-Authentifizierung aktivieren</h4>
 <h5>In der Datei main/inc/conf/configuration.php</h5>-&gt; folgende Zeilen auskommentieren
 <br />
-&#36;extAuthSource[&quot;extldap&quot;][&quot;login&quot;] =&#36;_configuration['root_sys'].&#36;_configuration['code_append'].&quot;auth/external_login/login.ldap.php&quot;;
+&#36;extAuthSource[&quot;extldap&quot;][&quot;login&quot;] =&#36;_configuration['root_sys'].&quot;main/auth/external_login/login.ldap.php&quot;;
 <br />
-&#36;extAuthSource[&quot;extldap&quot;][&quot;newUser&quot;] =&#36;_configuration['root_sys'].&#36;_configuration['code_append'].&quot;auth/external_login/newUser.ldap.php&quot;;
+&#36;extAuthSource[&quot;extldap&quot;][&quot;newUser&quot;] =&#36;_configuration['root_sys'].&quot;main/auth/external_login/newUser.ldap.php&quot;;
 <br />
 <br />
 N.B. : LDAP users use same fields than platform users to login.

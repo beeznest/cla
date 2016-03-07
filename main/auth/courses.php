@@ -57,12 +57,12 @@ $actions = array(
     'search_session'
 );
 
-$action = CoursesAndSessionsCatalog::is(CATALOG_SESSIONS) ? 'display_sessions' : 'display_random_courses';
+$action = CoursesAndSessionsCatalog::is(CATALOG_SESSIONS) ? 'display_sessions' : 'display_courses';
 if (isset($_GET['action']) && in_array($_GET['action'], $actions)) {
     $action = Security::remove_XSS($_GET['action']);
 }
 
-$categoryCode = isset($_GET['category_code']) ? $_GET['category_code'] : '';
+$categoryCode = isset($_GET['category_code']) ? $_GET['category_code'] : 'ALL';
 
 $nameTools = getCourseCatalogNameTools($action);
 if (empty($nameTools)) {
@@ -173,11 +173,10 @@ if (isset($_POST['unsubscribe'])) {
 switch ($action) {
     case 'subscribe_user_with_password':
         $courses_controller->subscribe_user(
-            $_POST['subscribe_user_with_password'],
-            $_POST['search_term'],
-            $_POST['category_code']
+            isset($_POST['subscribe_user_with_password']) ? $_POST['subscribe_user_with_password'] : '',
+            isset($_POST['search_term']) ? $_POST['search_term'] : '',
+            isset($_POST['category_code']) ? $_POST['category_code'] : ''
         );
-        exit;
         break;
     case 'createcoursecategory':
         $courses_controller->categories_list($action);

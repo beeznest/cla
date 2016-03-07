@@ -589,20 +589,20 @@ class learnpath
         $params = array(
             "c_id" => $course_id,
             "lp_id" => $this->get_id(),
-            "item_type" =>$typeCleaned ,
+            "item_type" => $typeCleaned,
             "ref" => '',
-            "title" =>$title ,
+            "title" => $title,
             "description" => $description,
             "path" => $id,
             "max_score" => $max_score,
             "parent_item_id" => $parent,
             "previous_item_id" => $previous,
-            "next_item_id" => $next,
-            "display_order" => $display_order +1,
+            "next_item_id" => intval($next),
+            "display_order" => $display_order + 1,
             "prerequisite" => $prerequisites,
             "max_time_allowed" => $max_time_allowed,
             'min_score' => 0,
-            'launch_data' => ''
+            'launch_data' => '',
         );
 
         if ($prerequisites != 0) {
@@ -1950,21 +1950,29 @@ class learnpath
         if(empty($idBar)){
             $idBar='control-top';
         }
-        if(empty($display)){
+        /* if(empty($display)){
             $display='display:block';
-        }
+        } */
         $navbar = null;
         $lp_id = $this->lp_id;
         $mycurrentitemid = $this->get_current_item_id();
 
         if ($this->mode == 'fullscreen') {
             $navbar = '
-                  <div id="'.$idBar.'" class="buttons well" style="'.$display.'">
-                    <a href="lp_controller.php?action=stats&'.api_get_cidreq(true).'&lp_id='.$lp_id.'" onclick="window.parent.API.save_asset();return true;" target="content_name_blank" title="stats" id="stats_link"><img border="0" src="../img/btn_stats.png" title="' . get_lang('Reporting') . '"></a>
-                    <a id="scorm-previous" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'previous\');return false;" title="previous"><img border="0" src="../img/btn_previous.png" title="' . get_lang('ScormPrevious') . '"></a>
-                    <a id="scorm-next" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'next\');return false;" title="next"  ><img border="0" src="../img/btn_next.png" title="' . get_lang('ScormNext') . '"></a>.
-                    <a href="lp_controller.php?action=mode&mode=embedded" target="_top" title="embedded mode"><img border="0" src="../img/view_choose.gif" title="'.get_lang('ScormExitFullScreen').'"></a>
-                  </div>';
+                  <span id="'.$idBar.'" class="buttons">
+                    <a class="icon-toolbar" href="lp_controller.php?action=stats&'.api_get_cidreq(true).'&lp_id='.$lp_id.'" onclick="window.parent.API.save_asset();return true;" target="content_name" title="stats" id="stats_link">
+                        <span class="fa fa-info"></span><span class="sr-only">' . get_lang('Reporting') . '</span>
+                    </a>
+                    <a class="icon-toolbar" id="scorm-previous" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'previous\');return false;" title="previous">
+                        <span class="fa fa-chevron-left"></span><span class="sr-only">' . get_lang('ScormPrevious') . '</span>
+                    </a>
+                    <a class="icon-toolbar" id="scorm-next" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'next\');return false;" title="next">
+                        <span class="fa fa-chevron-right"></span><span class="sr-only">' . get_lang('ScormNext') . '</span>
+                    </a>
+                    <a class="icon-toolbar" id="view-embedded" href="lp_controller.php?action=mode&mode=embedded" target="_top" title="embedded mode">
+                        <span class="fa fa-columns"></span><span class="sr-only">' . get_lang('ScormExitFullScreen') . '</span>
+                    </a>
+                  </span>';
 
         } else {
             $navbar = '
@@ -5068,13 +5076,13 @@ class learnpath
             $default_view_mode = $row['default_view_mod'];
             $view_mode = $default_view_mode;
             switch ($default_view_mode) {
-                case 'fullscreen':
+                case 'fullscreen': // default with popup
                     $view_mode = 'embedded';
                     break;
-                case 'embedded':
+                case 'embedded': // default view with left menu
                     $view_mode = 'embedframe';
                     break;
-                case 'embedframe':
+                case 'embedframe': //folded menu
                     $view_mode = 'impress';
                     break;
                 case 'impress':
@@ -5573,14 +5581,14 @@ class learnpath
 
             $title_cut = cut($arrLP[$i]['title'], 25);
 
-            //Link for the documents
+            // Link for the documents
             if ($arrLP[$i]['item_type'] == 'document') {
                 $url = api_get_self() . '?'.api_get_cidreq().'&action=view_item&mode=preview_document&id=' . $arrLP[$i]['id'] . '&lp_id=' . $this->lp_id;
                 $title_cut = Display::url(
                     $title_cut,
                     $url,
                     array(
-                        'class' => 'ajax',
+                        'class' => 'ajax moved',
                         'data-title' => $title_cut
                     )
                 );
@@ -5595,7 +5603,6 @@ class learnpath
 
             $icon_name = str_replace(' ', '', $arrLP[$i]['item_type']);
 
-            $icon = '';
             if (file_exists('../img/lp_' . $icon_name . '.png')) {
                 $icon = '<img src="../img/lp_' . $icon_name . '.png" />';
             } else {
@@ -8620,8 +8627,15 @@ class learnpath
         $session_id = api_get_session_id();
         $condition_session = api_get_session_condition($session_id);
 
+        $setting = api_get_configuration_value('show_invisible_exercise_in_lp_list');
+
+        $activeCondition = " active <> -1 ";
+        if ($setting) {
+            $activeCondition = " active = 1 ";
+        }
+
         $sql_quiz = "SELECT * FROM $tbl_quiz
-                     WHERE c_id = $course_id AND active<>'-1' $condition_session
+                     WHERE c_id = $course_id AND $activeCondition $condition_session
                      ORDER BY title ASC";
 
         $sql_hot  = "SELECT * FROM $tbl_doc

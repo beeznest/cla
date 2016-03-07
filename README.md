@@ -53,9 +53,20 @@ git config --global push.default current
 From the Chamilo folder (in which you should be now if you followed the previous steps), launch:
 
 ```
-composer global require "fxp/composer-asset-plugin:1.0.3"
 composer update
 ```
+
+If you face issues related to missing JS libraries, you might need to ensure
+that your web/assets folder is completely re-generated.
+Use this set of commands to do that:
+```
+rm composer.lock
+rm -rf web/ vendor/
+composer clear-cache
+composer update
+```
+This will take several minutes in the best case scenario, but should definitely
+generate the missing files.
 
 ### Change permissions
 
@@ -66,20 +77,43 @@ sudo chown -R www-data:www-data app main/default_course_document/images main/lan
 
 ### Start the installer
 
-In your browser, load the Chamilo URL. You should be automatically redirected to the installer. If not, add the "main/install/index.php" suffix manually in your browser address bar. The rest should be a matter of simple OK > Next > OK > Next...
+In your browser, load the Chamilo URL. You should be automatically redirected 
+to the installer. If not, add the "main/install/index.php" suffix manually in 
+your browser address bar. The rest should be a matter of simple
+ OK > Next > OK > Next...
 
 ## Upgrade from 1.9.x
 
-1.10.x is a major version. As such, it contains a series of new features, that also mean a series of new database changes in regards with versions 1.9.x. As such, it is necessary to go through an upgrade procedure when upgrading from 1.9.x to 1.10.x.
+1.10.0 is a major version. It contains a series of new features, that
+also mean a series of new database changes in regards with versions 1.9.x. As 
+such, it is necessary to go through an upgrade procedure when upgrading from 
+1.9.x to 1.10.x.
 
-Although 1.10.x is not beta yet (and as such is *NOT* ready for production and does *NOT* contain all database changes yet - DO NOT UPGRADE A PRODUCTION SYSTEM to 1.10.x yet, PLEASE!), the upgrade procedure works to get you up and running with the latest *development* code of 1.10.x with data from an 1.9.x system, so feel free to test it out, but keep a backup of your database from 1.9.x as you will need to do the upgrade again each time you are updating the 1.10.x code from Git.
+When we published 1.10.0, we didn't catch a series of important upgrade errors.
+We released a warning a few days later asking people not to upgrade from 1.9.x
+to 1.10.0 for the time being. Version 1.10.2 fixed that, and you can now
+safely upgrade from any 1.9.x version to any 1.10.x version higher than 1.10.0.
 
-The upgrade procedure is relatively straightforward. If you have a 1.9.x initially installed with Git, here are the steps you should follow (considering you are already inside the Chamilo folder):
+The upgrade procedure is relatively straightforward. If you have a 1.9.x 
+initially installed with Git, here are the steps you should follow 
+(considering you are already inside the Chamilo folder):
 ```
 git fetch --all
 git checkout origin 1.10.x
 ```
-Then load the Chamilo URL in your browser, adding "main/install/index.php" and follow the upgrade instructions. Select the "Upgrade from 1.9.x" button to proceed.
+
+Then load the Chamilo URL in your browser, adding "main/install/index.php" and 
+follow the upgrade instructions. Select the "Upgrade from 1.9.x" button to 
+proceed.
+
+If you have previously updated database rows manually, you might face issue with
+FOREIGN KEYS during the upgrade process. Please make sure your database is
+consistent before upgrading. This usually means making sure that you have to delete
+rows from tables referring to rows which have been deleted from the user or access_url tables.
+Typically:
+<pre>
+    DELETE FROM access_url_rel_course WHERE access_url_id NOT IN (SELECT id FROM access_url);
+</pre>
 
 # For developers and testers only
 

@@ -13,6 +13,28 @@ class SubLanguageManager
     public function __construct()
     {
     }
+    
+    /**
+     * Get all the languages
+     * @param bool $onlyActive Whether to return only active languages (default false)
+     * @return Array All information about sub-language
+     */
+    public static function getAllLanguages($onlyActive = false)
+    {
+        $table = Database :: get_main_table(TABLE_MAIN_LANGUAGE);
+        $sql = 'SELECT * FROM ' . $table;
+        if ($onlyActive) {
+            $sql .= ' WHERE available = 1';
+        }
+        $rs = Database::query($sql);
+        $all_languages = [];
+        while ($row = Database::fetch_array($rs, 'ASSOC')) {
+            $all_languages[$row['dokeos_folder']] = $row;
+        }
+        
+        return $all_languages;
+    }
+    
 
     /**
      * Get all files of lang folder (forum.inc.php,gradebook.inc.php,notebook.inc.php)

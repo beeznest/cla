@@ -40,50 +40,8 @@ require_once api_get_path(LIBRARY_PATH).'specific_fields_manager.lib.php';
 
 // Adding extra javascript to the form
 $htmlHeadXtra[] = api_get_jquery_libraries_js(array('jquery-ui', 'jquery-upload'));
-$htmlHeadXtra[] = '<script>
-
-function check_unzip() {
-    if (document.upload.unzip.checked){
-        document.upload.if_exists[0].disabled=true;
-        document.upload.if_exists[1].checked=true;
-        document.upload.if_exists[2].disabled=true;
-    } else {
-        document.upload.if_exists[0].checked=true;
-        document.upload.if_exists[0].disabled=false;
-        document.upload.if_exists[2].disabled=false;
-    }
-}
-
-function setFocus(){
-    $("#title_file").focus();
-}
-</script>';
-
-$htmlHeadXtra[] = "
-<script>
-$(function () {
-    setFocus();
-    $('#file_upload').fileUploadUI({
-        uploadTable:   $('.files'),
-        downloadTable: $('.files'),
-        buildUploadRow: function (files, index) {
-            $('.files').show();
-            return $('<tr><td>' + files[index].name + '<\/td>' +
-                    '<td class=\"file_upload_progress\"><div><\/div><\/td>' +
-                    '<td class=\"file_upload_cancel\">' +
-                    '<button class=\"ui-state-default ui-corner-all\" title=\"".get_lang('Cancel')."\">' + '<span class=\"ui-icon ui-icon-cancel\">".get_lang('Cancel')."<\/span>' +'<\/button>'+
-                    '<\/td><\/tr>');
-        },
-        buildDownloadRow: function (file) {
-            return $('<tr><td>' + file.name + '<\/td> <td> ' + file.size + ' <\/td>  <td>&nbsp;' + file.result + ' <\/td> <\/tr>');
-        }
-    });
-});
-
-</script>";
 
 // Variables
-
 $is_allowed_to_edit = api_is_allowed_to_edit(null, true);
 $_course = api_get_course_info();
 $groupId = api_get_group_id();
@@ -122,6 +80,26 @@ if (empty($document_data)) {
 }
 $group_properties = array();
 
+$htmlHeadXtra[] = '<script>
+
+function check_unzip() {
+    if (document.upload.unzip.checked){
+        document.upload.if_exists[0].disabled=true;
+        document.upload.if_exists[1].checked=true;
+        document.upload.if_exists[2].disabled=true;
+    } else {
+        document.upload.if_exists[0].checked=true;
+        document.upload.if_exists[0].disabled=false;
+        document.upload.if_exists[2].disabled=false;
+    }
+}
+
+function setFocus(){
+    $("#title_file").focus();
+}
+</script>';
+
+
 // This needs cleaning!
 if (!empty($groupId)) {
     // If the group id is set, check if the user has the right to be here
@@ -131,7 +109,7 @@ if (!empty($groupId)) {
     // Only courseadmin or group members allowed
     if ($is_allowed_to_edit || GroupManager::is_user_in_group(api_get_user_id(), $groupId)) {
         $interbreadcrumb[] = array(
-            'url' => '../group/group_space.php?'.api_get_cidreq(),
+            'url' => api_get_path(WEB_CODE_PATH).'group/group_space.php?'.api_get_cidreq(),
             'name' => get_lang('GroupSpace'),
         );
     } else {
@@ -174,7 +152,7 @@ if (isset($_REQUEST['certificate'])) {
 // Breadcrumbs
 if ($is_certificate_mode) {
     $interbreadcrumb[] = array(
-        'url' => '../gradebook/'.$_SESSION['gradebook_dest'],
+        'url' => '../gradebook/index.php?'.api_get_cidreq(),
         'name' => get_lang('Gradebook'),
     );
 } else {
@@ -202,7 +180,6 @@ $this_section = SECTION_COURSES;
 Display::display_header($nameTools, 'Doc');
 
 /*    Here we do all the work */
-
 $unzip = isset($_POST['unzip']) ? $_POST['unzip'] : null;
 $index = isset($_POST['index_document']) ? $_POST['index_document'] : null;
 // User has submitted a file
@@ -225,14 +202,13 @@ if (!empty($_FILES)) {
 // Link back to the documents overview
 if ($is_certificate_mode) {
     $actions = '<a href="document.php?id='.$document_id.'&selectcat=' . $selectcat.'&'.api_get_cidreq().'">'.
-            Display::return_icon('back.png',get_lang('BackTo').' '.get_lang('CertificateOverview'),'',ICON_SIZE_MEDIUM).'</a>';
+        Display::return_icon('back.png', get_lang('BackTo').' '.get_lang('CertificateOverview'), '', ICON_SIZE_MEDIUM).'</a>';
 } else {
     $actions = '<a href="document.php?id='.$document_id.'&'.api_get_cidreq().'">'.
-            Display::return_icon('back.png',get_lang('BackTo').' '.get_lang('DocumentsOverview'),'',ICON_SIZE_MEDIUM).'</a>';
+        Display::return_icon('back.png', get_lang('BackTo').' '.get_lang('DocumentsOverview'), '', ICON_SIZE_MEDIUM).'</a>';
 }
 
 // Link to create a folder
-
 echo $toolbar = Display::toolbarAction('toolbar-upload', array( 0 => $actions), 1);
 // Form to select directory
 $folders = DocumentManager::get_all_document_folders($_course, $groupId, $is_allowed_to_edit);
@@ -317,36 +293,16 @@ $form->setDefaults($defaults);
 
 $simple_form = $form->returnForm();
 
-$url = api_get_path(WEB_AJAX_PATH).'document.ajax.php?'.api_get_cidreq().'&a=upload_file';
-$multiple_form = '<div class="description-upload">'.get_lang('ClickToSelectOrDragAndDropMultipleFilesOnTheUploadField').'</div>';
-$multiple_form .=  '
-    <div class="form-ajax">
-    <form id="file_upload" action="'.$url.'" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="curdirpath" value="'.$path.'" />
-        <input type="file" name="file" multiple>
-        <button type="submit">Upload</button>
-        <div class="button-load">
-        '.get_lang('UploadFiles').'
-        </div>
-    </form>
-    </div>
-    <table style="display:none; width:50%" class="files data_table">
-        <tr>
-            <th>'.get_lang('FileName').'</th>
-            <th>'.get_lang('Size').'</th>
-            <th>'.get_lang('Status').'</th>
-        </tr>
-    </table>';
+$url = api_get_path(WEB_AJAX_PATH).'document.ajax.php?'.api_get_cidreq().'&a=upload_file&curdirpath='.$path;
 
-$nav_info = api_get_navigator();
-if ($nav_info ['name'] == 'Internet Explorer') {
-    echo $simple_form;
-} else {
-    $headers = array(
-        get_lang('Upload'),
-        get_lang('Upload').' ('.get_lang('Simple').')',
-    );
-    echo Display::tabs($headers, array($multiple_form, $simple_form), 'tabs');
-}
+$multipleForm = new FormValidator('post');
+$multipleForm->addMultipleUpload($url);
+
+$headers = array(
+    get_lang('Upload'),
+    get_lang('Upload').' ('.get_lang('Simple').')',
+);
+
+echo Display::tabs($headers, array($multipleForm->returnForm(), $form->returnForm()), 'tabs');
 
 Display::display_footer();

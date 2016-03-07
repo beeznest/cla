@@ -57,6 +57,8 @@ $nameTools = get_lang('StudentDetails');
 
 $get_course_code = isset($_GET['course']) ? Security :: remove_XSS($_GET['course']) : '';
 
+$em = Database::getManager();
+
 if (isset($_GET['details'])) {
     if ($origin == 'user_course') {
         $course_info = CourseManager :: get_course_information($get_course_code);
@@ -313,7 +315,7 @@ $token = Security::get_token();
 if (!empty($student_id)) {
     // Actions bar
     echo '<div class="actions">';
-    echo '<a href="javascript: window.history.go(-1);" ">'.
+    echo '<a href="javascript: window.history.go(-1);">'.
             Display::return_icon('back.png', get_lang('Back'),'',ICON_SIZE_MEDIUM).'</a>';
 
     echo '<a href="javascript: void(0);" onclick="javascript: window.print();">'.
@@ -467,19 +469,21 @@ if (!empty($student_id)) {
 
     echo Display::page_subheader($table_title);
 
-    echo '<table width="100%" border="0">';
-    echo '<tr>';
-
     $userPicture = UserManager::getUserPicture($user_info['user_id']);
-    echo '<img src="' . $userPicture . '" />';
 
-    echo '</td>';
+    $userGroupManager = new UserGroup();
+    $userGroups = $userGroupManager->getUserGroupListByUser($user_info['user_id'], UserGroup::NORMAL_CLASS);
     ?>
-    <td width="40%" valign="top">
-        <table width="100%" class="data_table">
-            <tr>
-                <th><?php echo get_lang('Information'); ?></th>
-            </tr>
+    <img src="<?php echo $userPicture ?>">
+    <div class="row">
+        <div class="col-sm-6">
+            <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><?php echo get_lang('Information'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
             <tr>
                 <td><?php echo get_lang('Name') . ' : '.$user_info['complete_name']; ?></td>
             </tr>
@@ -532,14 +536,17 @@ if (!empty($student_id)) {
             <?php
             }
             ?>
+            </tbody>
         </table>
-    </td>
-
-    <td class="borderLeft" width="35%" valign="top">
-        <table width="100%" class="data_table">
+        </div>
+        <div class="col-sm-6">
+        <table class="table table-striped table-hover">
+            <thead>
             <tr>
-                <th colspan="2"><?php echo get_lang('Tracking'); ?></th>
+                <th colspan="2" class="text-center"><?php echo get_lang('Tracking'); ?></th>
             </tr>
+            </thead>
+            <tbody>
             <tr><td align="right"><?php echo get_lang('FirstLoginInPlatform') ?></td>
                 <td align="left"><?php echo $first_connection_date ?></td>
             </tr>
@@ -575,10 +582,26 @@ if (!empty($student_id)) {
                     echo '</tr>';
                 }
             } ?>
+            </tbody>
         </table>
-    </td>
-    </tr>
-    </table>
+        <?php if (!empty($userGroups)) { ?>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th><?php echo get_lang('Classes') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($userGroups as $class) { ?>
+                    <tr>
+                        <td><?php echo $class['name'] ?></td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        <?php } ?>
+        </div>
+    </div>
     <?php
 
     $table_title = '';
@@ -636,7 +659,9 @@ if (!empty($student_id)) {
 
             // Courses
             echo '<h3>'.$title.'</h3>';
-            echo '<table class="data_table courses-tracking">';
+            echo '<div class="table-respondive">';
+            echo '<table class="table table-striped table-hover courses-tracking">';
+            echo '<thead>';
             echo '<tr>
 				<th>'.get_lang('Course').'</th>
 				<th>'.get_lang('Time').'</th>
@@ -646,6 +671,8 @@ if (!empty($student_id)) {
 				<th>'.get_lang('Evaluations').'</th>
 				<th>'.get_lang('Details').'</th>
 			</tr>';
+            echo '</thead>';
+            echo '<tbody>';
 
             if (!empty($courses)) {
                 foreach ($courses as $courseId) {
@@ -725,7 +752,9 @@ if (!empty($student_id)) {
             } else {
                 echo "<tr><td colspan='5'>".get_lang('NoCourse')."</td></tr>";
             }
+            echo '</tbody>';
             echo '</table>';
+            echo '</div>';
         }
     } else {
         if ($user_info['status'] != INVITEE) {
@@ -744,20 +773,31 @@ if (!empty($student_id)) {
                 get_lang('LastConnexion')
             );
 
+            $query = $em
+                ->createQuery('
+                    SELECT lp FROM ChamiloCourseBundle:CLp lp
+                    WHERE lp.sessionId = :session AND lp.cId = :course
+                    ORDER BY lp.displayOrder ASC
+                ');
+
             if (empty($sessionId)) {
-                $sql_lp = " SELECT lp.name, lp.id FROM $t_lp lp
-                        WHERE session_id = 0 AND c_id = {$info_course['real_id']}
-                        ORDER BY lp.display_order";
+                $query->setParameters([
+                    'session' => 0,
+                    'course' => $info_course['real_id']
+                ]);
             } else {
-                $sql_lp = " SELECT lp.name, lp.id FROM $t_lp lp
-                        WHERE c_id = {$info_course['real_id']}
-                        ORDER BY lp.display_order";
+                $query->setParameters([
+                    'session' => $sessionId,
+                    'course' => $info_course['real_id']
+                ]);
             }
-            $rs_lp = Database::query($sql_lp);
-            if (Database :: num_rows($rs_lp) > 0) {
+            $rs_lp = $query->getResult();
+            if (count($rs_lp) > 0) {
                 ?>
                 <!-- LPs-->
-                <table class="data_table">
+                <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                <thead>
                 <tr>
                     <th><?php echo get_lang('Learnpaths');?></th>
                     <th><?php
@@ -782,13 +822,14 @@ if (!empty($student_id)) {
                     }
                     ?>
                 </tr>
+                </thead>
+                <tbody>
                 <?php
 
                 $i = 0;
-                while ($learnpath = Database :: fetch_array($rs_lp)) {
-
-                    $lp_id = intval($learnpath['id']);
-                    $lp_name = $learnpath['name'];
+                foreach ($rs_lp as $learnpath) {
+                    $lp_id = intval($learnpath->getId());
+                    $lp_name = $learnpath->getName();
                     $any_result = false;
 
                     // Get progress in lp
@@ -903,7 +944,7 @@ if (!empty($student_id)) {
                         }
                         $link = Display::url(
                             '<img src="../img/icons/22/2rightarrow.png" border="0" />',
-                            'lp_tracking.php?cidReq='.Security::remove_XSS($_GET['course']).'&course='.Security::remove_XSS($_GET['course']).$from.'&origin='.$origin.'&lp_id='.$learnpath['id'].'&student_id='.$user_info['user_id'].'&id_session='.$sessionId
+                            'lp_tracking.php?cidReq='.Security::remove_XSS($_GET['course']).'&course='.Security::remove_XSS($_GET['course']).$from.'&origin='.$origin.'&lp_id='.$learnpath->getId().'&student_id='.$user_info['user_id'].'&id_session='.$sessionId
                         );
                         echo Display::tag('td', $link);
                     }
@@ -911,7 +952,7 @@ if (!empty($student_id)) {
                     if (api_is_allowed_to_edit()) {
                         echo '<td>';
                         if ($any_result === true) {
-                            echo '<a href="myStudents.php?action=reset_lp&sec_token='.$token.'&cidReq='.Security::remove_XSS($_GET['course']).'&course='.Security::remove_XSS($_GET['course']).'&details='.Security::remove_XSS($_GET['details']).'&origin='.$origin.'&lp_id='.$learnpath['id'].'&student='.$user_info['user_id'].'&details=true&id_session='.$sessionId.'">';
+                            echo '<a href="myStudents.php?action=reset_lp&sec_token='.$token.'&cidReq='.Security::remove_XSS($_GET['course']).'&course='.Security::remove_XSS($_GET['course']).'&details='.Security::remove_XSS($_GET['details']).'&origin='.$origin.'&lp_id='.$learnpath->getId().'&student='.$user_info['user_id'].'&details=true&id_session='.$sessionId.'">';
                             echo Display::return_icon('clean.png',get_lang('Clean'),'',ICON_SIZE_SMALL).'</a>';
                             echo '</a>';
                         }
@@ -925,11 +966,15 @@ if (!empty($student_id)) {
                 //echo '<tr><td colspan="6">'.get_lang('NoLearnpath').'</td></tr>';
             }
             ?>
+            </tbody>
             </table>
+            </div>
         <?php } ?>
         <!-- line about exercises -->
         <?php if ($user_info['status'] != INVITEE) { ?>
-        <table class="data_table">
+        <div class="table-responsive">
+        <table class="table table-striped table-hover">
+        <thead>
         <tr>
             <th><?php echo get_lang('Exercises'); ?></th>
             <th><?php echo get_lang('LearningPath');?></th>
@@ -938,6 +983,8 @@ if (!empty($student_id)) {
             <th><?php echo get_lang('LatestAttempt'); ?></th>
             <th><?php echo get_lang('AllAttempts'); ?></th>
         </tr>
+        </thead>
+        <tbody>
         <?php
 
         $csv_content[] = array();
@@ -1042,7 +1089,11 @@ if (!empty($student_id)) {
         } else {
             echo '<tr><td colspan="6">'.get_lang('NoExercise').'</td></tr>';
         }
-        echo '</table>';
+        ?>
+        </tbody>
+        </table>
+        </div>
+        <?php
         }
 
         //@when using sessions we do not show the survey list
@@ -1088,8 +1139,16 @@ if (!empty($student_id)) {
         }
 
         // line about other tools
-        echo '<table class="data_table">';
-
+        ?>
+        <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th colspan="2"><?php echo get_lang('OtherTools'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+        <?php
         $csv_content[] = array ();
         $nb_assignments 		= Tracking::count_student_assignments($student_id, $course_code, $sessionId);
         $messages 				= Tracking::count_student_messages($student_id, $course_code, $sessionId);
@@ -1127,9 +1186,6 @@ if (!empty($student_id)) {
             $chat_last_connection
         );
         ?>
-        <tr>
-            <th colspan="2"><?php echo get_lang('OtherTools'); ?></th>
-        </tr>
         <tr><!-- assignments -->
             <td width="40%"><?php echo get_lang('Student_publication') ?></td>
             <td><?php echo $nb_assignments ?></td>
@@ -1154,11 +1210,9 @@ if (!empty($student_id)) {
             <td><?php echo get_lang('ChatLastConnection') ?></td>
             <td><?php echo $chat_last_connection; ?></td>
         </tr>
+        </tbody>
         </table>
-        </td>
-        </tr>
-        </table>
-
+        </div>
     <?php
     } //end details
 }

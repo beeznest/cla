@@ -738,10 +738,6 @@ if ($time_control) {
 	echo '<div style="display:none" class="warning-message" id="expired-message-id">'.get_lang('ExerciseExpiredTimeMessage').'</div>';
 }
 
-if (!empty($objExercise->description)){
-    echo Display::panelCollapse(get_lang('ExerciseDescriptionLabel'), $objExercise->description, 'exercise-description', null, 'description', 'exercise-collapse');
-}
-
 if ($origin != 'learnpath') {
    echo '<div id="highlight-plugin" class="glossary-content">';
 }
@@ -877,6 +873,8 @@ if (!empty($error)) {
                 $(".question-validate-btn").first().trigger("click");
                 return false;
             });*/
+
+            $(\'form#exercise_form\').prepend($(\'#exercise-description\'));
         });
 
 		function previous_question(question_num) {
@@ -1097,7 +1095,22 @@ if (!empty($error)) {
         	$remind_highlight = ' remind_highlight ';
         }
 
-        // Showing the question
+        // Showing the exercise description
+        if (!empty($objExercise->description)){
+            if ($objExercise->type == ONE_PER_PAGE || ($objExercise->type != ONE_PER_PAGE && $i==1)) {
+                //echo Display::panel($objExercise->description, get_lang('ExerciseDescriptionLabel'));
+                echo Display::panelCollapse('<span>' .
+                    get_lang('ExerciseDescriptionLabel') . '</span>',
+                    $objExercise->description,
+                    'exercise-description',
+                    [],
+                    'description',
+                    'exercise-collapse',
+                    false,
+                    true
+                );
+            }
+        }
 
         echo '<div id="question_div_'.$questionId.'" class="main-question '.$remind_highlight.'" >';
 
@@ -1156,15 +1169,15 @@ if (!empty($error)) {
     if ($objExercise->type == ALL_ON_ONE_PAGE) {
     	$exercise_actions =  $objExercise->show_button($questionId, $current_question);
     	echo Display::div($exercise_actions, array('class'=>'exercise_actions'));
+        echo '<br>';
     }
     echo '</form>';
-    echo '</div>';
+
 }
 
 if ($origin != 'learnpath') {
     // So we are not in learnpath tool
     echo '</div>'; //End glossary div
-    Display :: display_footer();
-} else {
-    echo '</body></html>';
 }
+
+Display :: display_footer();

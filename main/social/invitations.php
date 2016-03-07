@@ -19,52 +19,67 @@ $this_section = SECTION_SOCIAL;
 $interbreadcrumb[] = array ('url' =>'profile.php','name' => get_lang('SocialNetwork'));
 $interbreadcrumb[] = array ('url' =>'#','name' => get_lang('Invitations'));
 
-$userGroup = new UserGroup();
+if (is_array($_GET) && count($_GET) > 0) {
+    foreach ($_GET as $key => $value) {
+        switch ($key) {
+            case 'accept':
+                $useRole = GroupPortalManager::get_user_group_role(api_get_user_id(), $value);
 
-$htmlHeadXtra[] = '
-<script>
-function denied_friend(element_input) {
-    name_button=$(element_input).attr("id");
-    name_div_id="id_"+name_button.substring(13);
-    user_id=name_div_id.split("_");
-    friend_user_id=user_id[1];
-    $.ajax({
-        contentType: "application/x-www-form-urlencoded",
-        beforeSend: function(objeto) {
-            $("#id_response").html("<img src=\'../inc/lib/javascript/indicator.gif\' />");
-        },
-        type: "POST",
-        url: "'.api_get_path(WEB_AJAX_PATH).'social.ajax.php?a=deny_friend",
-        data: "denied_friend_id="+friend_user_id,
-        success: function(datos) {
-            $("div#"+name_div_id).hide("slow");
-            $("#id_response").html(datos);
+                if (in_array(
+                    $useRole,
+                    array(
+                        GROUP_USER_PERMISSION_PENDING_INVITATION_SENT_BY_USER,
+                        GROUP_USER_PERMISSION_PENDING_INVITATION
+                    )
+                )) {
+                    GroupPortalManager::update_user_role(api_get_user_id(), $value, GROUP_USER_PERMISSION_READER);
+
+                    Display::addFlash(
+                        Display::return_message(get_lang('UserIsSubscribedToThisGroup'), 'success')
+                    );
+
+                    header('Location: ' . api_get_path(WEB_CODE_PATH) . 'social/invitations.php');
+                    exit;
+                }
+
+                if (in_array(
+                    $useRole,
+                    array(
+                        GROUP_USER_PERMISSION_READER,
+                        GROUP_USER_PERMISSION_ADMIN,
+                        GROUP_USER_PERMISSION_MODERATOR
+                    )
+                )) {
+                    Display::addFlash(
+                        Display::return_message(get_lang('UserIsAlreadySubscribedToThisGroup'), 'warning')
+                    );
+
+                    header('Location: ' . api_get_path(WEB_CODE_PATH) . 'social/invitations.php');
+                    exit;
+                }
+
+                Display::addFlash(
+                    Display::return_message(get_lang('UserIsNotSubscribedToThisGroup'), 'warning')
+                );
+
+                header('Location: ' . api_get_path(WEB_CODE_PATH) . 'social/invitations.php');
+                exit;
+                break;
+            case 'deny':
+                GroupPortalManager::delete_user_rel_group(api_get_user_id(), $value);
+
+                Display::addFlash(
+                    Display::return_message(get_lang('GroupInvitationWasDeny'))
+                );
+
+                header('Location: ' . api_get_path(WEB_CODE_PATH) . 'social/invitations.php');
+                exit;
         }
-   });
-}
-function register_friend(element_input) {
-    if(confirm("'.get_lang('AddToFriends').'")) {
-		name_button=$(element_input).attr("id");
-		name_div_id="id_"+name_button.substring(13);
-		user_id=name_div_id.split("_");
-		user_friend_id=user_id[1];
-        $.ajax({
-           contentType: "application/x-www-form-urlencoded",
-           beforeSend: function(objeto) {
-               $("div#dpending_"+user_friend_id).html("<img src=\'../inc/lib/javascript/indicator.gif\' />"); },
-               type: "POST",
-               url: "'.api_get_path(WEB_AJAX_PATH).'social.ajax.php?a=add_friend",
-               data: "friend_id="+user_friend_id+"&is_my_friend="+"friend",
-               success: function(data) {
-                   $("div#"+name_div_id).hide("slow");
-                   $("#id_response").html(data);
-               }
-		});
     }
 }
 
-</script>';
-$show_message = null;
+$userGroup = new UserGroup();
+
 $content = null;
 
 // Block Menu Social
@@ -114,12 +129,29 @@ if ($number_loop != 0) {
                                     </h4>';
         $invitationHtml .= '<div class="content-invitation">'.$content.'</div>';
         $invitationHtml .= '<div class="date-invitation">'.get_lang('DateSend').' : '.$date.'</div>';
-        $invitationHtml .= '<div class="btn-group" role="group">
-                            <button class="btn btn-success" type="submit" id="btn_accepted_'.$sender_user_id.'" onclick="javascript:register_friend(this)">
-                            <em class="fa fa-check"></em> '.get_lang('AcceptInvitation').'</button>
-                            <button class="btn btn-danger" type="submit" id="btn_deniedst_'.$sender_user_id.' " onclick="javascript:denied_friend(this)" >
-                            <em class="fa fa-times"></em> '.get_lang('DenyInvitation').'</button>
-                            ';
+
+        $invitationHtml .= '<div class="btn-group" role="group">';
+        $invitationHtml .= Display::toolbarButton(
+            get_lang('AcceptInvitation'),
+            api_get_path(WEB_AJAX_PATH) . 'social.ajax.php?' . http_build_query([
+                'a' => 'add_friend',
+                'friend_id' => $sender_user_id,
+                'is_my_friend' => 'friend'
+            ]),
+            'check',
+            'success',
+            ['id' => 'btn-accept-' . $sender_user_id]
+        );
+        $invitationHtml .= Display::toolbarButton(
+            get_lang('DenyInvitation'),
+            api_get_path(WEB_AJAX_PATH) . 'social.ajax.php?' . http_build_query([
+                'a' => 'deny_friend',
+                'denied_friend_id' => $sender_user_id,
+            ]),
+            'times',
+            'danger',
+            ['id' => 'btn-deny-' . $sender_user_id]
+        );
         $invitationHtml .= '</div>';
         $invitationHtml .= '</div>';
         $invitationHtml .= '</div></div>';
@@ -174,8 +206,20 @@ if (count($pending_invitations) > 0) {
         $waitingInvitation .= '<h4 class="tittle-profile">'.$invitation['name'].'</h4>';
         $waitingInvitation .= '<div class="description-group">'.$invitation['description'].'</div>';
         $waitingInvitation .= '<div class="btn-group" role="group">';
-        $waitingInvitation .= '<a class="btn btn-success" href="invitations.php?accept='.$invitation['id'].'"><em class="fa fa-check"></em> '.get_lang('AcceptInvitation').'</a>';
-        $waitingInvitation .= '<a class="btn btn-danger" href="invitations.php?deny='.$invitation['id'].'"><em class="fa fa-times"></em> '.get_lang('DenyInvitation').'</a>';
+        $waitingInvitation .= Display::toolbarButton(
+            get_lang('AcceptInvitation'),
+            api_get_path(WEB_CODE_PATH) . 'social/invitations.php?' . http_build_query(['accept' => $invitation['id']]),
+            'check',
+            'success',
+            ['id' => 'accept-invitation-' . $invitation['id']]
+        );
+        $waitingInvitation .= Display::toolbarButton(
+            get_lang('DenyInvitation'),
+            api_get_path(WEB_CODE_PATH) . 'social/invitations.php?' . http_build_query(['deny' => $invitation['id']]),
+            'times',
+            'danger',
+            ['id' => 'deny-invitation-' . $invitation['id']]
+        );
         $waitingInvitation .='</div>';
         $waitingInvitation .= '</div></div>';
     }
@@ -186,7 +230,6 @@ $tpl = new Template(null);
 SocialManager::setSocialUserBlock($tpl, $user_id, 'invitations');
 $tpl->assign('social_menu_block', $social_menu_block);
 $tpl->assign('social_invitations_block',$socialInvitationsBlock);
-$tpl->assign('message', $show_message);
 $tpl->assign('content', $content);
 $social_layout = $tpl->get_template('social/invitations.tpl');
 $tpl->display($social_layout);
