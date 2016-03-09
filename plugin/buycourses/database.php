@@ -226,6 +226,7 @@ $servicesTable->addColumn(
 $servicesTable->addColumn('duration_days', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('renewable', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('applies_to', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('max_subscribers', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('owner_id', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('visibility', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->setPrimaryKey(['id']);
@@ -265,11 +266,32 @@ $servicesNodeTable->addColumn('status', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->addColumn('payment_type', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->addColumn('recurring_payment', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->addColumn('recurring_profile_id', \Doctrine\DBAL\Types\Type::STRING);
-$servicesNodeTable->addColumn('group_id', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesNodeTable->setPrimaryKey(['id']);
 $servicesNodeTable->addForeignKeyConstraint(
     $servicesTable,
     ['service_id'],
+    ['id'],
+    ['onDelete' => 'CASCADE']
+);
+
+$purchaseUserTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_PURCHASE_USER);
+$purchaseUserTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$purchaseUserTable->addColumn(
+        'service_sale_id',
+        \Doctrine\DBAL\Types\Type::INTEGER,
+        ['unsigned' => true]
+);
+$purchaseUserTable->addColumn('type', \Doctrine\DBAL\Types\Type::INTEGER);
+$purchaseUserTable->addColumn('type_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$purchaseUserTable->addColumn('subscriber_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$purchaseUserTable->setPrimaryKey(['id']);
+$purchaseUserTable->addForeignKeyConstraint(
+    $servicesNodeTable,
+    ['service_sale_id'],
     ['id'],
     ['onDelete' => 'CASCADE']
 );

@@ -37,7 +37,11 @@
         <tbody>
             {% for sale in sale_list %}
                 <tr class="{{ sale.status == service_sale_statuses.status_cancelled ? 'buy-courses-cross-out' : '' }}">
-                    <td>{{ sale.name }}</td>
+                    {% if sale.applies_to == 4 %}
+                        <td><a href="{{ _p.web_plugin ~ 'buycourses/src/package_panel.php?' ~ { 'id': sale.id } | url_encode() }}">{{ sale.name }}</a></td>
+                    {% else %}
+                        <td>{{ sale.name }}</td>
+                    {% endif %}
                     <td class="text-center">{{ sale.service_type }}</td>
                     <td class="text-center">{{ sale.payment_type }}</td>
                     <td class="text-right">{{ sale.currency ~ ' ' ~ sale.price }}</td>

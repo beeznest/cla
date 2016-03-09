@@ -10,7 +10,7 @@ $cidReset = true;
 
 require_once '../../../main/inc/global.inc.php';
 
-api_protect_admin_script(true);
+api_protect_admin_script(true, true);
 
 $plugin = BuyCoursesPlugin::create();
 
@@ -237,6 +237,65 @@ switch ($action) {
         
         echo '';
         
+        break;
+    case 'subscribe_user':
+        
+        if (api_is_anonymous()) {
+            break;
+        }
+        
+        $subscribeSlot = isset($_POST['subscribe_slot']) ? intval($_POST['subscribe_slot']) : null;
+        $email = isset($_POST['email']) ? $_POST['email'] : null;
+        $type = isset($_POST['type']) ? intval($_POST['type']): null;
+        $typeId = isset($_POST['typeId']) ? intval($_POST['typeId']): null;
+        
+        if ($subscribeSlot && $email) {
+            $userId = UserManager::createUserByEmail($email);
+            $UserInfo = api_get_user_info($userId);
+            UserManager::subscribeUsersToUser(api_get_user_id(), [$userId], USER_RELATION_TYPE_RRHH);
+            $result = $plugin->updateSubscriberUser($subscribeSlot, $userId, $type, $typeId);
+            
+            if ($result) {
+                Display::addFlash(Display::return_message($userInfo['email'] . ': ' . get_lang('AddedToCourse'), 'success'));
+            } else {
+                Display::addFlash(Display::return_message(get_lang('CannotSubscribeUser'), 'error'));
+            }
+        } else {
+            Display::addFlash(Display::return_message('Error: '.get_lang('ThisFieldIsRequired'), 'error'));
+        }
+        break;
+    case 'unsubscribe_user';
+        
+        if (api_is_anonymous()) {
+            break;
+        }
+        
+        $subscribeSlot = isset($_POST['subscribe_slot']) ? intval($_POST['subscribe_slot']) : null;
+        $type = isset($_POST['type']) ? intval($_POST['type']): null;
+        $typeId = isset($_POST['typeId']) ? intval($_POST['typeId']): null;
+        $groupId = isset($_POST['groupId']) ? intval($_POST['groupId']): null;
+        $userId = isset($_POST['userId']) ? intval($_POST['userId']): null;
+        
+        if ($type == 1) {
+            $courseInfo = api_get_course_info_by_id($typeId);
+            $courseCode = $courseInfo['code'];
+            CourseManager::unsubscribe_user($userId, $courseCode);
+            
+        } else if ($type == 2) {
+            $sessionId = $typeId;
+            SessionManager::unsubscribe_user_from_session($sessionId, $userId);
+        }
+        
+        $usergroup = new UserGroup();
+        $usergroup->delete_user_rel_group($userId, $groupId);
+        UserManager::unsubscribeUsersToUser(api_get_user_id(), [$userId], USER_RELATION_TYPE_RRHH);
+        $result = $plugin->UnsubscribeUser($subscribeSlot);
+        
+        if ($result) {
+            Display::addFlash(Display::return_message(get_lang('UserUnsubscribed'), 'success'));
+        } else {
+            Display::addFlash(Display::return_message(get_lang('CannotUnsubscribeUser'), 'error'));
+        }
         break;
 }
 exit;

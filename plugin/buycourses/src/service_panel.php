@@ -35,6 +35,7 @@ foreach ($serviceSales as $sale) {
         'id' => $sale['id'],
         'name' => $sale['service']['name'],
         'service_type' => $serviceTypes[$sale['service']['applies_to']],
+        'applies_to' => $sale['service']['applies_to'],
         'reference' => $sale['reference'],
         'date' => api_format_date($sale['buy_date'], DATE_TIME_FORMAT_LONG_24H),
         'date_end' => api_format_date($sale['date_end'], DATE_TIME_FORMAT_LONG_24H),

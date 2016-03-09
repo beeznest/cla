@@ -174,6 +174,136 @@ class UserManager
 
         return $encodedPassword;
     }
+    
+    /**
+    * Add missing user-information (which isn't required, like password, username etc).
+    */
+   public static function completeMissingData($user)
+   {
+       global $purification_option_for_usernames;
+
+       // 1. Create a username if necessary.
+       if (UserManager::is_username_empty($user['UserName'])) {
+           $user['UserName'] = UserManager::create_unique_username(
+               $user['FirstName'],
+               $user['LastName']
+           );
+       } else {
+           $user['UserName'] = UserManager::purify_username(
+               $user['UserName'],
+               $purification_option_for_usernames
+           );
+       }
+
+       // 2. Generate a password if necessary.
+       if (empty($user['Password'])) {
+           $user['Password'] = api_generate_password();
+       }
+       // 3. Set status if not allready set.
+       if (empty($user['Status'])) {
+           $user['Status'] = 'user';
+       }
+       // 4. Set authsource if not allready set.
+       if (empty($user['AuthSource'])) {
+           $user['AuthSource'] = PLATFORM_AUTH_SOURCE;
+       }
+
+       if (empty($user['ExpiryDate'])) {
+           $user['ExpiryDate'] = '';
+       }
+
+       return $user;
+   }
+    
+    
+    /**
+     * @param string $email
+     *
+     * @return bool
+     */
+    public static function createUserByEmail($email)
+    {
+        global $inserted_in_course;
+        
+        if (!isset($inserted_in_course)) {
+            $inserted_in_course = array();
+        }
+        $usergroup = new UserGroup();
+        $send_mail = true;
+        $type = isset($_POST['type']) ? intval($_POST['type']): null;
+        $typeId = isset($_POST['typeId']) ? intval($_POST['typeId']): null;
+        $groupId = isset($_POST['groupId']) ? intval($_POST['groupId']): null;
+        
+        $users = [];
+        $users['UserName'] = '';
+        $users['OfficialCode'] = '';
+        $users['language'] = '';
+        $users['PhoneNumber'] = '';
+        $users['FirstName'] = '-';
+        $users['LastName'] = $username = substr($email, 0, strpos($email, '@'));
+        $users['Email'] = $email;
+        $courseCode = null;
+        $sessionId = null;
+        
+        if ($type == 1) {
+            
+            $courseInfo = api_get_course_info_by_id($typeId);
+            $courseCode = $courseInfo['code'];
+            
+        } else if ($type == 2) {
+            $sessionId = $typeId;
+        }
+        
+        $users = array($users);
+        if (is_array($users)) {
+            foreach ($users as $user) {
+                $user = UserManager::completeMissingData($user);
+                $user['Status'] = api_status_key($user['Status']);
+                $userId = UserManager :: create_user(
+                    $user['FirstName'],
+                    $user['LastName'],
+                    $user['Status'],
+                    $user['Email'],
+                    $user['UserName'],
+                    $user['Password'],
+                    $user['OfficialCode'],
+                    $user['language'],
+                    $user['PhoneNumber'],
+                    '',
+                    $user['AuthSource'],
+                    $user['ExpiryDate'],
+                    1,
+                    0,
+                    null,
+                    null,
+                    $send_mail
+                );
+
+                if (CourseManager::course_exists($courseCode)) {
+                    CourseManager::subscribe_user(
+                        $userId,
+                        $courseCode,
+                        $user['Status']
+                    );
+                }
+                
+                if (SessionManager::fetch($sessionId)) {
+                    SessionManager::suscribe_users_to_session(
+                        $sessionId,
+                        array($userId),
+                        SESSION_VISIBLE_READ_ONLY,
+                        false
+                    );
+                    
+                }
+                
+                $usergroup->add_user_to_group($userId, $groupId);
+
+            }
+        }
+        
+        return $userId;
+    }
 
     /**
      * @param int $userId
@@ -4152,6 +4282,34 @@ class UserManager
         }
 
         return $affectedRows;
+    }
+    
+    /**
+     * Unsubscribe users to a user by relation type
+     * @param int $userId The user id
+     * @param array $subscribedUsersId The id of suscribed users
+     * @param action $relationType The relation type
+     */
+    public static function unsubscribeUsersToUser($userId, $subscribedUsersId, $relationType)
+    {
+        $userRelUserTable = Database::get_main_table(TABLE_MAIN_USER_REL_USER);
+
+        $userId = intval($userId);
+        $relationType = intval($relationType);
+        $affectedRows = 0;
+
+        foreach ($subscribedUsersId as $subscribedUserId) {
+            $sql = "DELETE FROM $userRelUserTable "
+                    . "WHERE user_id = $subscribedUserId "
+                    . "AND friend_user_id = $userId "
+                    . "AND relation_type = $relationType";
+                    
+            $result = Database::query($sql);
+            $affectedRows = Database::affected_rows($result);
+        }
+        
+        return $affectedRows;
+        
     }
 
     /**

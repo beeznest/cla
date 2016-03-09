@@ -47,11 +47,12 @@ $formDefaultValues = [
     'duration_days' => $service['duration_days'],
     'owner_id' => intval($service['owner_id']),
     'applies_to' => intval($service['applies_to']),
+    'max_subscribers' => intval($service['max_subscribers']),
     'renewable' => ($service['renewable'] == 1) ? true : false,
     'visibility' => ($service['visibility'] == 1) ? true : false
 ];
 
-$form = new FormValidator('Skill');
+$form = new FormValidator('Services');
 $form->addText('name', $plugin->get_lang('ServiceName'));
 $form->addTextarea('description', $plugin->get_lang('Description'));
 $form->addElement(
@@ -102,6 +103,12 @@ $form->addElement(
     $plugin->get_lang('SubscriptionPackage'),
     4
 );
+$form->addElement(
+    'number',
+    'max_subscribers',
+    [null, $plugin->get_lang('EnterTheMaxSubscribersForThisService')],
+    ['step' => 1, 'value' => 0]
+);
 $form->addSelect(
     'owner_id',
     get_lang('Owner'),
@@ -118,6 +125,30 @@ if ($form->validate()) {
     
     header('Location: configuration.php');
 }
+
+
+$htmlHeadXtra[] = '
+<script>
+    $(document).ready(function() {
+        if ($("input[name=\"applies_to\"]:checked").val() == 4) {
+            $("input[name=\"max_subscribers\"]").attr("type", "number");
+            $(".help-block").show();
+        } else {
+            $("input[name=\"max_subscribers\"]").attr("type", "hidden");
+            $(".help-block").hide();
+        }
+        $("input[name=\"applies_to\"]").click(function() {
+            if ($("input[name=\"applies_to\"]:checked").val() == 4) {
+                $("input[name=\"max_subscribers\"]").attr("type", "number");
+                $(".help-block").show();
+            } else {
+                $("input[name=\"max_subscribers\"]").attr("type", "hidden");
+                $(".help-block").hide();
+            }
+        });
+    });
+</script>';
+
 
 $templateName = $plugin->get_lang('EditService');
 $tpl = new Template($templateName);

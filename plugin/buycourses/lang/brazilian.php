@@ -4,7 +4,9 @@ $strings['plugin_comment'] = "Venda cursos diretamente através de seu portal Ch
 $strings['show_main_menu_tab'] = "Mostrar guia no menu principal";
 $strings['show_main_menu_tab_help'] = "No caso de não querer mostrar a guia, você pode criar esse link em sua página Chamilo: %s";
 $strings['include_sessions'] = "Incluir sessões";
+$strings['include_services'] = "Incluir serviços";
 $strings['paypal_enable'] = "Ativar PayPal";
+$strings['commissions_enable'] = "Permitir comissões";
 $strings['transfer_enable'] = "Permitir transferência bancária";
 $strings['unregistered_users_enable'] = "Permitir que usuários anônimos";
 
@@ -117,3 +119,5 @@ $strings['UserServices'] = "Serviços de Usuário";
 $strings['UserPanel'] = "Painel de Usuário";
 $strings['AdditionalInfoRequired'] = "Selecione a informação adicional";
 $strings['SubscriptionPackage'] = "Pacote de subscrição";
+$strings['EnterTheMaxSubscribersForThisService'] = "Digite o número máximo de assinantes para este serviço";
+$strings['PackageName'] = "Nome do pacote";

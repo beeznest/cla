@@ -21,6 +21,7 @@ class BuyCoursesPlugin extends Plugin
     const TABLE_PAYPAL_PAYOUTS = 'plugin_buycourses_paypal_payouts';
     const TABLE_SERVICES = 'plugin_buycourses_services';
     const TABLE_SERVICES_NODE = 'plugin_buycourses_service_rel_node';
+    const TABLE_PURCHASE_USER = 'plugin_buycourses_purchase_rel_user';
     const PRODUCT_TYPE_COURSE = 1;
     const PRODUCT_TYPE_SESSION = 2;
     const PAYMENT_TYPE_PAYPAL = 1;
@@ -91,8 +92,9 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_CURRENCY,
             self::TABLE_COMMISSION,
             self::TABLE_PAYPAL_PAYOUTS,
+            self::TABLE_PURCHASE_USER,
             self::TABLE_SERVICES,
-            self::TABLE_SERVICES_NODE
+            self::TABLE_SERVICES_NODE                
         );
         $em = Database::getManager();
         $cn = $em->getConnection();
@@ -120,6 +122,7 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_CURRENCY,
             self::TABLE_COMMISSION,
             self::TABLE_PAYPAL_PAYOUTS,
+            self::TABLE_PURCHASE_USER,
             self::TABLE_SERVICES_NODE,
             self::TABLE_SERVICES
         );
@@ -1691,6 +1694,7 @@ class BuyCoursesPlugin extends Plugin
                 'duration_days' => intval($service['duration_days']),
                 'renewable' => intval($service['renewable']),
                 'applies_to' => intval($service['applies_to']),
+                'max_subscribers' => intval($service['max_subscribers']),
                 'owner_id' => intval($service['owner_id']),
                 'visibility' => intval($service['visibility'])
             ]
@@ -1716,6 +1720,7 @@ class BuyCoursesPlugin extends Plugin
                 'duration_days' => intval($service['duration_days']),
                 'renewable' => intval($service['renewable']),
                 'applies_to' => intval($service['applies_to']),
+                'max_subscribers' => intval($service['max_subscribers']),
                 'owner_id' => intval($service['owner_id']),
                 'visibility' => intval($service['visibility'])
             ],
@@ -1775,6 +1780,7 @@ class BuyCoursesPlugin extends Plugin
             $services['duration_days'] = $return['duration_days'];
             $services['renewable'] = $return['renewable'];
             $services['applies_to'] = $return['applies_to'];
+            $services['max_subscribers'] = $return['max_subscribers'];
             $services['owner_id'] = $return['owner_id'];
             $services['owner_name'] = api_get_person_name($return['firstname'], $return['lastname']);
             $services['visibility'] = $return['visibility'];
@@ -1792,6 +1798,7 @@ class BuyCoursesPlugin extends Plugin
             $services[$index]['duration_days'] = $service['duration_days'];
             $services[$index]['renewable'] = $service['renewable'];
             $services[$index]['applies_to'] = $service['applies_to'];
+            $services[$index]['max_subscribers'] = $service['max_subscribers'];
             $services[$index]['owner_id'] = $service['owner_id'];
             $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
             $services[$index]['visibility'] = $service['visibility'];
@@ -1859,6 +1866,7 @@ class BuyCoursesPlugin extends Plugin
             $services[$index]['duration_days'] = $service['duration_days'];
             $services[$index]['renewable'] = $service['renewable'];
             $services[$index]['applies_to'] = $service['applies_to'];
+            $services[$index]['max_subscribers'] = $service['max_subscribers'];
             $services[$index]['owner_id'] = $service['owner_id'];
             $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
             $services[$index]['visibility'] = $service['visibility'];
@@ -1881,6 +1889,8 @@ class BuyCoursesPlugin extends Plugin
         if (!in_array($paymentType, [self::PAYMENT_TYPE_PAYPAL, self::PAYMENT_TYPE_TRANSFER])) {
             return false;
         }
+        
+        $userId = api_get_user_id();
 
         $service = $this->getServices($serviceId);
 
@@ -1888,12 +1898,28 @@ class BuyCoursesPlugin extends Plugin
             return false;
         }
         
+        if ($service['applies_to'] == self::SERVICE_TYPE_SUBSCRIPTION_PACKAGE) {
+            $usergroup = new UserGroup();
+            $usergroup->setGroupType($usergroup::SOCIAL_CLASS);
+            $values['name'] = $infoSelect;
+            $values['group_type'] = UserGroup::SOCIAL_CLASS;
+            $values['relation_type'] = GROUP_USER_PERMISSION_ADMIN;
+            $values['visibility'] = GROUP_PERMISSION_CLOSED;
+            $infoSelect = $groupId = $usergroup->save($values);
+            
+            Database::update(
+                Database::get_main_table(TABLE_MAIN_USER),
+                ['status' => DRH],
+                ['user_id = ?' => intval($userId)]
+            );
+        }
+        
         $currency = $this->getSelectedCurrency();
 
         $values = [
             'service_id' => $serviceId,
             'reference' => $this->generateReference(
-                api_get_user_id(),
+                $userId,
                 $service['applies_to'],
                 $infoSelect
             ),
@@ -1901,7 +1927,7 @@ class BuyCoursesPlugin extends Plugin
             'price' => $service['price'],
             'node_type' => $service['applies_to'],
             'node_id' => intval($infoSelect),
-            'buyer_id' => api_get_user_id(),
+            'buyer_id' => $userId,
             'buy_date' => api_get_utc_datetime(),
             'date_start' => api_get_utc_datetime(),
             'date_end' => date_format(date_add(date_create(api_get_utc_datetime()), date_interval_create_from_date_string($service['duration_days'].' days')), 'Y-m-d H:i:s'),
@@ -1910,8 +1936,23 @@ class BuyCoursesPlugin extends Plugin
             'recurring_payment' => self::SERVICE_RECURRING_PAYMENT_DISABLED,
             'recurring_profile_id' => 'None'
         ];
+        
+        $returnedServiceSaleId = Database::insert(self::TABLE_SERVICES_NODE, $values);
+        
+    if ($service['applies_to'] == self::SERVICE_TYPE_SUBSCRIPTION_PACKAGE) {
+        $fakeUsers = [
+            'service_sale_id' => $returnedServiceSaleId,
+            'type' => 0,
+            'type_id' => 0,
+            'subscriber_id' => 0
+        ];
+        
+        for ($i = 1; $i <= intval($service['max_subscribers']); $i++) {
+            Database::insert(self::TABLE_PURCHASE_USER, $fakeUsers);
+        }
+    }
 
-        return Database::insert(self::TABLE_SERVICES_NODE, $values);
+        return $returnedServiceSaleId;
     }
     
     /**
@@ -2118,6 +2159,109 @@ class BuyCoursesPlugin extends Plugin
             $serviceSaleTable,
             ['recurring_payment' => intval($recurringPaymentStatus)],
             ['id = ?' => intval($serviceSaleId)]
+        );
+    }
+    
+    /**
+     * get Subscribers Users by Service Sale Id
+     * @param int $serviceSaleId the service Sale Id
+     * @return boolean true, false
+     */
+    public function getSubscriberUsers($serviceSaleId)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        $return = Database::select(
+            "*",
+            "$purchaseUserTable",
+            ['WHERE' => ['service_sale_id = ?' => $serviceSaleId]]
+        );
+        
+        $users = [];
+        
+        foreach ($return as $index => $subscriber) {
+            if (intval($subscriber['subscriber_id']) !== 0) {
+                $users[$index] = api_get_user_info(intval($subscriber['subscriber_id']));
+                if ($subscriber['type'] == 1) {
+                    $users[$index]['Type'] = intval($subscriber['type']);
+                    $users[$index]['Course'] = api_get_course_info_by_id(intval($subscriber['type_id']));
+                } elseif ($subscriber['type'] == 2) {
+                    $users[$index]['Type'] = intval($subscriber['type']);
+                    $users[$index]['Session'] = api_get_session_info(intval($subscriber['type_id']));
+                }
+            } else {
+                $users[$index] = false;
+            }
+        }
+        
+        return $users;
+    }
+    
+    /**
+     * get Subscribers Users by Service Sale Id
+     * @param int $id the correlative id
+     * @return boolean true, false
+     */
+    public function getSubscriberUserByCorrelativeId($id)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        $return = Database::select(
+            "*",
+            "$purchaseUserTable",
+            ['WHERE' => ['id = ?' => $id]]
+        );
+        
+        $users = [];
+        
+        foreach ($return as $index => $subscriber) {
+            if (intval($subscriber['subscriber_id']) !== 0) {
+                $users[$index] = api_get_user_info(intval($subscriber['subscriber_id']));
+            } else {
+                $users[$index] = false;
+            }
+        }
+        
+        return $users;
+    }
+    
+    /**
+     * Update a subscribe user
+     * @param int $id the correlative id
+     * @param int $userId the user Id
+     * @param int $type the node type
+     * @param int $typeId the node typeId
+     * @return boolean true, false
+     */
+    public function updateSubscriberUser($id, $userId, $type, $typeId)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        return Database::update(
+            $purchaseUserTable,
+            ['type' => intval($type), 'type_id' => intval($typeId), 'subscriber_id' => intval($userId)],
+            ['id = ?' => intval($id)]
+        );
+    }
+    
+    /**
+     * Unsubscribe user
+     * @param int $id the correlative id
+     * @param int $userId the user Id
+     * @return boolean true, false
+     */
+    public function UnsubscribeUser($id)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        return Database::update(
+            $purchaseUserTable,
+            ['type' => 0, 'type_id' => 0, 'subscriber_id' => 0],
+            ['id = ?' => intval($id)]
         );
     }
     
