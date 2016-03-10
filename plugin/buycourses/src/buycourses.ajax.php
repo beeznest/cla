@@ -250,7 +250,13 @@ switch ($action) {
         $typeId = isset($_POST['typeId']) ? intval($_POST['typeId']): null;
         
         if ($subscribeSlot && $email) {
-            $userId = UserManager::createUserByEmail($email);
+            $userExist = api_get_user_info_from_email($email);
+            if ($userExist) {
+                $userId = $userExist['user_id'];                
+            } else {
+                $userId = UserManager::createUserByEmail($email);
+            }
+            
             $UserInfo = api_get_user_info($userId);
             UserManager::subscribeUsersToUser(api_get_user_id(), [$userId], USER_RELATION_TYPE_RRHH);
             $result = $plugin->updateSubscriberUser($subscribeSlot, $userId, $type, $typeId);
