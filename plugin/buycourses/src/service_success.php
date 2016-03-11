@@ -80,39 +80,39 @@ if ($form->validate()) {
                 );
                 
                 
-                $paypalAccount = $plugin->verifyPaypalAccountByBeneficiary($serviceSale['buyer']['id'], true);
-    
-                $extra = "&L_PAYMENTREQUEST_0_ITEMCATEGORY0=Digital";
-                $extra .= "&L_PAYMENTREQUEST_0_NAME0={$serviceSale['service']['name']}";
-                $extra .= "&L_PAYMENTREQUEST_0_AMT0={$serviceSale['price']}";
-                $extra .= "&L_PAYMENTREQUEST_0_QTY0=1";
-
-                $recurringPaymentProfile = CreateRecurringPaymentsProfile(
-                    $serviceSale['buyer']['name'],
-                    $serviceSale['date_end'],
-                    $serviceSale['reference'],
-                    $serviceSale['service']['name'],
-                    'Day',
-                    $serviceSale['service']['duration_days'],
-                    $serviceSale['price'],
-                    $serviceSale['currency'],
-                    $paypalAccount,
-                    $extra
-                );
-                
-                if ($recurringPaymentProfile['ACK'] == 'Success') {
-                    $plugin->updateRecurringProfileId($serviceSale['id'], $recurringPaymentProfile['PROFILEID']);
-                } else {
-                    $erroMessage = vsprintf(
-                        $plugin->get_lang('ErrorOccurred'),
-                        [$recurringPaymentProfile['L_ERRORCODE0'], $recurringPaymentProfile['L_LONGMESSAGE0']]
-                    );
-                    Display::addFlash(
-                        Display::return_message($erroMessage, 'error', false)
-                    );
-                    header('Location: service_catalog.php');
-                    exit;
-                }
+//                $paypalAccount = $plugin->verifyPaypalAccountByBeneficiary($serviceSale['buyer']['id'], true);
+//    
+//                $extra = "&L_PAYMENTREQUEST_0_ITEMCATEGORY0=Digital";
+//                $extra .= "&L_PAYMENTREQUEST_0_NAME0={$serviceSale['service']['name']}";
+//                $extra .= "&L_PAYMENTREQUEST_0_AMT0={$serviceSale['price']}";
+//                $extra .= "&L_PAYMENTREQUEST_0_QTY0=1";
+//
+//                $recurringPaymentProfile = CreateRecurringPaymentsProfile(
+//                    $serviceSale['buyer']['name'],
+//                    $serviceSale['date_end'],
+//                    $serviceSale['reference'],
+//                    $serviceSale['service']['name'],
+//                    'Day',
+//                    $serviceSale['service']['duration_days'],
+//                    $serviceSale['price'],
+//                    $serviceSale['currency'],
+//                    $paypalAccount,
+//                    $extra
+//                );
+//                
+//                if ($recurringPaymentProfile['ACK'] == 'Success') {
+//                    $plugin->updateRecurringProfileId($serviceSale['id'], $recurringPaymentProfile['PROFILEID']);
+//                } else {
+//                    $erroMessage = vsprintf(
+//                        $plugin->get_lang('ErrorOccurred'),
+//                        [$recurringPaymentProfile['L_ERRORCODE0'], $recurringPaymentProfile['L_LONGMESSAGE0']]
+//                    );
+//                    Display::addFlash(
+//                        Display::return_message($erroMessage, 'error', false)
+//                    );
+//                    header('Location: service_catalog.php');
+//                    exit;
+//                }
                 
                 break;
             }

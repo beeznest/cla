@@ -257,7 +257,7 @@ switch ($action) {
                 $userId = UserManager::createUserByEmail($email);
             }
             
-            $UserInfo = api_get_user_info($userId);
+            $userInfo = api_get_user_info($userId);
             UserManager::subscribeUsersToUser(api_get_user_id(), [$userId], USER_RELATION_TYPE_RRHH);
             $result = $plugin->updateSubscriberUser($subscribeSlot, $userId, $type, $typeId);
             
