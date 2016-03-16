@@ -229,6 +229,8 @@ $servicesTable->addColumn('applies_to', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('max_subscribers', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('owner_id', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('visibility', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('url', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('service_information', \Doctrine\DBAL\Types\Type::TEXT);
 $servicesTable->setPrimaryKey(['id']);
 
 $servicesNodeTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICES_NODE);
@@ -292,6 +294,27 @@ $purchaseUserTable->setPrimaryKey(['id']);
 $purchaseUserTable->addForeignKeyConstraint(
     $servicesNodeTable,
     ['service_sale_id'],
+    ['id'],
+    ['onDelete' => 'CASCADE']
+);
+
+$serviceCourseSessionTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICE_COURSE_SESSION);
+$serviceCourseSessionTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$serviceCourseSessionTable->addColumn(
+        'service_id',
+        \Doctrine\DBAL\Types\Type::INTEGER,
+        ['unsigned' => true]
+);
+$serviceCourseSessionTable->addColumn('type', \Doctrine\DBAL\Types\Type::INTEGER);
+$serviceCourseSessionTable->addColumn('type_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$serviceCourseSessionTable->setPrimaryKey(['id']);
+$serviceCourseSessionTable->addForeignKeyConstraint(
+    $servicesTable,
+    ['service_id'],
     ['id'],
     ['onDelete' => 'CASCADE']
 );

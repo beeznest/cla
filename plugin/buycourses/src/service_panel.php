@@ -14,6 +14,10 @@ $plugin = BuyCoursesPlugin::create();
 $includeServices = $plugin->get('include_services') === 'true';
 $includeSessions = $plugin->get('include_sessions') === 'true';
 
+// this is for clear the recurring payment process
+unset($_SESSION['TOKEN']);
+unset($_SESSION['action']);
+
 $userInfo = api_get_user_info();
 
 if (!$userInfo) {
@@ -37,8 +41,8 @@ foreach ($serviceSales as $sale) {
         'service_type' => $serviceTypes[$sale['service']['applies_to']],
         'applies_to' => $sale['service']['applies_to'],
         'reference' => $sale['reference'],
-        'date' => api_format_date($sale['buy_date'], DATE_TIME_FORMAT_LONG_24H),
-        'date_end' => api_format_date($sale['date_end'], DATE_TIME_FORMAT_LONG_24H),
+        'date' => api_format_date(api_get_local_time($sale['buy_date']), DATE_TIME_FORMAT_LONG_24H),
+        'date_end' => api_format_date(api_get_local_time($sale['date_end']), DATE_TIME_FORMAT_LONG_24H),
         'currency' => $sale['currency'],
         'price' => $sale['price'],
         'payment_type' => $paymentTypes[$sale['payment_type']],

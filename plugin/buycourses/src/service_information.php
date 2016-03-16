@@ -1,0 +1,33 @@
+<?php
+
+/* For licensing terms, see /license.txt */
+/**
+ * Service information page
+ * Show information about a service (for custom purposes)
+ * @author José Loguercio Silva <jose.loguercio@beeznest.com>
+ * @package chamilo.buycourses_plugin
+ */
+
+$cidReset = true;
+
+require_once '../../../main/inc/global.inc.php';
+
+$serviceId = isset($_GET['service_id']) ? intval($_GET['service_id']) : false;
+
+$plugin = BuyCoursesPlugin::create();
+
+$service = $plugin->getServices($serviceId);
+
+if (!$service['id']) {
+    api_not_allowed(true);
+}
+
+$template = new Template($service['name'], true, true, false, true, false);
+$template->assign('pageUrl', api_get_path(WEB_PATH) . "service/{$serviceId}/information/");
+$template->assign('service', $service);
+
+$content = $template->fetch('buycourses/view/service_information.tpl');
+
+$template->assign('header', $service['name']);
+$template->assign('content', $content);
+$template->display_one_col_template();

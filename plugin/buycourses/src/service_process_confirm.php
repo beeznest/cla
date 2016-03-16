@@ -36,12 +36,9 @@ switch ($serviceSale['payment_type']) {
 
         require_once("paypalfunctions.php");
 
-        $i = 0;
         $extra = "&L_PAYMENTREQUEST_0_NAME0={$serviceSale['service']['name']}";
         $extra .= "&L_PAYMENTREQUEST_0_AMT0={$serviceSale['price']}";
         $extra .= "&L_PAYMENTREQUEST_0_QTY0=1";
-        $extra .= "&L_BILLINGTYPE0=RecurringPayments";
-        $extra .= "&L_BILLINGAGREEMENTDESCRIPTION0={$serviceSale['service']['name']}";
 
         $expressCheckout = CallShortcutExpressCheckout(
             $serviceSale['price'],
@@ -49,8 +46,7 @@ switch ($serviceSale['payment_type']) {
             'paypal',
             api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_success.php',
             api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/error.php',
-            $extra,
-            true
+            $extra
         );
 
         if ($expressCheckout["ACK"] !== 'Success') {

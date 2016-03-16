@@ -103,6 +103,8 @@ $form->addSelect(
     $userOptions
 );
 $form->addCheckBox('visibility', $plugin->get_lang('VisibleInCatalog'));
+$form->addHtmlEditor('service_information', get_lang('ServiceInformation'), false);
+$form->addText('url', get_lang('VideoUrl'), false);
 $form->addButtonSave(get_lang('Add'));
 $form->setDefaults($formDefaultValues);
 

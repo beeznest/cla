@@ -68,7 +68,7 @@ $saleStatuses = $plugin->getServiceSaleStatuses();
 $paymentTypes = $plugin->getPaymentTypes();
 
 $selectedFilterType = '0';
-$selectedStatus = isset($_GET['status']) ? invtal($_GET['status']) : BuyCoursesPlugin::SERVICE_STATUS_PENDING;
+$selectedStatus = isset($_GET['status']) ? intval($_GET['status']) : BuyCoursesPlugin::SERVICE_STATUS_PENDING;
 $selectedSale = isset($_GET['sale']) ? intval($_GET['sale']) : 0;
 $searchTerm = '';
 

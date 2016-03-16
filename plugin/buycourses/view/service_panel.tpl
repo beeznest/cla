@@ -51,11 +51,11 @@
                     <td class="text-center">
                     {% if sale.status == service_sale_statuses.status_completed %}
                         {% if sale.recurring_payment == 1 %}
-                            <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'profile': sale.recurring_profile_id, 'order': sale.id, 'action': 'disable_recurring_payment'}|url_encode() }}" class="btn btn-danger btn-sm">
+                            <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'order': sale.id, 'action': 'disable_recurring_payment'}|url_encode() }}" class="btn btn-danger btn-sm">
                                 <em class="fa fa-paypal fa-fw"></em> {{ 'Disable'|get_lang }}
                             </a>
                         {% else %}
-                            <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'profile': sale.recurring_profile_id, 'order': sale.id, 'action': 'enable_recurring_payment'}|url_encode() }}" class="btn btn-success btn-sm">
+                            <a href="{{ _p.web_plugin ~ 'buycourses/src/recurring_payment_process.php?' ~ { 'order': sale.id, 'action': 'enable_recurring_payment'}|url_encode() }}" class="btn btn-success btn-sm">
                                 <em class="fa fa-paypal fa-fw"></em> {{ 'Enable'|get_lang }}
                             </a>
                         {% endif %}

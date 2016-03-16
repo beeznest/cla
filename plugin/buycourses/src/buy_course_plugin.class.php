@@ -22,6 +22,7 @@ class BuyCoursesPlugin extends Plugin
     const TABLE_SERVICES = 'plugin_buycourses_services';
     const TABLE_SERVICES_NODE = 'plugin_buycourses_service_rel_node';
     const TABLE_PURCHASE_USER = 'plugin_buycourses_purchase_rel_user';
+    const TABLE_SERVICE_COURSE_SESSION = 'plugin_buycourses_service_rel_course_session';
     const PRODUCT_TYPE_COURSE = 1;
     const PRODUCT_TYPE_SESSION = 2;
     const PAYMENT_TYPE_PAYPAL = 1;
@@ -41,8 +42,12 @@ class BuyCoursesPlugin extends Plugin
     const SERVICE_TYPE_SUBSCRIPTION_PACKAGE = 4;
     const SERVICE_RECURRING_PAYMENT_ENABLED = 1;
     const SERVICE_RECURRING_PAYMENT_DISABLED = 0;
-    const AUTOBILLING_ENABLED = 'NoAutoBill';
-    const AUTOBILLING_DISABLED = 'AddToNextBilling';
+    const PAYPAL_RECURRING_PAYMENT_CANCEL = 'Cancel';
+    const PAYPAL_RECURRING_PAYMENT_SUSPEND = 'Suspend';
+    const PAYPAL_RECURRING_PAYMENT_REACTIVATE = 'Reactivate';
+    const PAYPAL_AUTOBILLING_ENABLED = 'NoAutoBill';
+    const PAYPAL_AUTOBILLING_DISABLED = 'AddToNextBilling';
+    
 
     /**
      *
@@ -94,7 +99,8 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_PAYPAL_PAYOUTS,
             self::TABLE_PURCHASE_USER,
             self::TABLE_SERVICES,
-            self::TABLE_SERVICES_NODE                
+            self::TABLE_SERVICES_NODE,
+            self::TABLE_SERVICE_COURSE_SESSION
         );
         $em = Database::getManager();
         $cn = $em->getConnection();
@@ -124,6 +130,7 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_PAYPAL_PAYOUTS,
             self::TABLE_PURCHASE_USER,
             self::TABLE_SERVICES_NODE,
+            self::TABLE_SERVICE_COURSE_SESSION,
             self::TABLE_SERVICES
         );
 

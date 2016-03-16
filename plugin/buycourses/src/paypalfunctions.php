@@ -150,6 +150,31 @@ function CallMarkExpressCheckout($paymentAmount, $currencyCodeType, $paymentType
 }
 
 /**
+ * Purpose: 	Do a minimal Express Checkout to obtain a TOKEN.
+ * Inputs:
+ *		extraParameters:  	All the extra parameters you want to define
+ */
+function MinimalExpressCheckout($extraParameters)
+{
+    // Construct the parameter string that describes the SetExpressCheckout API call in the shortcut implementation
+    $nvpstr = $extraParameters;
+
+    /**
+     * Make the API call to PayPal
+     * If the API call succeded, then redirect the buyer to PayPal to begin to authorize payment.
+     * If an error occured, show the resulting errors
+     */
+    $resArray = hash_call("SetExpressCheckout", $nvpstr);
+    $ack = strtoupper($resArray["ACK"]);
+    if ($ack == "SUCCESS" || $ack == "SUCCESSWITHWARNING") {
+        $token = urldecode($resArray["TOKEN"]);
+        $_SESSION['TOKEN'] = $token;
+    }
+
+    return $resArray;
+}
+
+/**
  *
  * Purpose: Prepares the parameters for the GetExpressCheckoutDetails API Call.
  *
