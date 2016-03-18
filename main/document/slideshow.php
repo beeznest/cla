@@ -87,7 +87,8 @@ if ($slide_id != 'all') {
 		if ($slide > 0) {
 			echo '<a href="slideshow.php?slide_id='.$previous_slide.'&curdirpath='.$pathurl.'">';
 		}
-		echo '<img src="'.api_get_path(WEB_IMG_PATH).$imgp.'" title="'.get_lang('Previous').'" alt="'.get_lang('Previous').'">';
+
+        echo Display::return_icon($imgp, get_lang('Previous'));
 		if ($slide > 0) {
 			echo '</a>';
 		}
@@ -101,12 +102,14 @@ if ($slide_id != 'all') {
 		}
 		if ($slide == $total_slides - 1) {
 			$imgn = 'action_next_na.png';
-			$last = '<img src="'.api_get_path(WEB_IMG_PATH).'action_last_na.png" title="'.get_lang('LastSlide').'" alt="'.get_lang('LastSlide').'">';
+            $last = Display::return_icon('action_last_na.png', get_lang('LastSlide'));
 		} else {
 			$imgn = 'action_next.png';
-			$last = '<a href="slideshow.php?slide_id='.($total_slides-1).'&curdirpath='.$pathurl.'"><img src="'.api_get_path(WEB_IMG_PATH).'action_last.png" title="'.get_lang('LastSlide').'" alt="'.get_lang('LastSlide').'"></a>';
+			$last = '<a href="slideshow.php?slide_id='.($total_slides-1).'&curdirpath='.$pathurl.'">
+			        '.Display::return_icon('action_last.png', get_lang('LastSlide')).'
+                </a>';
 		}
-		echo '<img src="'.api_get_path(WEB_IMG_PATH).$imgn.'" title="'.get_lang('Next').'" alt="'.get_lang('Next').'">';
+        echo Display::return_icon($imgn, get_lang('Next'));
 		if ($slide > 0) {
 			echo '</a>';
 		}
@@ -130,12 +133,9 @@ if ($slide_id != 'all') {
 }
 // Slideshow options
 echo '<a href="slideshowoptions.php?curdirpath='.$pathurl.'&'.api_get_cidreq().'">'.
-    Display::return_icon('settings.png',get_lang('SetSlideshowOptions'),'',ICON_SIZE_MEDIUM).'</a>';
+    Display::return_icon('settings.png', get_lang('SetSlideshowOptions'),'',ICON_SIZE_MEDIUM).'</a>';
 
-?>
-</div>
-
-<?php
+echo '</div>';
 echo '<br />';
 
 /*	TREATING THE POST DATA FROM SLIDESHOW OPTIONS */
@@ -380,9 +380,7 @@ if ($slide_id != 'all' && !empty($image_files_only)) {
 		$result = Database::query($sql);
 		$row = Database::fetch_array($result);
 
-		echo '<table align="center" border="0" cellspacing="10">';
-		echo '<tr>';
-		echo '<td id="td_image" align="center">';
+        echo '<div class="thumbnail">';
 		if ($slide < $total_slides - 1 && $slide_id != 'all') {
 			echo "<a href='slideshow.php?slide_id=".$next_slide."&curdirpath=$pathurl'>";
 		} else {
@@ -449,27 +447,18 @@ if ($slide_id != 'all' && !empty($image_files_only)) {
 		</script>
     <?php
 		} else {
-			echo "<img src='download.php?doc_url=$path/".$image_files_only[$slide]."' alt='".$image_files_only[$slide]."' border='0'".$height_width_tags.">";
+			echo "<img class=\"img-responsive\" src='download.php?doc_url=$path/".$image_files_only[$slide]."' alt='".$image_files_only[$slide]."' border='0'".$height_width_tags.">";
 		}
 
 		echo '</a>';
-		echo '</td>';
-		echo '</tr>';
-		echo '<tr>';
-		echo '<td>';
-		echo $row['comment'];
-		echo '</td>';
-
-        echo '<tr>';
-        echo '<td style="padding:10px;" align="center">';
+        echo '<div class="caption text-center">';
         echo Display::tag('h3', $row['title']);
-        echo '</td>';
-        echo '</tr>';
-		echo '</tr>';
-		echo '</table>';
+        echo '<p>' . $row['comment'] . '</p>';
+        echo '</div>';
+        echo '</div>';
 
-		echo '<table align="center" border="0">';
 		if (api_is_allowed_to_edit(null, true)) {
+            echo '<ul class="list-unstyled">';
 			$aux = explode('.', htmlspecialchars($image_files_only[$slide]));
 			$ext = $aux[count($aux) - 1];
 
@@ -487,26 +476,29 @@ if ($slide_id != 'all' && !empty($image_files_only)) {
 				$resize_height = '';
             }
 
-            echo '<tr>';
-            echo '<td align="center">';
-            echo '<a href="edit_document.php?'.api_get_cidreq().'&id='.$row['id'].'&origin=slideshow&origin_opt='.$edit_slide_id.'&">
-			      <img src="../img/edit.gif" border="0" title="'.get_lang('Modify').'" alt="'.get_lang('Modify').'" /></a><br />';
-
-			echo $image_files_only[$slide].' <br />';
-			echo $width.' x '.$height.' <br />';
-			echo round((filesize($image)/1024), 2).' KB';
-			echo ' - '.$ext;
-			echo '</td>';
-			echo '</tr>';
-			echo '<tr>';
-			echo '<td align="center">';
-			echo $resize_info;
-			echo $resize_width;
-			echo $resize_height;
-			echo '</td>';
-			echo '</tr>';
+            echo '<li class="text-center">';
+            echo $image_files_only[$slide] . ' ';
+            echo Display::toolbarButton(
+                get_lang('Modify'),
+                'edit_document.php?' . api_get_cidreq() . '&' . http_build_query([
+                    'id' => $row['id'],
+                    'origin' => 'slideshow',
+                    'origin_opt' => $edit_slide_id,
+                    'curdirpath' => $pathurl
+                ]),
+                'edit',
+                'link',
+                [],
+                false
+            );
+            echo '</li>';
+            echo '<li class="text-center">' . $width.' x '.$height . '</li>';
+			echo '<li class="text-center">' . round((filesize($image) / 1024), 2) . ' KB - ' . $ext . '</li>';
+            echo '<li class="text-center">' . $resize_info . '</li>';
+			echo '<li class="text-center">' . $resize_width . '</li>';
+			echo '<li class="text-center">' . $resize_height . '</li>';
+            echo '</ul>';
 		}
-		echo '</table>';
 
 	} else {
 		Display::display_warning_message(get_lang('FileNotFound'));

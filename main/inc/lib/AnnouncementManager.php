@@ -386,7 +386,6 @@ class AnnouncementManager
         if (empty($last_id)) {
             return false;
         } else {
-
             $sql = "UPDATE $tbl_announcement SET id = iid WHERE iid = $last_id";
             Database::query($sql);
 
@@ -399,7 +398,6 @@ class AnnouncementManager
             }
 
             // store in item_property (first the groups, then the users
-
             if (empty($sentTo) || !empty($sentTo) &&
                 isset($sentTo[0]) && $sentTo[0] == 'everyone'
             ) {
@@ -460,6 +458,8 @@ class AnnouncementManager
      * @param $to_users
      * @param array $file
      * @param string $file_comment
+     * @param bool $sendToUsersInSession
+     *
      * @return bool|int
      */
     public static function add_group_announcement(
@@ -1388,10 +1388,22 @@ class AnnouncementManager
      * @param null $limit
      * @param string $sidx
      * @param string $sord
+     * @param string $titleToSearch
+     * @param int $userIdToSearch
+     *
      * @return array
      */
-    public static function getAnnouncements($stok, $announcement_number, $getCount = false, $start = null, $limit = null, $sidx = '', $sord = '')
-    {
+    public static function getAnnouncements(
+        $stok,
+        $announcement_number,
+        $getCount = false,
+        $start = null,
+        $limit = null,
+        $sidx = '',
+        $sord = '',
+        $titleToSearch = '',
+        $userIdToSearch = 0
+    ) {
         $tbl_announcement = Database::get_course_table(TABLE_ANNOUNCEMENT);
         $tbl_item_property = Database::get_course_table(TABLE_ITEM_PROPERTY);
 
@@ -1408,6 +1420,17 @@ class AnnouncementManager
         $select = ' DISTINCT announcement.*, ip.visibility, ip.to_group_id, ip.insert_user_id, ip.insert_date';
         if ($getCount) {
             $select = ' COUNT(announcement.iid) count';
+        }
+
+        $searchCondition = '';
+        if (!empty($titleToSearch)) {
+            $titleToSearch = Database::escape_string($titleToSearch);
+            $searchCondition .= " AND (title LIKE '%$titleToSearch%')";
+        }
+
+        if (!empty($userIdToSearch)) {
+            $userIdToSearch = intval($userIdToSearch);
+            $searchCondition .= " AND (ip.insert_user_id = $userIdToSearch)";
         }
 
         if (api_is_allowed_to_edit(false, true) ||
@@ -1433,6 +1456,7 @@ class AnnouncementManager
                                 ) AND
                                 ip.visibility IN ('1', '0')
                                 $condition_session
+                                $searchCondition
                             ORDER BY display_order DESC";
                 } else {
                     $sql = "SELECT $select
@@ -1445,6 +1469,7 @@ class AnnouncementManager
                                 (ip.to_user_id = $user_id OR ip.to_group_id='0' OR ip.to_group_id IS NULL) AND
                                 ip.visibility IN ('1', '0')
                             $condition_session
+                            $searchCondition
                             ORDER BY display_order DESC";
                 }
             } elseif ($group_id != 0) {
@@ -1459,7 +1484,7 @@ class AnnouncementManager
                             ip.visibility<>'2' AND
                             (ip.to_group_id = $group_id OR ip.to_group_id='0' OR ip.to_group_id IS NULL)
                             $condition_session
-
+                            $searchCondition
                         ORDER BY display_order DESC";
                 //GROUP BY ip.ref
             } else {
@@ -1477,6 +1502,7 @@ class AnnouncementManager
                             ip.tool='announcement' AND
                             ip.visibility='1'
                             $condition_session
+                            $searchCondition
                         ORDER BY display_order DESC";
 
                     //GROUP BY ip.ref
@@ -1491,15 +1517,16 @@ class AnnouncementManager
                                 ip.c_id = $course_id  AND
                                 (ip.visibility='0' or ip.visibility='1')
                                 $condition_session
+                                $searchCondition
                             ORDER BY display_order DESC";
                     //GROUP BY ip.ref
                 }
             }
         } else {
             // STUDENT
-            if (is_array($group_memberships) && count($group_memberships)>0) {
+            if (is_array($group_memberships) && count($group_memberships) > 0) {
                 if ($allowUserEditSetting && !api_is_anonymous()) {
-                    if (api_get_group_id() == 0) {
+                    if ($group_id == 0) {
                         // No group
                         $cond_user_id = " AND (
                             ip.lastedit_user_id = '".$user_id."' OR (
@@ -1513,13 +1540,13 @@ class AnnouncementManager
                         )";
                     }
                 } else {
-                    if (api_get_group_id() == 0) {
+                    if ($group_id == 0) {
                         $cond_user_id = " AND (
-                            ip.to_user_id=$user_id OR (ip.to_group_id IS NULL OR ip.to_group_id IN (0, ".implode(", ", $group_memberships)."))
+                            ip.to_user_id = $user_id AND (ip.to_group_id IS NULL OR ip.to_group_id IN (0, ".implode(", ", $group_memberships)."))
                         ) ";
                     } else {
                        $cond_user_id = " AND (
-                            ip.to_user_id=$user_id OR (ip.to_group_id IS NULL OR ip.to_group_id IN (0, ".api_get_group_id()."))
+                            ip.to_user_id = $user_id AND (ip.to_group_id IS NULL OR ip.to_group_id IN (0, ".$group_id."))
                         )";
                     }
                 }
@@ -1533,10 +1560,12 @@ class AnnouncementManager
                             announcement.id = ip.ref
                             AND ip.tool='announcement'
                             $cond_user_id
-                            $condition_session AND
-                            ip.visibility='1'
+                            $condition_session
+                            $searchCondition
+                            AND ip.visibility='1'
                         ORDER BY display_order DESC";
             } else {
+
                 if ($user_id) {
                     if ($allowUserEditSetting && !api_is_anonymous()) {
                         $cond_user_id = " AND (
@@ -1556,8 +1585,9 @@ class AnnouncementManager
     						ip.tool='announcement'
     						$cond_user_id
     						$condition_session
+    						$searchCondition
     						AND ip.visibility='1'
-    						AND announcement.session_id IN(0, ".api_get_session_id().")
+    						AND announcement.session_id IN(0, ".$session_id.")
 						ORDER BY display_order DESC";
 
                 } else {
@@ -1577,17 +1607,21 @@ class AnnouncementManager
                             announcement.id = ip.ref AND
                             ip.tool='announcement'
                             $cond_user_id
-                            $condition_session AND
+                            $condition_session
+                            $searchCondition
+                            AND
                             ip.visibility='1' AND
                             announcement.session_id IN ( 0,".api_get_session_id().")";
                 }
             }
         }
+
         if (!is_null($start) && !is_null($limit)) {
             $start = intval($start);
             $limit = intval($limit);
             $sql .= " LIMIT $start, $limit";
         }
+
         $result = Database::query($sql);
         if ($getCount) {
             $result = Database::fetch_array($result, 'ASSOC');
@@ -1598,12 +1632,6 @@ class AnnouncementManager
         $iterator = 1;
         $bottomAnnouncement = $announcement_number;
         $origin = null;
-
-        /*if (api_is_allowed_to_edit(false,true) OR (api_is_course_coach() &&
-            api_is_element_in_the_session(TOOL_ANNOUNCEMENT, $myrow['id']))
-            OR (api_get_course_setting('allow_user_edit_announcement') && !api_is_anonymous())) {
-            $ths .= Display::tag('th', get_lang('Modify'));
-        }*/
 
         $displayed = [];
         $results = [];
@@ -1619,13 +1647,6 @@ class AnnouncementManager
                 $title = $myrow['title'].$sent_to_icon;
                 $item_visibility = api_get_item_visibility($_course, TOOL_ANNOUNCEMENT, $myrow['id'], $session_id);
                 $myrow['visibility'] = $item_visibility;
-
-                // the styles
-                if ($myrow['visibility'] == '0') {
-                    $style='invisible';
-                } else {
-                    $style = '';
-                }
 
                 // show attachment list
                 $attachment_list = AnnouncementManager::get_attachment($myrow['id']);

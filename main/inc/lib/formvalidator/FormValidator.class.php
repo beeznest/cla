@@ -873,19 +873,18 @@ EOT;
         $xajax_upload = new xajax(api_get_path(WEB_LIBRARY_PATH) . 'upload.xajax.php');
 
         $xajax_upload->registerFunction('updateProgress');
-
-
         // IMPORTANT : must be the first element of the form
         $el = $this->insertElementBefore(FormValidator::createElement('html', '<input type="hidden" name="UPLOAD_IDENTIFIER" value="' . $upload_id . '" />'), $element_after);
 
         $this->addElement('html', '<br />');
 
         // Add div-element where the progress bar is to be displayed
-        $this->addElement('html', '
-            <div id="dynamic_div_container" style="display:none">
+        $this->addElement(
+            'html',
+            '<div id="dynamic_div_container" style="display:none">
                 <div id="dynamic_div_label">' . get_lang('UploadFile') . '</div>
                 <div id="dynamic_div_frame" style="width:214px; height:12px; border:1px solid grey; background-image:url(' . Display::returnIconPath('real_upload_frame.gif').');">
-                    <div id="dynamic_div_filled" style="width:0%;height:100%;background-image:url(' . api_get_path(WEB_IMG_PATH) . 'real_upload_step.gif);background-repeat:repeat-x;background-position:center;"></div>
+                    <div id="dynamic_div_filled" style="width:0%;height:100%;background-image:url(' . Display::returnIconPath('real_upload_step.gif').');background-repeat:repeat-x;background-position:center;"></div>
                 </div>
             </div>'
         );
@@ -946,26 +945,17 @@ EOT;
      */
     public function returnForm()
     {
-        $error = false;
+        $returnValue = '';
+
         /** @var HTML_QuickForm_element $element */
         foreach ($this->_elements as $element) {
-            if (!is_null(parent::getElementError($element->getName()))) {
-                $error = true;
+            $elementError = parent::getElementError($element->getName());
+            if (!is_null($elementError)) {
+                $returnValue .= Display::return_message($elementError, 'warning').'<br />';
                 break;
             }
         }
 
-        $returnValue = '';
-        $js = null;
-
-        if ($error) {
-            $returnValue = Display::return_message(
-                get_lang('FormHasErrorsPleaseComplete'),
-                'warning'
-            );
-        }
-
-        $returnValue .= $js;
         $returnValue .= parent::toHtml();
         // Add div-element which is to hold the progress bar
         if (isset($this->with_progress_bar) && $this->with_progress_bar) {

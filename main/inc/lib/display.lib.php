@@ -698,13 +698,15 @@ class Display
 
     /**
      * Gets the path of an icon
-     * 
+     *
      * @param string $icon
+     * @param string $size
+     *
      * @return string
      */
-    public static function returnIconPath($icon)
+    public static function returnIconPath($icon, $size = ICON_SIZE_SMALL)
     {
-        return Display::return_icon($icon, null, null, null, null, true, false);
+        return Display::return_icon($icon, null, null, $size, null, true, false);
     }
 
     /**
@@ -2203,7 +2205,7 @@ class Display
                 if ( $col == 2 && $i == 1 ) {
                     if ($right === true) {
                         $html .= '<div class="pull-right">';
-                        $html .= (isset($content[$i])?$content[$i]:'');
+                        $html .= (isset($content[$i]) ? $content[$i] : '');
                         $html .= '</div>';
                     } else {
                         $html .= $content[$i];
