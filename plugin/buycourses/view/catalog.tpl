@@ -1,6 +1,7 @@
 <link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
 
 <div id="buy-courses-tabs">
+    {% if not show_services_only %}
         <ul class="nav nav-tabs buy-courses-tabs" role="tablist">
             <li id="buy-courses-tab" class="{{ showing_courses ? 'active' : '' }}" role="presentation">
                 <a href="course_catalog.php" aria-controls="buy-courses" role="tab">{{ 'Courses'|get_lang }}</a>
@@ -16,7 +17,7 @@
                 </li>
             {% endif %}
         </ul>
-
+    {% endif %}
     <div class="tab-content">
         <div class="tab-pane active" aria-labelledby="buy-sessions-tab" role="tabpanel">
             <div class="row">
@@ -114,18 +115,10 @@
                             {% for service in services %}
                                 <div class="col-md-4 col-sm-6">
                                     <article class="thumbnail">
-                                        {% if service.applies_to == 0 %}
-                                            <img alt="{{ service.name }}" class="img-responsive" src="{{ 'session_default.png'|icon() }}">
-                                        {% elseif service.applies_to == 1 %}
-                                            <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-user.png">
-                                        {% elseif service.applies_to == 2 %}
-                                            <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-course.png">
-                                        {% elseif service.applies_to == 3 %}
-                                            <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-session.png">
-                                        {% endif %}
+                                        <img alt="{{ service.name }}" class="img-responsive" src="{{ service.image }}">
                                         <div class="caption">
                                             <h3>
-                                                {{ service.name }}
+                                                <a href='{{ _p.web }}service/{{ service.id }}/information'>{{ service.name }}</a>
                                             </h3>
                                             <ul class="list-unstyled">
                                                 {% if service.applies_to == 0 %}
@@ -136,12 +129,11 @@
                                                 <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'Course' | get_lang }}</li>
                                                 {% elseif service.applies_to == 3 %}
                                                 <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'Session' | get_lang }}</li>
+                                                {% elseif service.applies_to == 4 %}
+                                                <li><em class="fa fa-hand-o-right"></em> {{ 'AppliesTo'|get_plugin_lang('BuyCoursesPlugin') }} {{ 'SubscriptionPackage' | get_plugin_lang('BuyCoursesPlugin') }}</li>
                                                 {% endif %}
                                                 <li><em class="fa fa-clock-o"></em> {{ 'Duration'|get_plugin_lang('BuyCoursesPlugin') }} : {{ service.duration_days }} {{ 'Days' | get_lang }}</li>
                                                 <li><em class="fa fa-user"></em> {{ service.owner_name }}</li>
-                                                {% if service.description %}
-                                                    <li><em class="fa fa-align-justify"></em> {{ service.description }}</li>
-                                                {% endif %}
                                             </ul>
                                             <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
                                             {% if service.enrolled == "YES" %}

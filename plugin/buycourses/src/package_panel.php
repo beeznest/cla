@@ -13,6 +13,14 @@ $serviceSaleId = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : null;
 
 $serviceSale = $plugin->getServiceSale($serviceSaleId);
 
+if (!$serviceSale) {
+    api_not_allowed();
+}
+
+if (intval($serviceSale['buyer']['id']) !== api_get_user_id()) {
+    api_not_allowed();
+}
+
 $subscriberUsers = $plugin->getSubscriberUsers($serviceSaleId);
 
 $em = Database::getManager();
@@ -20,7 +28,7 @@ $userGroup = $em->getRepository('ChamiloCoreBundle:Usergroup')->find(intval($ser
 $courses = $em->getRepository('ChamiloCoreBundle:Course')->findAll();
 $sessions = $em->getRepository('ChamiloCoreBundle:Session')->findAll();
 
-$templateName = $plugin->get_lang('SubscriptionPackage') . ' "' . $userGroup->getName() .'"';
+$templateName = $plugin->get_lang('SubscriptionPackage').' "'.$userGroup->getName().'"';
 $tpl = new Template($templateName);
 $tpl->assign('package', $subscriberUsers);
 $tpl->assign('package_id', $serviceSaleId);

@@ -159,3 +159,5 @@ $strings['AdditionalInfoRequired'] = "Sélectionnez le plus d'infos";
 $strings['SubscriptionPackage'] = "Paquet d'abonnements";
 $strings['EnterTheMaxSubscribersForThisService'] = "Entrez le numéro maximum d'abonnés pour ce service";
 $strings['PackageName'] = "Nom du paquet";
+$strings['StoreName'] = "Nom du boutique";
+$strings['ServiceInformation'] = "Informations de service";

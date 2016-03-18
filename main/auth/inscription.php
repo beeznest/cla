@@ -48,7 +48,10 @@ if (!empty($_SESSION['user_language_choice'])) {
     $user_selected_language = api_get_setting('platformLanguage');
 }
 
-$form = new FormValidator('registration');
+// This is a custom functionality to redirect to the buy service process after successful register (needs to buycourse plugin is enabled)
+$fromActionRedirect = isset($_GET['from']) && isset($_GET['id']) ? api_get_self().'?from='.Security::remove_XSS($_GET['from']).'&id='.intval($_GET['id']) : api_get_self();
+
+$form = new FormValidator('registration', 'post', $fromActionRedirect);
 
 if (api_get_setting('allow_terms_conditions') == 'true') {
     $user_already_registered_show_terms = isset($_SESSION['term_and_condition']['user_id']);
@@ -727,7 +730,7 @@ if ($form->validate()) {
     }
 
     if ($usersCanCreateCourse) {
-        $form_register->addElement('html', $form_data['button']);
+        $form_register->addElement('html', $form_data['button']); 
     } else {
         $form_register->addElement('html', $form_data['go_button']);
     }
@@ -737,6 +740,13 @@ if ($form->validate()) {
     // Just in case
     Session::erase('course_redirect');
     Session::erase('exercise_redirect');
+    
+    if (isset($_GET['from'])) {
+        if($_GET['from'] == 'service' && isset($_GET['id'])) {
+            $plugin = BuyCoursesPlugin::create();
+            header('Location: '.api_get_path(WEB_PLUGIN_PATH).'buycourses/src/service_process.php?i='.intval($_GET['id']).'&t='.BuyCoursesPlugin::SERVICE_TYPE_SUBSCRIPTION_PACKAGE);
+        }
+    }
 
     if (CustomPages::enabled()) {
         CustomPages::display(

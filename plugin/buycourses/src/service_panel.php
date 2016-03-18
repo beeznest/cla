@@ -13,6 +13,7 @@ require_once '../../../main/inc/global.inc.php';
 $plugin = BuyCoursesPlugin::create();
 $includeServices = $plugin->get('include_services') === 'true';
 $includeSessions = $plugin->get('include_sessions') === 'true';
+$servicesOnly = $plugin->get('show_services_only') === 'true';
 
 // this is for clear the recurring payment process
 unset($_SESSION['TOKEN']);
@@ -61,6 +62,9 @@ $tpl->assign('services_are_included', $includeServices);
 $tpl->assign('sessions_are_included', $includeSessions);
 $tpl->assign('service_sale_statuses', $serviceSaleStatuses);
 $tpl->assign('sale_list', $saleList);
+if ($servicesOnly) {
+    $tpl->assign('show_services_only', true);
+}
 
 $content = $tpl->fetch('buycourses/view/service_panel.tpl');
 

@@ -6,6 +6,17 @@
   text-decoration:line-through;
 }
 
+.buy-courses-title-color {
+  color: #5DC3E1;
+  padding-bottom: 10px;
+}
+
+.buy-courses-description-service {
+  text-align: justify;
+  font-size: 18px;
+  line-height: 1.42857;
+}
+
 // spinner wobblebar
 
 @-moz-keyframes wobblebar-loader {

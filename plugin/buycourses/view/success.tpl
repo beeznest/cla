@@ -66,15 +66,7 @@
             <div class="row">
                 <div class="col-sm-12 col-md-5">
                     <p>
-                        {% if service.node_type == 0 %}
-                            <img alt="{{ service.service.name }}" class="img-responsive" src="{{ 'session_default.png'|icon() }}">
-                        {% elseif service.node_type == 1 %}
-                            <img alt="{{ service.service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-user.png">
-                        {% elseif service.node_type == 2 %}
-                            <img alt="{{ service.service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-course.png">
-                        {% elseif service.node_type == 3 %}
-                            <img alt="{{ service.service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-session.png">
-                        {% endif %}
+                        <img alt="{{ service.service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/uploads/services/images/{{ service.service.image }}">
                     </p>
                     <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
                 </div>

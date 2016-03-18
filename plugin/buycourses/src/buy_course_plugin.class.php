@@ -69,12 +69,13 @@ class BuyCoursesPlugin extends Plugin
                 Alex Aragón - BeezNest (Design icons and css styles) <br/>
                 Imanol Losada - BeezNest (introduction of sessions purchase) <br/>
                 Angel Fernando Quiroz Campos - BeezNest (cleanup and new reports) <br/>
-                José Loguercio Silva - BeezNest (Payouts, Comissions and Buy Services)
+                José Loguercio Silva - BeezNest (Payouts, Recurring Payments and Buy Services)
             ",
             array(
                 'show_main_menu_tab' => 'boolean',
                 'include_sessions' => 'boolean',
                 'include_services' => 'boolean',
+                'show_services_only' => 'boolean',
                 'paypal_enable' => 'boolean',
                 'transfer_enable' => 'boolean',
                 'commissions_enable' => 'boolean',
@@ -1692,7 +1693,7 @@ class BuyCoursesPlugin extends Plugin
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         
-        return Database::insert(
+        $return = Database::insert(
             $servicesTable,
             [
                 'name' => Security::remove_XSS($service['name']),
@@ -1703,9 +1704,29 @@ class BuyCoursesPlugin extends Plugin
                 'applies_to' => intval($service['applies_to']),
                 'max_subscribers' => intval($service['max_subscribers']),
                 'owner_id' => intval($service['owner_id']),
-                'visibility' => intval($service['visibility'])
+                'visibility' => intval($service['visibility']),
+                'image' => 'simg.png',
+                'video_url' => $service['video_url'],
+                'service_information' => $service['service_information']
             ]
         );
+        
+        if ($return) {
+            $img = str_replace('data:image/png;base64,', '', $service['cropResult']);
+            $img = str_replace(' ', '+', $img);
+            $data = base64_decode($img);
+            $file = api_get_path(SYS_PLUGIN_PATH).'buycourses/uploads/services/images/simg-'.$return.'.png';
+            file_put_contents($file, $data);
+            
+            Database::update(
+                $servicesTable,
+                ['image' => 'simg-'.$return.'.png'],
+                ['id = ?' => intval($return)]
+            );
+            return $return;
+        }
+        
+        return false;
     }
     
     /**
@@ -1718,18 +1739,27 @@ class BuyCoursesPlugin extends Plugin
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         
+        $img = str_replace('data:image/png;base64,', '', $service['cropResult']);
+        $img = str_replace(' ', '+', $img);
+        $data = base64_decode($img);
+        $file = api_get_path(SYS_PLUGIN_PATH).'buycourses/uploads/services/images/simg-'.$id.'.png';
+        file_put_contents($file, $data);
+        
         return Database::update(
             $servicesTable,
             [
-                'name' => $service['name'],
-                'description' => $service['description'],
+                'name' => Security::remove_XSS($service['name']),
+                'description' => Security::remove_XSS($service['description']),
                 'price' => $service['price'],
                 'duration_days' => intval($service['duration_days']),
                 'renewable' => intval($service['renewable']),
                 'applies_to' => intval($service['applies_to']),
                 'max_subscribers' => intval($service['max_subscribers']),
                 'owner_id' => intval($service['owner_id']),
-                'visibility' => intval($service['visibility'])
+                'visibility' => intval($service['visibility']),
+                'image' => 'simg-'.$id.'.png',
+                'video_url' => $service['video_url'],
+                'service_information' => $service['service_information']
             ],
             ['id = ?' => intval($id)]
         );
@@ -1792,6 +1822,9 @@ class BuyCoursesPlugin extends Plugin
             $services['owner_name'] = api_get_person_name($return['firstname'], $return['lastname']);
             $services['visibility'] = $return['visibility'];
             $services['enrolled'] = "NO";
+            $services['image'] = $return['image'];
+            $services['video_url'] = $return['video_url'];
+            $services['service_information'] = $return['service_information'];
             
             return $services;
         }
@@ -1810,6 +1843,9 @@ class BuyCoursesPlugin extends Plugin
             $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
             $services[$index]['visibility'] = $service['visibility'];
             $services[$index]['enrolled'] = "NO";
+            $services[$index]['image'] = $service['image'];
+            $services[$index]['video_url'] = $service['video_url'];
+            $services[$index]['service_information'] = $service['service_information'];
         }
                 
         return $services;
@@ -1878,6 +1914,9 @@ class BuyCoursesPlugin extends Plugin
             $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
             $services[$index]['visibility'] = $service['visibility'];
             $services[$index]['enrolled'] = "NO";
+            $services[$index]['image'] = api_get_path(WEB_PLUGIN_PATH).'buycourses/uploads/services/images/'.$service['image'];
+            $services[$index]['video_url'] = $service['video_url'];
+            $services[$index]['service_information'] = $service['service_information'];
         }
                 
         return $services;
@@ -1914,11 +1953,18 @@ class BuyCoursesPlugin extends Plugin
             $values['visibility'] = GROUP_PERMISSION_CLOSED;
             $infoSelect = $groupId = $usergroup->save($values);
             
-            Database::update(
-                Database::get_main_table(TABLE_MAIN_USER),
-                ['status' => DRH],
-                ['user_id = ?' => intval($userId)]
-            );
+            if (!api_is_platform_admin()) {
+                $success = Database::update(
+                    Database::get_main_table(TABLE_MAIN_USER),
+                    ['status' => DRH],
+                    ['user_id = ?' => intval($userId)]
+                );
+
+                // this hack the user session to change the status to DRH without relogin
+                if ($success) {
+                    $_SESSION['_user']['status'] = DRH;
+                }
+            }
         }
         
         $currency = $this->getSelectedCurrency();
@@ -1969,9 +2015,10 @@ class BuyCoursesPlugin extends Plugin
      * @param integer $status status
      * @param integer $nodeType The node Type ( User = 1 , Course = 2 , Session = 3 )
      * @param integer $nodeId the nodeId
+     * @param boolean $hot enable hot services
      * @return array
      */
-    public function getServiceSale($id = null, $buyerId = null, $status = null, $nodeType = null, $nodeId = null)
+    public function getServiceSale($id = null, $buyerId = null, $status = null, $nodeType = null, $nodeId = null, $hot = false)
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
@@ -2000,11 +2047,16 @@ class BuyCoursesPlugin extends Plugin
             $conditions = ['WHERE' => ['ss.node_type = ? AND ss.node_id = ?' => [$nodeType, $nodeId]], 'ORDER' => 'id ASC'];
         }
         
-        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id";
+        if ($hot) {
+            $hot = "count(ss.service_id) as hot, ";
+            $conditions = ['ORDER' => 'hot DESC', 'LIMIT' => '6'];
+        }
+        
+        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id GROUP BY ss.service_id";
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
         $return = Database::select(
-            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, '$isoCode' as currency",
+            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, s.image, $hot '$isoCode' as currency",
             "$servicesSaleTable ss $innerJoins",
             $conditions,
             $showData
@@ -2029,6 +2081,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale['service']['owner']['id'] = $return['owner_id'];
             $servicesSale['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
             $servicesSale['service']['visibility'] = $return['visibility'];
+            $servicesSale['service']['image'] = $return['image'];
             $servicesSale['reference'] = $return['reference'];
             $servicesSale['currency_id'] = $return['currency_id'];
             $servicesSale['currency'] = $return['currency'];
@@ -2065,6 +2118,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale[$index]['service']['owner']['id'] = $service['owner_id'];
             $servicesSale[$index]['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
             $servicesSale[$index]['service']['visibility'] = $service['visibility'];
+            $servicesSale[$index]['service']['image'] = $service['image'];
             $servicesSale[$index]['reference'] = $service['reference'];
             $servicesSale[$index]['currency_id'] = $service['currency_id'];
             $servicesSale[$index]['currency'] = $service['currency'];

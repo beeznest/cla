@@ -60,7 +60,7 @@ if ($form->validate()) {
         Display::addFlash(
             Display::return_message($erroMessage, 'error', false)
         );
-        header('Location: ../index.php');
+        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
         exit;
     }
 
@@ -144,7 +144,13 @@ if ($form->validate()) {
     }
 
     unset($_SESSION['bc_service_sale_id']);
-    header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
+    $servicesOnly = $plugin->get('show_services_only') === 'true';
+    if ($servicesOnly) {
+        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/package_panel.php?id='.$serviceSale['id']);
+    } else {
+        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
+    }
+    
     exit;
 }
 
@@ -164,7 +170,7 @@ if ($shippingDetails['ACK'] !== 'Success') {
     Display::addFlash(
         Display::return_message($erroMessage, 'error', false)
     );
-    header('Location: ../index.php');
+    header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
     exit;
 }
 

@@ -159,3 +159,5 @@ $strings['AdditionalInfoRequired'] = "Select the additional info";
 $strings['SubscriptionPackage'] = "Subscription package";
 $strings['EnterTheMaxSubscribersForThisService'] = "Enter the max number of subscribers for this service";
 $strings['PackageName'] = "Package Name";
+$strings['StoreName'] = "Store Name";
+$strings['ServiceInformation'] = "Service Information";

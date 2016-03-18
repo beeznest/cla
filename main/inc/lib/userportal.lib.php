@@ -1360,10 +1360,19 @@ class IndexManager
     public function return_welcome_to_course_block()
     {
         $count_courses = CourseManager::count_courses();
+        $plugin = BuyCoursesPlugin::create();
+        $includeServices = $plugin->get('include_services') === 'true';
+        $showOnlyServices = $plugin->get('show_services_only') === 'true';
+             
         $tpl = $this->tpl->get_template('layout/welcome_to_course.tpl');
 
         $course_catalog_url = api_get_path(WEB_CODE_PATH).'auth/courses.php';
         $course_list_url = api_get_path(WEB_PATH).'user_portal.php';
+        
+        if ($includeServices && $showOnlyServices) {
+            $this->tpl->assign('show_services_only', true);
+            $this->tpl->assign('service_catalog_url', api_get_path(WEB_PLUGIN_PATH).'buycourses/src/service_catalog.php');
+        }
 
         $this->tpl->assign('course_catalog_url', $course_catalog_url);
         $this->tpl->assign('course_list_url', $course_list_url);

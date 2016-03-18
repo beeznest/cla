@@ -229,7 +229,8 @@ $servicesTable->addColumn('applies_to', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('max_subscribers', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('owner_id', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('visibility', \Doctrine\DBAL\Types\Type::INTEGER);
-$servicesTable->addColumn('url', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('video_url', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('image', \Doctrine\DBAL\Types\Type::STRING);
 $servicesTable->addColumn('service_information', \Doctrine\DBAL\Types\Type::TEXT);
 $servicesTable->setPrimaryKey(['id']);
 

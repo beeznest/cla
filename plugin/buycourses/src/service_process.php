@@ -111,7 +111,7 @@ if ($typeUser) {
     }
     $form->addSelect('info_select',get_lang('Session'), $selectOptions);
 } elseif ($typeSubscriptionPackage) {
-    $form->addText('info_select', $plugin->get_lang('PackageName'), true, ['cols-size' => [5, 7, 0]]);
+    $form->addText('info_select', $plugin->get_lang('StoreName'), true, ['cols-size' => [5, 7, 0]]);
 }
 
 $form->addHeader($plugin->get_lang('PaymentMethods'));

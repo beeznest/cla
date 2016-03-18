@@ -25,6 +25,58 @@ if (!empty($users)) {
 }
 
 api_protect_admin_script(true);
+$htmlHeadXtra[] = '<link  href="'. api_get_path(WEB_PATH) .'web/assets/cropper/dist/cropper.min.css" rel="stylesheet">';
+$htmlHeadXtra[] = '<script src="'. api_get_path(WEB_PATH) .'web/assets/cropper/dist/cropper.min.js"></script>';
+$htmlHeadXtra[] = '<script>
+$(document).ready(function() {
+    var $image = $("#previewImage");
+    var $input = $("[name=\'cropResult\']");
+    var $cropButton = $("#cropButton");
+    var canvas = "";
+    var imageWidth = "";
+    var imageHeight = "";
+    
+    $("input:file").change(function() {
+        var oFReader = new FileReader();
+        oFReader.readAsDataURL(document.getElementById("picture_form").files[0]);
+
+        oFReader.onload = function (oFREvent) {
+            $image.attr("src", this.result);
+            $("#labelCropImage").html("'.get_lang('Preview').'");
+            $("#cropImage").addClass("thumbnail");
+            $cropButton.removeClass("hidden");
+            // Destroy cropper
+            $image.cropper("destroy");
+
+            $image.cropper({
+                aspectRatio: 4 / 3,
+                responsive : true,
+                center : false,
+                guides : false,
+                movable: false,
+                zoomable: false,
+                rotatable: false,
+                scalable: false,
+                crop: function(e) {
+                    // Output the result data for cropping image.
+                    $input.val(e.x+","+e.y+","+e.width+","+e.height);
+                }
+            });
+        };
+    });
+    
+    $("#cropButton").on("click", function() {
+        var canvas = $image.cropper("getCroppedCanvas");
+        var dataUrl = canvas.toDataURL();
+        $image.attr("src", dataUrl);
+        $input.val(dataUrl);
+        $image.cropper("destroy");
+        $cropButton.addClass("hidden");
+        return false;
+    });
+});
+
+</script>';
 
 //view
 $interbreadcrumb[] = [
@@ -103,8 +155,28 @@ $form->addSelect(
     $userOptions
 );
 $form->addCheckBox('visibility', $plugin->get_lang('VisibleInCatalog'));
+$form->addElement(
+        'file',
+        'picture',
+        get_lang('AddImage'),
+        array('id' => 'picture_form', 'class' => 'picture-form')
+    );
+$form->addHtml(''
+            . '<div class="form-group">'
+                . '<label for="cropImage" id="labelCropImage" class="col-sm-2 control-label"></label>'
+                    . '<div class="col-sm-8">'
+                        . '<div id="cropImage" class="cropCanvas">'
+                            . '<img id="previewImage" >'
+                        . '</div>'
+                        . '<div>'
+                            . '<button class="btn btn-primary hidden" name="cropButton" id="cropButton"><em class="fa fa-crop"></em> '.get_lang('CropYourPicture').'</button>'
+                        . '</div>'
+                    . '</div>'
+            . '</div>'
+. '');
+$form->addHidden('cropResult', '');
+$form->addText('video_url', get_lang('VideoUrl'), false);
 $form->addHtmlEditor('service_information', get_lang('ServiceInformation'), false);
-$form->addText('url', get_lang('VideoUrl'), false);
 $form->addButtonSave(get_lang('Add'));
 $form->setDefaults($formDefaultValues);
 

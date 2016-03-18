@@ -15,6 +15,7 @@ require_once '../../../main/inc/global.inc.php';
 $plugin = BuyCoursesPlugin::create();
 $includeSessions = $plugin->get('include_sessions') === 'true';
 $includeServices = $plugin->get('include_services') === 'true';
+$servicesOnly = $plugin->get('show_services_only') === 'true';
 
 $nameFilter = null;
 $minFilter = 0;
@@ -90,6 +91,7 @@ $tpl->assign('showing_services', true);
 $tpl->assign('services', $serviceList);
 $tpl->assign('sessions_are_included', $includeSessions);
 $tpl->assign('services_are_included', $includeServices);
+$tpl->assign('show_services_only', $servicesOnly);
 
 $content = $tpl->fetch('buycourses/view/catalog.tpl');
 

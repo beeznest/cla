@@ -22,12 +22,12 @@ if (!$service['id']) {
     api_not_allowed(true);
 }
 
-$template = new Template($service['name'], true, true, false, true, false);
+$template = new Template(false, true, true, false, true, false);
 $template->assign('pageUrl', api_get_path(WEB_PATH) . "service/{$serviceId}/information/");
 $template->assign('service', $service);
+$template->assign('essence', \Essence\Essence::instance());
 
 $content = $template->fetch('buycourses/view/service_information.tpl');
 
-$template->assign('header', $service['name']);
 $template->assign('content', $content);
 $template->display_one_col_template();
