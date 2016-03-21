@@ -186,11 +186,11 @@ $form->addHtml(''
             . '</div>'
 . '');
 $form->addElement(
-        'file',
-        'picture',
-        get_lang('UpdateImage'),
-        array('id' => 'picture_form', 'class' => 'picture-form')
-    );
+    'file',
+    'picture',
+    get_lang('UpdateImage'),
+    ['id' => 'picture_form', 'class' => 'picture-form']
+);
 $form->addHtml(''
             . '<div class="form-group">'
                 . '<label for="cropImage" id="labelCropImage" class="col-sm-2 control-label"></label>'
@@ -206,7 +206,7 @@ $form->addHtml(''
 . '');
 $form->addHidden('cropResult', '');
 $form->addText('video_url', get_lang('VideoUrl'), false);
-$form->addHtmlEditor('service_information', get_lang('ServiceInformation'), false);
+$form->addHtmlEditor('service_information', $plugin->get_lang('ServiceInformation'), false);
 $form->addHidden('id', $serviceId);
 $form->addButtonSave(get_lang('Edit'));
 $form->setDefaults($formDefaultValues);

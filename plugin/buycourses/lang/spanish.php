@@ -162,3 +162,7 @@ $strings['EnterTheMaxSubscribersForThisService'] = "Ingrese el número máximo d
 $strings['PackageName'] = "Nombre del paquete";
 $strings['StoreName'] = "Nombre de la tienda";
 $strings['ServiceInformation'] = "Información del servicio";
+$strings['HottestSubscriptions'] = "Subscripciones populares";
+$strings['GoAheadAndBrowseOurStoreCatalogOnceBuyYouCanAccessToServicesPanelToManage'] = "Visite nuestra tienda para que pueda comprar los servicios de su interes, una vez realizada sus compras podrá administrarlas en su panel de servicios";
+$strings['ServiceCatalog'] = "Catalogo de servicios";
+$strings['AutoBilling'] = "Facturación automática";

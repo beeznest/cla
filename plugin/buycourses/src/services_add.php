@@ -156,11 +156,12 @@ $form->addSelect(
 );
 $form->addCheckBox('visibility', $plugin->get_lang('VisibleInCatalog'));
 $form->addElement(
-        'file',
-        'picture',
-        get_lang('AddImage'),
-        array('id' => 'picture_form', 'class' => 'picture-form')
-    );
+    'file',
+    'picture',
+    get_lang('AddImage'),
+    ['id' => 'picture_form', 'class' => 'picture-form']
+);
+$form->addRule('picture', get_lang('ThisFieldIsRequired'), 'required');
 $form->addHtml(''
             . '<div class="form-group">'
                 . '<label for="cropImage" id="labelCropImage" class="col-sm-2 control-label"></label>'
@@ -176,7 +177,7 @@ $form->addHtml(''
 . '');
 $form->addHidden('cropResult', '');
 $form->addText('video_url', get_lang('VideoUrl'), false);
-$form->addHtmlEditor('service_information', get_lang('ServiceInformation'), false);
+$form->addHtmlEditor('service_information', $plugin->get_lang('ServiceInformation'), false);
 $form->addButtonSave(get_lang('Add'));
 $form->setDefaults($formDefaultValues);
 

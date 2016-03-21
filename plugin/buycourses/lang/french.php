@@ -161,3 +161,7 @@ $strings['EnterTheMaxSubscribersForThisService'] = "Entrez le numéro maximum d'
 $strings['PackageName'] = "Nom du paquet";
 $strings['StoreName'] = "Nom du boutique";
 $strings['ServiceInformation'] = "Informations de service";
+$strings['HottestSubscriptions'] = "Abonnements les plus populaires";
+$strings['GoAheadAndBrowseOurStoreCatalogOnceBuyYouCanAccessToServicesPanelToManage'] = "Allez-y et parcourir notre magasin afin que vous puissiez acheter ce que vous voulez, l'étape suivante peut voir vos achats sur le panneau des services";
+$strings['ServiceCatalog'] = "La catalogue des services";
+$strings['AutoBilling'] = "Facturation automatique";

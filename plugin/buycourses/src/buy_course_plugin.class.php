@@ -2025,6 +2025,7 @@ class BuyCoursesPlugin extends Plugin
         
         $conditions = null;
         $showData = "all";
+        $groupBy = "";
         
         if ($id) {
             $conditions = ['WHERE' => ['ss.id = ?' => $id]];
@@ -2050,9 +2051,10 @@ class BuyCoursesPlugin extends Plugin
         if ($hot) {
             $hot = "count(ss.service_id) as hot, ";
             $conditions = ['ORDER' => 'hot DESC', 'LIMIT' => '6'];
+            $groupBy = "GROUP BY ss.service_id";
         }
         
-        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id GROUP BY ss.service_id";
+        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id $groupBy";
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
         $return = Database::select(

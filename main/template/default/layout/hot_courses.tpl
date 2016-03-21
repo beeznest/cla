@@ -45,7 +45,7 @@ $(document).ready( function() {
     <section id="hot_courses">
     <div class="hot-course-head">
         <h4 class="hot-course-title">
-            {{ "HottestSubscriptions"|get_lang}}
+            {{ "HottestSubscriptions" | get_plugin_lang('BuyCoursesPlugin') }}
         </h4>
     </div>
     <div id="hot-course">
