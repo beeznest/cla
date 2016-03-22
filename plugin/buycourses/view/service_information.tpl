@@ -8,14 +8,14 @@
         </div>
 
         {% if service.video_url %}
-            <div class="col-sm-6 col-md-7">
+            <div class="col-sm-6 col-md-7 col-xs-12">
                 <div class="embed-responsive embed-responsive-16by9">
                     {{ essence.replace(service.video_url) }}
                 </div>
             </div>
         {% endif %}
 
-        <div class="{{ service.video_url ? 'col-sm-6 col-md-5' : 'col-sm-12' }}">
+        <div class="{{ service.video_url ? 'col-sm-6 col-md-5 col-xs-12' : 'col-sm-12 col-xs-12' }}">
             <div class="block">
                 <div class="buy-courses-description-service">
                     {{ service.description }}

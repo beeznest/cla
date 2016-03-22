@@ -1455,7 +1455,6 @@ function _api_format_user($user, $add_password = false)
     $avatarString = explode('?', $originalFile);
     $result['avatar_no_query'] = reset($avatarString);
     $result['avatar_small'] = $smallFile;
-    //$result['avatar_sys_path'] = api_get_path(SYS_CODE_PATH).'img/unknown.jpg';
 
     if (isset($user['user_is_online'])) {
         $result['user_is_online'] = $user['user_is_online'] == true ? 1 : 0;
@@ -7878,7 +7877,11 @@ function api_mail_html(
         $mail->SMTPAuth = 1;
         $mail->Username = $platform_email['SMTP_USER'];
         $mail->Password = $platform_email['SMTP_PASS'];
+        if (isset($platform_email['SMTP_SECURE'])) {
+            $mail->SMTPSecure = $platform_email['SMTP_SECURE'];
+        }
     }
+    $mail->SMTPDebug = isset($platform_email['SMTP_DEBUG'])?$platform_email['SMTP_DEBUG']:0;
 
     // 5 = low, 1 = high
     $mail->Priority = 3;
