@@ -23,11 +23,9 @@
                 <div class="row pull-right">
                     <div class="col-md-4 col-md-offset-4">
                         {% if not _u.logged %}
-                            {% if 'allow_registration' | get_setting == 'true' %}
-                                <a href="{{ _p.web_main ~ 'auth/inscription.php?from=service&id=' ~ service.id }}" class="btn btn-info btn-lg">
-                                    <em class="fa fa-sign-in fa-fw"></em> {{ 'SignUp'|get_lang }}
-                                </a>
-                            {% endif %}
+                            <a href="{{ _p.web_main ~ 'auth/inscription.php?from=service&id=' ~ service.id }}" class="btn btn-info btn-lg">
+                                <em class="fa fa-sign-in fa-fw"></em> {{ 'SignUp'|get_lang }}
+                            </a>
                         {% else %}
                             <a href="{{ _p.web_plugin ~ 'buycourses/src/service_process.php?t=4&i=' ~ service.id }}" class="btn btn-danger btn-lg">
                                 <em class="fa fa-sign-in fa-fw"></em> {{ 'Subscribe'|get_lang }}

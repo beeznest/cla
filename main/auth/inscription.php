@@ -31,10 +31,14 @@ if ($allowedFieldsConfiguration !== false) {
 
 $htmlHeadXtra[] = api_get_password_checker_js('#username', '#pass1');
 
+// check if buy course plugin and unregistered users is enabled
+
+$plugin = BuyCoursesPlugin::create();
+
 // User is not allowed if Terms and Conditions are disabled and
 // registration is disabled too.
 $isNotAllowedHere = api_get_setting('allow_terms_conditions') === 'false' &&
-    api_get_setting('allow_registration') === 'false';
+    api_get_setting('allow_registration') === 'false' && $plugin->get('include_services') === 'false' && $plugin->get('unregistered_users_enable') === 'false';
 
 if ($isNotAllowedHere) {
     api_not_allowed(true, get_lang('RegistrationDisabled'));

@@ -16,6 +16,12 @@ $serviceId = isset($_GET['service_id']) ? intval($_GET['service_id']) : false;
 
 $plugin = BuyCoursesPlugin::create();
 
+$includeServices = $plugin->get('include_services') === 'true';
+
+if (!$includeServices) {
+    api_not_allowed(true);
+}
+
 $service = $plugin->getServices($serviceId);
 
 if (!$service['id']) {
