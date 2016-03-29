@@ -605,12 +605,12 @@ class UserManager
      */
     public static function can_delete_user($user_id)
     {
-        global $_configuration;
-        if (isset($_configuration['deny_delete_users']) &&
-            $_configuration['deny_delete_users'] == true
-        ) {
+        $deny = api_get_configuration_value('deny_delete_users');
+
+        if ($deny) {
             return false;
         }
+
         $table_course_user = Database :: get_main_table(TABLE_MAIN_COURSE_USER);
         if ($user_id != strval(intval($user_id))) {
             return false;
@@ -623,12 +623,14 @@ class UserManager
         $res = Database::query($sql);
         while ($course = Database::fetch_object($res)) {
             $sql = "SELECT id FROM $table_course_user
-                    WHERE status=1 AND c_id = " . Database::escape_string($course->c_id);
+                    WHERE status=1 AND c_id = " . intval($course->c_id);
             $res2 = Database::query($sql);
             if (Database::num_rows($res2) == 1) {
+
                 return false;
             }
         }
+
         return true;
     }
 
@@ -742,8 +744,7 @@ class UserManager
         $extraFieldValue = new ExtraFieldValue('user');
         $extraFieldValue->deleteValuesByItem($user_id);
 
-        $url_id = api_get_current_access_url_id();
-        UrlManager::delete_url_rel_user($user_id, $url_id);
+        UrlManager::deleteUserFromAllUrls($user_id);
 
         if (api_get_setting('allow_social_tool') == 'true') {
             $userGroup = new UserGroup();
@@ -778,11 +779,12 @@ class UserManager
                 WHERE lastedit_user_id = '".$user_id."'";
         Database::query($sql);
 
+
+
+
         // Delete user from database
         $sql = "DELETE FROM $table_user WHERE id = '".$user_id."'";
         Database::query($sql);
-
-
 
         // Add event to system log
         $user_id_manager = api_get_user_id();

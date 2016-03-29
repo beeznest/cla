@@ -73,6 +73,25 @@ class UrlManager
     {
         $id = intval($id);
         $table = Database :: get_main_table(TABLE_MAIN_ACCESS_URL);
+        $tableUser = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_USER);
+        $tableCourse = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_COURSE);
+        $tableSession = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_SESSION);
+        $tableCourseCategory = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_COURSE_CATEGORY);
+        $tableGroup = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_USERGROUP);
+
+        $sql = "DELETE FROM $tableCourse WHERE access_url_id = ".$id;
+        $result = Database::query($sql);
+        /*
+        $sql = "DELETE FROM $tableCourseCategory WHERE access_url_id = ".$id;
+        $result = Database::query($sql);
+        */
+        $sql = "DELETE FROM $tableSession WHERE access_url_id = ".$id;
+        $result = Database::query($sql);
+        $sql = "DELETE FROM $tableGroup WHERE access_url_id = ".$id;
+        $result = Database::query($sql);
+        $sql = "DELETE FROM $tableUser WHERE access_url_id = ".$id;
+        $result = Database::query($sql);
+
         $sql= "DELETE FROM $table WHERE id = ".$id;
         $result = Database::query($sql);
 
@@ -752,6 +771,26 @@ class UrlManager
             $sql= "DELETE FROM $table_url_rel_user
                    WHERE user_id = ".intval($user_id)." AND access_url_id = ".intval($url_id);
             $result = Database::query($sql);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Deletes user from all portals
+     * @author Julio Montoya
+     * @param int user id
+     *
+     * @return boolean true if success
+     * */
+    public static function deleteUserFromAllUrls($userId)
+    {
+        $table_url_rel_user = Database::get_main_table(TABLE_MAIN_ACCESS_URL_REL_USER);
+        $result = true;
+        if (!empty($userId)) {
+            $sql= "DELETE FROM $table_url_rel_user
+                   WHERE user_id = ".intval($userId);
+            Database::query($sql);
         }
 
         return $result;
