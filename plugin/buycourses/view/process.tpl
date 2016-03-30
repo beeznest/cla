@@ -49,7 +49,7 @@
                 </div>
                 <div class="col-sm-6 col-md-7">
                     <h3>
-                        {{ service.name }}
+                        <a href='{{ _p.web }}service/{{ service.id }}/information'>{{ service.name }}</a>
                     </h3>
                     <ul class="list-unstyled">
                         {% if service.applies_to == 0 %}
