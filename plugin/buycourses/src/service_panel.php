@@ -22,7 +22,7 @@ unset($_SESSION['action']);
 $userInfo = api_get_user_info();
 
 if (!$userInfo) {
-    api_not_allowed();
+    api_not_allowed(true);
 }
 
 $paymentTypes = $plugin->getPaymentTypes();
