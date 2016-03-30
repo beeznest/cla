@@ -45,7 +45,7 @@
                 <div class="col-sm-6 col-md-5">
                     <img alt="{{ service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/uploads/services/images/{{ service.image }}">
                         
-                    <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
+                    <p class="lead text-right">{{ service.currency == 'BRL' ? 'R$' : service.currency }} {{ service.price }}</p>
                 </div>
                 <div class="col-sm-6 col-md-7">
                     <h3>

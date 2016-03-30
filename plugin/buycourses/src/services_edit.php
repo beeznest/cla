@@ -64,8 +64,6 @@ $(document).ready(function() {
                 rotatable: false,
                 scalable: false,
                 crop: function(e) {
-                    // Output the result data for cropping image.
-                    $input.val(e.x+","+e.y+","+e.width+","+e.height);
                 }
             });
         };

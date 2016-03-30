@@ -7,12 +7,20 @@
 /**
  * Initialization
  */
+
+$cidReset = true;
+
 require_once '../config.php';
 
+if (!isset($_REQUEST['t'], $_REQUEST['i'])) {
+    header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
+}
+
 $currentUserId = api_get_user_id();
+$serviceId = intval($_REQUEST['i']);
 
 if (empty($currentUserId)) {
-    header('Location: ' . api_get_path(WEB_CODE_PATH) . 'auth/inscription.php');
+    header('Location: ' . api_get_path(WEB_PATH) . 'service/'.$serviceId.'/information');
     exit;
 }
 
@@ -25,12 +33,6 @@ $transferEnabled = $plugin->get('transfer_enable') === 'true';
 if ($includeServices !== 'true') {
     api_not_allowed(true);
 }
-
-if (!isset($_REQUEST['t'], $_REQUEST['i'])) {
-    die;
-}
-
-$serviceId = intval($_REQUEST['i']);
 
 $typeUser = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_USER;
 $typeCourse = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_COURSE;
@@ -66,7 +68,7 @@ if ($form->validate()) {
 
     if ($serviceSaleId !== false) {
         $_SESSION['bc_service_sale_id'] = $serviceSaleId;
-        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_process_confirm.php');  
+        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_process_confirm.php');
     }
 
     exit;
@@ -139,7 +141,7 @@ $form->addButton('submit', $plugin->get_lang('ConfirmOrder'), 'check', 'success'
 
 // View
 $templateName = $plugin->get_lang('PaymentMethods');
-$interbreadcrumb[] = array("url" => "course_catalog.php", "name" => $plugin->get_lang('CourseListOnSale'));
+$interbreadcrumb[] = array("url" => "service_catalog.php", "name" => $plugin->get_lang('ListOfServicesOnSale'));
 
 $tpl = new Template($templateName);
 $tpl->assign('buying_service', true);

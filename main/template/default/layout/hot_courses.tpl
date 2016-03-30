@@ -65,7 +65,7 @@ $(document).ready( function() {
                             <ul class="list-unstyled">
                                 <li><em class="fa fa-clock-o"></em> {{ 'Duration'|get_plugin_lang('BuyCoursesPlugin') }} : {{ hot_service.service.duration_days }} {{ 'Days' | get_lang }}</li>
                             </ul>
-                            <p class="lead text-center">{{ hot_service.currency }} {{ hot_service.service.price }}</p>
+                            <p class="lead text-center">{{ hot_service.currency == 'BRL' ? 'R$' : hot_service.currency }} {{ hot_service.service.price }}</p>
                             <div class="toolbar">
                                 <a class="btn btn-info btn-block btn-sm" title="" href="{{ _p.web }}service/{{ hot_service.service.id }}/information">
                                     <em class="fa fa-info-circle"></em> {{ 'ServiceInformation'|get_plugin_lang('BuyCoursesPlugin') }}

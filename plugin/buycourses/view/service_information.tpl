@@ -23,12 +23,12 @@
                 <div class="row pull-right">
                     <div class="col-md-4 col-md-offset-4">
                         {% if not _u.logged %}
-                            <a href="{{ _p.web_main ~ 'auth/inscription.php?from=service&id=' ~ service.id }}" class="btn btn-info btn-lg">
-                                <em class="fa fa-sign-in fa-fw"></em> {{ 'SignUp'|get_lang }}
+                            <a href="{{ _p.web_main ~ 'auth/inscription.php?from=service&id=' ~ service.id }}" class="btn btn-success btn-lg">
+                                <em class="fa fa-sign-in fa-fw"></em> {{ 'Buy'|get_plugin_lang('BuyCoursesPlugin') }}
                             </a>
                         {% else %}
-                            <a href="{{ _p.web_plugin ~ 'buycourses/src/service_process.php?t=4&i=' ~ service.id }}" class="btn btn-danger btn-lg">
-                                <em class="fa fa-sign-in fa-fw"></em> {{ 'Subscribe'|get_lang }}
+                            <a href="{{ _p.web_plugin ~ 'buycourses/src/service_process.php?t=4&i=' ~ service.id }}" class="btn btn-success btn-lg">
+                                <em class="fa fa-sign-in fa-fw"></em> {{ 'Buy'|get_plugin_lang('BuyCoursesPlugin') }}
                             </a>
                         {% endif %}
                     </div>
@@ -49,7 +49,15 @@
                 </div>
             </div>
         </div>
-
+        <div class="col-xs-12 col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">{{ "Description"|get_lang }}</div>
+                <div class="panel-body">
+                    <p><em class="fa fa-money"></em> <b>{{ 'Price'|get_plugin_lang('BuyCoursesPlugin') }}</b> : {{ service.currency == 'BRL' ? 'R$' : service.currency }} {{ service.price }} </p>
+                    <p><em class="fa fa-clock-o"></em> <b>{{ 'Duration'|get_plugin_lang('BuyCoursesPlugin') }}</b> : {{ service.duration_days }} {{ 'Days' | get_lang }} </p>
+                </div>
+            </div>
+        </div>
         <div class="col-xs-12 col-md-5">
             <div class="panel panel-default social-share">
                 <div class="panel-heading">{{ "ShareWithYourFriends"|get_lang }}</div>

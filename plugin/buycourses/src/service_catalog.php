@@ -6,7 +6,6 @@
 /**
  * Initialization
  */
-use Doctrine\Common\Collections\Criteria;
 
 $cidReset = true;
 

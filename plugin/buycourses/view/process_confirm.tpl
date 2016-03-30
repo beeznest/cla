@@ -69,7 +69,7 @@
                             <img alt="{{ service.service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/resources/img/bc-session.png">
                         {% endif %}
                     </p>
-                    <p class="lead text-right">{{ service.currency }} {{ service.price }}</p>
+                    <p class="lead text-right">{{ service.currency == 'BRL' ? 'R$' : service.currency }} {{ service.price }}</p>
                 </div>
                 <div class="col-sm-12 col-md-7">
                     <p><b>{{ 'StartDate'|get_plugin_lang('BuyCoursesPlugin') }}</b></p>

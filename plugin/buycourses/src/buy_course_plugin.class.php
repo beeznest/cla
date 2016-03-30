@@ -1739,11 +1739,13 @@ class BuyCoursesPlugin extends Plugin
     {
         $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
         
-        $img = str_replace('data:image/png;base64,', '', $service['cropResult']);
-        $img = str_replace(' ', '+', $img);
-        $data = base64_decode($img);
-        $file = api_get_path(SYS_PLUGIN_PATH).'buycourses/uploads/services/images/simg-'.$id.'.png';
-        file_put_contents($file, $data);
+        if (!empty($service['cropResult'])) {
+            $img = str_replace('data:image/png;base64,', '', $service['cropResult']);
+            $img = str_replace(' ', '+', $img);
+            $data = base64_decode($img);
+            $file = api_get_path(SYS_PLUGIN_PATH).'buycourses/uploads/services/images/simg-'.$id.'.png';
+            file_put_contents($file, $data);
+        }
         
         return Database::update(
             $servicesTable,
