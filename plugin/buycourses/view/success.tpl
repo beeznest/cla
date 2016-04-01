@@ -1,3 +1,17 @@
+{% if wizard %}
+    <div class="page-header">
+        <div class="wizard text-center">
+            <a><span class="badge">1</span> {{ "Register" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+            <a class="current"><span class="badge">2</span> {{ "Payment" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+            <a><span class="badge badge-inverse">3</span> {{ "RegisterSubscriptors" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#breadcrumb-bar").remove();
+        });
+    </script>
+{% endif %}
 <div class="alert alert-info">
     {% if buying_service %}
         {{ 'ServicePayPalPaymentOKPleaseConfirm'|get_plugin_lang('BuyCoursesPlugin') }}

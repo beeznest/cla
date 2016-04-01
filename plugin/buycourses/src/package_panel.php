@@ -14,11 +14,11 @@ $serviceSaleId = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : null;
 $serviceSale = $plugin->getServiceSale($serviceSaleId);
 
 if (!$serviceSale) {
-    api_not_allowed();
+    api_not_allowed(true);
 }
 
 if (intval($serviceSale['buyer']['id']) !== api_get_user_id()) {
-    api_not_allowed();
+    api_not_allowed(true);
 }
 
 $subscriberUsers = $plugin->getSubscriberUsers($serviceSaleId);
@@ -30,6 +30,10 @@ $sessions = $em->getRepository('ChamiloCoreBundle:Session')->findAll();
 
 $templateName = $plugin->get_lang('SubscriptionPackage').' "'.$userGroup->getName().'"';
 $tpl = new Template($templateName);
+if (isset($_REQUEST['from']) && $_REQUEST['from'] == "payment") {
+    $tpl->assign('wizard', true);
+    $tpl->assign('page_header_buy_course', $templateName);
+}
 $tpl->assign('package', $subscriberUsers);
 $tpl->assign('package_id', $serviceSaleId);
 $tpl->assign('group_id', $serviceSale['node_id']);

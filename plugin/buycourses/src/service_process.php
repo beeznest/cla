@@ -29,7 +29,8 @@ $plugin = BuyCoursesPlugin::create();
 $includeServices = $plugin->get('include_services');
 $paypalEnabled = $plugin->get('paypal_enable') === 'true';
 $transferEnabled = $plugin->get('transfer_enable') === 'true';
-
+$wizard = true;
+$additionalQueryString = '';
 if ($includeServices !== 'true') {
     api_not_allowed(true);
 }
@@ -38,7 +39,12 @@ $typeUser = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_USER;
 $typeCourse = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_COURSE;
 $typeSession = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_SESSION;
 $typeSubscriptionPackage = intval($_REQUEST['t']) === BuyCoursesPlugin::SERVICE_TYPE_SUBSCRIPTION_PACKAGE;
-$queryString = 'i=' . intval($_REQUEST['i']) . '&t=' . intval($_REQUEST['t']);
+if (isset($_REQUEST['from']) && $_REQUEST['from'] == "register") {
+    $wizard = true;
+    $additionalQueryString = '&from=register';
+
+}
+$queryString = 'i=' . intval($_REQUEST['i']) . '&t=' . intval($_REQUEST['t']).$additionalQueryString;
 
 $serviceInfo = $plugin->getServices(intval($_REQUEST['i']));
 $userInfo = api_get_user_info();
@@ -68,7 +74,11 @@ if ($form->validate()) {
 
     if ($serviceSaleId !== false) {
         $_SESSION['bc_service_sale_id'] = $serviceSaleId;
-        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_process_confirm.php');
+        if ($wizard) {
+            header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_process_confirm.php?from=register');
+        } else {
+            header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_process_confirm.php');
+        }
     }
 
     exit;
@@ -144,6 +154,11 @@ $templateName = $plugin->get_lang('PaymentMethods');
 $interbreadcrumb[] = array("url" => "service_catalog.php", "name" => $plugin->get_lang('ListOfServicesOnSale'));
 
 $tpl = new Template($templateName);
+if (isset($_GET['from'])) {
+    if($_GET['from'] == 'register') {
+        $tpl->assign('wizard', true);
+    }
+}
 $tpl->assign('buying_service', true);
 $tpl->assign('service', $serviceInfo);
 $tpl->assign('user', api_get_user_info());

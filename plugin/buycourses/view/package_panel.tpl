@@ -1,6 +1,24 @@
 <link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
 
-        
+{% if wizard %}
+    <div class="buy-courses-page-header">
+        <div class="wizard text-center">
+            <a><span class="badge">1</span> {{ "Register" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+            <a><span class="badge">2</span> {{ "Payment" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+            <a class="current"><span class="badge badge-inverse">3</span> {{ "RegisterSubscriptors" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+        </div>
+    </div>
+    <div class="buy-courses-page-header">
+        <h3> {{ page_header_buy_course }} </h3>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#breadcrumb-bar").remove();
+            $(".page-header").remove();
+        });
+    </script>
+{% endif %}
+
 <table class="table table-striped table-hover">
     <thead>
         <tr>
@@ -39,11 +57,11 @@
                             $('#type-{{ index }}').on('change', function() {
                                 if (this.value == 1) {
                                     {% for course in courses %}
-                                        $('#typeId-{{ index }}').html('<option value="{{ course.getId }}">{{ course.getTitle }}</option>');
+                                        $('#typeId-{{ index }}').append('<option value="{{ course.getId }}">{{ course.getTitle }}</option>');
                                     {% endfor %}
                                 } else if (this.value == 2) {
                                     {% for session in sessions %}
-                                        $('#typeId-{{ index }}').html('<option value="{{ session.getId }}">{{ session.getName }}</option>');
+                                        $('#typeId-{{ index }}').append('<option value="{{ session.getId }}">{{ session.getName }}</option>');
                                     {% endfor %}
                                 }
                             });

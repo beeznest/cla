@@ -18,6 +18,12 @@ if (empty($serviceSaleId)) {
 }
 
 $serviceSale = $plugin->getServiceSale($serviceSaleId);
+$wizard = false;
+
+if (isset($_REQUEST['from']) && $_REQUEST['from'] == "register") {
+    $wizard = true;
+    $_SESSION['wizard'] = true;
+}
 
 if (empty($serviceSale)) {
     api_not_allowed(true);

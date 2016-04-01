@@ -14,6 +14,11 @@
             <a><span class="badge badge-inverse">3</span> {{ "RegisterSubscriptors" | get_plugin_lang('BuyCoursesPlugin') }}</a>
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            $("#breadcrumb-bar").remove();
+        });
+    </script>
 {% else %}
     {{ inscription_header }}
 {% endif %}

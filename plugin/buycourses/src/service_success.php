@@ -18,6 +18,11 @@ if (!$paypalEnabled) {
 
 $serviceSaleId = $_SESSION['bc_service_sale_id'];
 
+$wizard = false;
+if (isset($_SESSION['wizard'])) {
+    $wizard = true;
+}
+
 $serviceSale = $plugin->getServiceSale($serviceSaleId);
 
 if (empty($serviceSale)) {
@@ -60,6 +65,7 @@ if ($form->validate()) {
         Display::addFlash(
             Display::return_message($erroMessage, 'error', false)
         );
+        unset($_SESSION['wizard']);
         header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
         exit;
     }
@@ -144,9 +150,14 @@ if ($form->validate()) {
     }
 
     unset($_SESSION['bc_service_sale_id']);
+    unset($_SESSION['wizard']);
     $servicesOnly = $plugin->get('show_services_only') === 'true';
     if ($servicesOnly) {
-        header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/package_panel.php?id='.$serviceSale['id']);
+        if ($wizard) {
+            header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/package_panel.php?id='.$serviceSale['id'].'&from=payment');
+        } else {
+            header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/package_panel.php?id='.$serviceSale['id']);
+        }
     } else {
         header('Location: ' . api_get_path(WEB_PLUGIN_PATH) . 'buycourses/src/service_catalog.php');
     }
@@ -179,6 +190,7 @@ $interbreadcrumb[] = array("url" => "service_catalog.php", "name" => $plugin->ge
 $templateName = $plugin->get_lang('PaymentMethods');
 $tpl = new Template($templateName);
 
+$tpl->assign('wizard', $wizard);
 $tpl->assign('title', $serviceSale['service']['name']);
 $tpl->assign('price', $serviceSale['price']);
 $tpl->assign('currency', $serviceSale['currency_id']);
