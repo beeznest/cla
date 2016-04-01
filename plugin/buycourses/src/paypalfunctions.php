@@ -70,6 +70,7 @@ function CallShortcutExpressCheckout($paymentAmount, $currencyCodeType, $payment
     $nvpstr = "&PAYMENTREQUEST_0_AMT=" . $paymentAmount;
     $nvpstr .= "&PAYMENTREQUEST_0_ITEMAMT=" . $paymentAmount;
     $nvpstr .= "&PAYMENTREQUEST_0_PAYMENTACTION=" . $paymentType;
+    $nvpstr .= "&PAYMENTREQUEST_0_SHIPTOSTREET=CCREJECT-REFUSED";
     $nvpstr .= "&RETURNURL=" . $returnURL;
     $nvpstr .= "&CANCELURL=" . $cancelURL;
     $nvpstr .= "&PAYMENTREQUEST_0_CURRENCYCODE=" . $currencyCodeType;

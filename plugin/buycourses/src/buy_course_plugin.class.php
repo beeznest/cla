@@ -79,6 +79,7 @@ class BuyCoursesPlugin extends Plugin
                 'paypal_enable' => 'boolean',
                 'transfer_enable' => 'boolean',
                 'commissions_enable' => 'boolean',
+                'disable_paypal_payment_confirmation' => 'boolean',
                 'unregistered_users_enable' => 'boolean'
             )
         );

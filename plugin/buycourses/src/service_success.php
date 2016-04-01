@@ -43,9 +43,12 @@ $form = new FormValidator('success', 'POST', api_get_self(), null, null, FormVal
 $form->addButton('confirm', $plugin->get_lang('ConfirmOrder'), 'check', 'success');
 $form->addButtonCancel($plugin->get_lang('CancelOrder'), 'cancel');
 
+$disablePaymentConfiguration = $plugin->get('disable_paypal_payment_confirmation') === 'true';
+
+//$validateHandler = $disablePaymentConfiguration ? $disablePaymentConfiguration : $form->validate();
+
 if ($form->validate()) {
     $formValues = $form->getSubmitValues();
-
     if (isset($formValues['cancel'])) {
         $plugin->cancelServiceSale($serviceSale['id']);
 

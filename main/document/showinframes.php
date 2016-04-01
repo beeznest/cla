@@ -29,6 +29,7 @@ api_protect_course_script();
 $noPHP_SELF = true;
 $header_file = isset($_GET['file']) ? Security::remove_XSS($_GET['file']) : null;
 $document_id = intval($_GET['id']);
+$originIsLearnpath = isset($_GET['origin']) && $_GET['origin'] === 'learnpathitem';
 
 $courseInfo = api_get_course_info();
 $course_code = api_get_course_id();
@@ -331,9 +332,13 @@ if (!$jplayer_supported && $execute_iframe) {
     </script>';
 }
 
-Display::display_header('');
+if ($originIsLearnpath) {
+    Display::display_reduced_header();
+} else {
+    Display::display_header('');
+}
 
-echo '<div align="center">';
+echo '<div class="text-center">';
 
 $file_url = api_get_path(WEB_COURSE_PATH).$courseInfo['path'].'/document'.$header_file;
 $file_url_web = $file_url.'?'.api_get_cidreq();
@@ -355,19 +360,17 @@ if ($show_web_odf) {
             src="' . $pdfUrl. '">
         </iframe>';
     echo '</div>';
-} else {
+} elseif (!$originIsLearnpath) {
     // ViewerJS already have download button
-    echo '<a class="btn btn-default" href="'.$file_url_web.'" target="_blank"><em class="fa fa-download"></em>
-'.get_lang('Download').'</a>';
+    echo '<p>';
+    echo Display::toolbarButton(get_lang('Download'), $file_url_web, 'download', 'default', ['target' => '_blank']);
+    echo '</p>';
 }
 
 echo '</div>';
 
 if ($jplayer_supported) {
-    echo '<br />';
-    echo '<div class="col-md-3 col-md-offset-3">';
     echo DocumentManager::generate_video_preview($document_data);
-    echo '</div>';
 
     // media_element blocks jplayer disable it
     Display::$global_template->assign('show_media_element', 0);

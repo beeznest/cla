@@ -5,9 +5,11 @@ $strings['show_main_menu_tab'] = "Mostrar guia no menu principal";
 $strings['show_main_menu_tab_help'] = "No caso de não querer mostrar a guia, você pode criar esse link em sua página Chamilo: %s";
 $strings['include_sessions'] = "Incluir sessões";
 $strings['include_services'] = "Incluir serviços";
+$strings['show_services_only'] = "Mostrar apenas os serviços";
 $strings['paypal_enable'] = "Ativar PayPal";
 $strings['commissions_enable'] = "Permitir comissões";
 $strings['transfer_enable'] = "Permitir transferência bancária";
+$strings['disable_paypal_payment_confirmation'] = "Desativar a confirmação do pagamento";
 $strings['unregistered_users_enable'] = "Permitir que usuários anônimos";
 
 $strings['banktransfer'] = "Transferência Bancária";

@@ -28,7 +28,7 @@ if (!$service['id']) {
     api_not_allowed(true);
 }
 
-$template = new Template(false, true, true, false, true, false);
+$template = new Template(false);
 $template->assign('pageUrl', api_get_path(WEB_PATH) . "service/{$serviceId}/information/");
 $template->assign('service', $service);
 $template->assign('essence', \Essence\Essence::instance());
