@@ -127,3 +127,6 @@ $strings['HottestSubscriptions'] = "Subscrições populares";
 $strings['GoAheadAndBrowseOurStoreCatalogOnceBuyYouCanAccessToServicesPanelToManage'] = "Continue e veja nossa loja para que você pode comprar que você deseja. Próximo passo pode ver sua compra no painel de serviços.";
 $strings['ServiceCatalog'] = "Subscrições populares";
 $strings['AutoBilling'] = "Faturamento automático";
+$strings['Register'] = "Cadastro";
+$strings['Payment'] = "Pagamento";
+$strings['RegisterSubscriptors'] = "Cadastrar Funcionários";

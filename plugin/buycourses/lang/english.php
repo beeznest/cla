@@ -165,3 +165,5 @@ $strings['HottestSubscriptions'] = "Hottest subscriptions";
 $strings['GoAheadAndBrowseOurStoreCatalogOnceBuyYouCanAccessToServicesPanelToManage'] = "Go ahead and browse our store so you can buy that you want, next step can view your purchases on the services panel";
 $strings['ServiceCatalog'] = "Service catalog";
 $strings['AutoBilling'] = "AutoBilling";
+$strings['Register'] = "Register";
+$strings['RegisterSubscriptors'] = "Register Subscriptors";

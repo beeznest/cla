@@ -748,7 +748,7 @@ if ($form->validate()) {
     if (isset($_GET['from'])) {
         if($_GET['from'] == 'service' && isset($_GET['id'])) {
             $plugin = BuyCoursesPlugin::create();
-            header('Location: '.api_get_path(WEB_PLUGIN_PATH).'buycourses/src/service_process.php?i='.intval($_GET['id']).'&t='.BuyCoursesPlugin::SERVICE_TYPE_SUBSCRIPTION_PACKAGE);
+            header('Location: '.api_get_path(WEB_PLUGIN_PATH).'buycourses/src/service_process.php?i='.intval($_GET['id']).'&t='.BuyCoursesPlugin::SERVICE_TYPE_SUBSCRIPTION_PACKAGE.'&from=register');
         }
     }
 
@@ -799,7 +799,12 @@ if ($form->validate()) {
         }
 
         $tpl = new Template($tool_name);
-
+        
+        if (isset($_GET['from'])) {
+            if($_GET['from'] == 'service' && isset($_GET['id'])) {
+                $tpl->assign('wizard', true);
+            }
+        }
         $tpl->assign('inscription_header', Display::page_header($tool_name));
         $tpl->assign('inscription_content', $content);
         $tpl->assign('form', $form->returnForm());
