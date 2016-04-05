@@ -370,12 +370,12 @@ if (isset ($_POST['submit']) && isset ($_POST['keyword'])) {
         . '&search='.Security::remove_XSS($_POST['keyword']));
     exit;
 }
-// DISPLAY HEADERS AND MESSAGES                           -
 
-if (!isset($_GET['exportpdf']) and !isset($_GET['export_certificate'])) {
+// DISPLAY HEADERS AND MESSAGES                           -
+if (!isset($_GET['exportpdf']) && !isset($_GET['export_certificate'])) {
     if (isset ($_GET['studentoverview'])) {
         $interbreadcrumb[]= array (
-            'url' => $_SESSION['gradebook_dest'].'?selectcat=' . Security::remove_XSS($_GET['selectcat']),
+            'url' => $_SESSION['gradebook_dest'].'?selectcat=' . Security::remove_XSS($_GET['selectcat'].'&'.api_get_cidreq()),
             'name' => get_lang('ToolGradebook')
         );
         Display :: display_header(get_lang('FlatView'));
@@ -401,13 +401,13 @@ if (!isset($_GET['exportpdf']) and !isset($_GET['export_certificate'])) {
     }
 }
 
-if (isset ($_GET['categorymoved'])) {
+if (isset($_GET['categorymoved'])) {
     Display :: display_confirmation_message(get_lang('CategoryMoved'),false);
 }
-if (isset ($_GET['evaluationmoved'])) {
+if (isset($_GET['evaluationmoved'])) {
     Display :: display_confirmation_message(get_lang('EvaluationMoved'),false);
 }
-if (isset ($_GET['linkmoved'])) {
+if (isset($_GET['linkmoved'])) {
     Display :: display_confirmation_message(get_lang('LinkMoved'),false);
 }
 if (isset ($_GET['addcat'])) {
@@ -561,8 +561,6 @@ if (!empty($keyword)) {
         $pdf->line(50,50,790,50);
         $pdf->line(50,550,790,550);
         $pdf->ezSetY(450);
-        //@todo replace image
-        //$pdf->ezImage(api_get_path(SYS_CODE_PATH).'img/dokeos_logo_certif.png',1,400,'','center','');
         $pdf->ezSetY(480);
         $pdf->ezText($certif_text,28,array('justification'=>'center'));
         //$pdf->ezSetY(750);

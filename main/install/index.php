@@ -309,7 +309,7 @@ if ($encryptPassForm == '1') {
         @import "../../web/css/base.css";
         @import "../../web/css/themes/chamilo/default.css";
     </style>
-    <script type="text/javascript" src="../../web/assets/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../web/assets/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../web/assets/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../inc/lib/javascript/bootstrap-select/js/bootstrap-select.min.js"></script>
     <script type="text/javascript">
@@ -343,10 +343,10 @@ if ($encryptPassForm == '1') {
             $(".advanced_parameters").click(function() {
                 if ($("#id_contact_form").css("display") == "none") {
                     $("#id_contact_form").css("display","block");
-                    $("#img_plus_and_minus").html('&nbsp;<img src="<?php echo api_get_path(WEB_IMG_PATH) ?>div_hide.gif" alt="<?php echo get_lang('Hide') ?>" title="<?php echo get_lang('Hide')?>" style ="vertical-align:middle" >&nbsp;<?php echo get_lang('ContactInformation') ?>');
+                    $("#img_plus_and_minus").html('&nbsp;<img src="<?php echo Display::returnIconPath('div_hide.gif'); ?>" alt="<?php echo get_lang('Hide') ?>" title="<?php echo get_lang('Hide')?>" style ="vertical-align:middle" >&nbsp;<?php echo get_lang('ContactInformation') ?>');
                 } else {
                     $("#id_contact_form").css("display","none");
-                    $("#img_plus_and_minus").html('&nbsp;<img src="<?php echo api_get_path(WEB_IMG_PATH) ?>div_show.gif" alt="<?php echo get_lang('Show') ?>" title="<?php echo get_lang('Show') ?>" style ="vertical-align:middle" >&nbsp;<?php echo get_lang('ContactInformation') ?>');
+                    $("#img_plus_and_minus").html('&nbsp;<img src="<?php echo Display::returnIconPath('div_show.gif'); ?>" alt="<?php echo get_lang('Show') ?>" title="<?php echo get_lang('Show') ?>" style ="vertical-align:middle" >&nbsp;<?php echo get_lang('ContactInformation') ?>');
                 }
             });
         });

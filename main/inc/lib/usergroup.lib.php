@@ -513,11 +513,12 @@ class UserGroup extends Model
     }
 
     /**
-     * @param int $userId
-     *
-     * @return array
+     * Get the group list for a user
+     * @param int $userId The user ID
+     * @param int $filterByType Optional. The type of group
+     * @return type
      */
-    public function getUserGroupListByUser($userId)
+    public function getUserGroupListByUser($userId, $filterByType = null)
     {
         if ($this->useMultipleUrl) {
             $urlId = api_get_current_access_url_id();
@@ -534,6 +535,10 @@ class UserGroup extends Model
                 ON (u.usergroup_id = g.id)
                 ";
             $where =  array('where' => array('user_id = ?' => $userId));
+        }
+
+        if ($filterByType !== null) {
+            $where['where'][' AND g.group_type = ?'] = intval($filterByType);
         }
 
         $results = Database::select(
@@ -958,7 +963,7 @@ class UserGroup extends Model
                     $this->add_user_to_group(
                         api_get_user_id(),
                         $id,
-                        $params['relation_type']
+                        $params['group_type']
                     );
                 }
                 $picture = isset($_FILES['picture']) ? $_FILES['picture'] : null;
@@ -1345,7 +1350,11 @@ class UserGroup extends Model
         $form->setRequiredNote('<span class="form_required">*</span> <small>'.get_lang('ThisFieldIsRequired').'</small>');
 
         // Setting the form elements
-        $form->addButtonCreate($header);
+        if ($type == 'add') {
+            $form->addButtonCreate($header);
+        } else {
+            $form->addButtonUpdate($header);
+        }
     }
 
     /**
@@ -1362,7 +1371,7 @@ class UserGroup extends Model
         $picture = array();
         $picture['style'] = $style;
         if ($picture_file == 'unknown.jpg') {
-            $picture['file'] = api_get_path(WEB_IMG_PATH).$picture_file;
+            $picture['file'] = Display::returnIconPath($picture_file);
             return $picture;
         }
 
@@ -1400,7 +1409,7 @@ class UserGroup extends Model
             if (file_exists($file) && !is_dir($file)) {
                 $picture['file'] = $image_array['dir'].$picture_file;
             } else {
-                $picture['file'] = api_get_path(WEB_IMG_PATH).'unknown_group.png';
+                $picture['file'] = Display::returnIconPath('unknown_group.png');
             }
         }
         return $picture;

@@ -164,26 +164,26 @@ class SessionManager
                 );
 
                 if (!empty($startDate)) {
-                    $values['access_start_date'] = $startDate;
+                    $values['access_start_date'] = api_get_utc_datetime($startDate);
                 }
 
                 if (!empty($endDate)) {
-                    $values['access_end_date'] = $endDate;
+                    $values['access_end_date'] = api_get_utc_datetime($endDate);
                 }
 
                 if (!empty($displayStartDate)) {
-                    $values['display_start_date'] = $displayStartDate;
+                    $values['display_start_date'] = api_get_utc_datetime($displayStartDate);
                 }
 
                 if (!empty($displayEndDate)) {
-                    $values['display_end_date'] = $displayEndDate;
+                    $values['display_end_date'] = api_get_utc_datetime($displayEndDate);
                 }
 
                 if (!empty($coachStartDate)) {
-                    $values['coach_access_start_date'] = $coachStartDate;
+                    $values['coach_access_start_date'] = api_get_utc_datetime($coachStartDate);
                 }
                 if (!empty($coachEndDate)) {
-                    $values['coach_access_end_date'] = $coachEndDate;
+                    $values['coach_access_end_date'] = api_get_utc_datetime($coachEndDate);
                 }
 
                 if (!empty($sessionCategoryId)) {
@@ -1419,26 +1419,26 @@ class SessionManager
                 }
 
                 if (!empty($startDate)) {
-                    $values['access_start_date'] = $startDate;
+                    $values['access_start_date'] = api_get_utc_datetime($startDate);
                 }
 
                 if (!empty($endDate)) {
-                    $values['access_end_date'] = $endDate;
+                    $values['access_end_date'] = api_get_utc_datetime($endDate);
                 }
 
                 if (!empty($displayStartDate)) {
-                    $values['display_start_date'] = $displayStartDate;
+                    $values['display_start_date'] = api_get_utc_datetime($displayStartDate);
                 }
 
                 if (!empty($displayEndDate)) {
-                    $values['display_end_date'] = $displayEndDate;
+                    $values['display_end_date'] = api_get_utc_datetime($displayEndDate);
                 }
 
                 if (!empty($coachStartDate)) {
-                    $values['coach_access_start_date'] = $coachStartDate;
+                    $values['coach_access_start_date'] = api_get_utc_datetime($coachStartDate);
                 }
                 if (!empty($coachEndDate)) {
-                    $values['coach_access_end_date'] = $coachEndDate;
+                    $values['coach_access_end_date'] = api_get_utc_datetime($coachEndDate);
                 }
 
                 if (!empty($sessionCategoryId)) {
@@ -2111,7 +2111,7 @@ class SessionManager
                 FROM $tbl_session_rel_user
                 WHERE
                     session_id = $sessionId AND
-                    relation_type<>" . SESSION_RELATION_TYPE_RRHH . "";
+                    relation_type<>" . SESSION_RELATION_TYPE_RRHH;
         $result = Database::query($sql);
         $user_list = Database::store_result($result);
 
@@ -2609,7 +2609,7 @@ class SessionManager
      * @return array An array with all sessions of the platform.
      * @todo   optional course code parameter, optional sorting parameters...
      */
-    public static function get_sessions_list($conditions = array(), $order_by = array())
+    public static function get_sessions_list($conditions = array(), $order_by = array(), $from = null, $to = null)
     {
         $session_table = Database::get_main_table(TABLE_MAIN_SESSION);
         $session_category_table = Database::get_main_table(TABLE_MAIN_SESSION_CATEGORY);
@@ -2677,6 +2677,12 @@ class SessionManager
             if (!empty($order)) {
                 $sql_query .= " ORDER BY $order $direction ";
             }
+        }
+
+        if (!is_null($from) && !is_null($to)) {
+            $to = intval($to);
+            $from = intval($from);
+            $sql_query .= "LIMIT $from, $to";
         }
 
         $sql_result = Database::query($sql_query);
@@ -3219,7 +3225,7 @@ class SessionManager
         if (Database::num_rows($result) > 0) {
             $sysUploadPath = api_get_path(SYS_UPLOAD_PATH). 'sessions/';
             $webUploadPath = api_get_path(WEB_UPLOAD_PATH). 'sessions/';
-            $imgPath = api_get_path(WEB_IMG_PATH) . 'session_default_small.png';
+            $imgPath = Display::returnIconPath('session_default_small.png');
 
             $tableExtraFields = Database::get_main_table(TABLE_EXTRA_FIELD);
             $sql = "SELECT id FROM " . $tableExtraFields . "
@@ -6119,7 +6125,7 @@ class SessionManager
      * @param array $extraFields A list of fields to be scanned and returned
      * @return mixed
      */
-    public static function getShortSessionListAndExtraByCategory($categoryId, $target, $extraFields = null)
+    public static function getShortSessionListAndExtraByCategory($categoryId, $target, $extraFields = null, $publicationDate = null)
     {
         // Init variables
         $categoryId = (int) $categoryId;
@@ -6137,6 +6143,16 @@ class SessionManager
                 $fieldsArray[] = Database::escape_string($field);
             }
             $extraFieldType = \Chamilo\CoreBundle\Entity\ExtraField::SESSION_FIELD_TYPE;
+            if (isset ($publicationDate)) {
+                $publicationDateString = $publicationDate->format('Y-m-d H:i:s');
+                $wherePublication = " AND id NOT IN (
+                    SELECT sfv.item_id FROM $joinTable
+                    WHERE
+                        sf.extra_field_type = $extraFieldType AND
+                        ((sf.variable = 'publication_start_date' AND sfv.value > '$publicationDateString' and sfv.value != '') OR
+                        (sf.variable = 'publication_end_date' AND sfv.value < '$publicationDateString' and sfv.value != ''))
+                )";
+            }
             // Get the session list from session category and target
             $sessionList = Database::select(
                 'id, name, access_start_date, access_end_date',
@@ -6150,7 +6166,7 @@ class SessionManager
                                 sfv.item_id = session.id AND
                                 sf.variable = 'target' AND
                                 sfv.value = ?
-                        )" => array($categoryId, $target),
+                        ) $wherePublication" => array($categoryId, $target),
                     ),
                 )
             );

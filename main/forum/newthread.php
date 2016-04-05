@@ -33,6 +33,8 @@ $this_section = SECTION_COURSES;
 // Notification for unauthorized people.
 api_protect_course_script(true);
 
+$cidreq = api_get_cidreq();
+
 $nameTools = get_lang('ToolForum');
 
 /* Including necessary files */
@@ -43,7 +45,7 @@ require_once 'forumfunction.inc.php';
 // Are we in a lp ?
 $origin = '';
 if (isset($_GET['origin'])) {
-    $origin =  Security::remove_XSS($_GET['origin']);
+    $origin = Security::remove_XSS($_GET['origin']);
 }
 
 /* MAIN DISPLAY SECTION */
@@ -61,11 +63,6 @@ if (!empty($gradebook) && $gradebook == 'view') {
         'url' => '../gradebook/'.Security::remove_XSS($_SESSION['gradebook_dest']),
         'name' => get_lang('ToolGradebook')
     );
-}
-
-if (!empty($_GET['gidReq'])) {
-    $toolgroup = intval($_GET['gidReq']);
-    Session::write('toolgroup',$toolgroup);
 }
 
 /* Is the user allowed here? */
@@ -116,20 +113,19 @@ if (api_is_invitee()) {
 
 $groupId = api_get_group_id();
 if (!empty($groupId)) {
-    $group_properties = GroupManager :: get_group_properties($groupId);
-    $interbreadcrumb[] = array('url' => '../group/group.php?'.api_get_cidreq(), 'name' => get_lang('Groups'));
-    $interbreadcrumb[] = array('url' => '../group/group_space.php?'.api_get_cidreq(), 'name' => get_lang('GroupSpace').' '.$group_properties['name']);
-    $interbreadcrumb[] = array('url' => 'viewforum.php?'.api_get_cidreq().'&forum='.Security::remove_XSS($_GET['forum']), 'name' => $current_forum['forum_title']);
-    $interbreadcrumb[] = array('url' => 'newthread.php?'.api_get_cidreq().'&forum='.Security::remove_XSS($_GET['forum']),'name' => get_lang('NewTopic'));
+    $groupProperties = GroupManager :: get_group_properties($groupId);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'group/group.php?'.$cidreq, 'name' => get_lang('Groups'));
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'group/group_space.php?'.$cidreq, 'name' => get_lang('GroupSpace').' '.$groupProperties['name']);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewforum.php?'.$cidreq.'&forum='.intval($_GET['forum']), 'name' => $current_forum['forum_title']);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/newthread.php?'.$cidreq.'&forum='.intval($_GET['forum']),'name' => get_lang('NewTopic'));
 } else {
-    $interbreadcrumb[] = array('url' => 'index.php?'.api_get_cidreq(), 'name' => $nameTools);
-    $interbreadcrumb[] = array('url' => 'viewforumcategory.php?'.api_get_cidreq().'&forumcategory='.$current_forum_category['cat_id'], 'name' => $current_forum_category['cat_title']);
-    $interbreadcrumb[] = array('url' => 'viewforum.php?'.api_get_cidreq().'&forum='.Security::remove_XSS($_GET['forum']), 'name' => $current_forum['forum_title']);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/index.php?'.$cidreq, 'name' => $nameTools);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewforumcategory.php?'.$cidreq.'&forumcategory='.$current_forum_category['cat_id'], 'name' => $current_forum_category['cat_title']);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewforum.php?'.$cidreq.'&forum='.intval($_GET['forum']), 'name' => $current_forum['forum_title']);
     $interbreadcrumb[] = array('url' => '#', 'name' => get_lang('NewTopic'));
 }
 
 /* Resource Linker */
-
 if (isset($_POST['add_resources']) AND $_POST['add_resources'] == get_lang('Resources')) {
     $_SESSION['formelements']	= $_POST;
     $_SESSION['origin']			= $_SERVER['REQUEST_URI'];
@@ -137,8 +133,6 @@ if (isset($_POST['add_resources']) AND $_POST['add_resources'] == get_lang('Reso
     header('Location: ../resourcelinker/resourcelinker.php');
     exit;
 }
-
-/* Header */
 
 $htmlHeadXtra[] = <<<JS
     <script>
@@ -160,15 +154,15 @@ JS;
 if ($origin == 'learnpath') {
     Display::display_reduced_header();
 } else {
-    Display :: display_header(null);
+    Display::display_header();
 }
 handle_forum_and_forumcategories();
 
 // Action links
 echo '<div class="actions">';
 echo '<span style="float:right;">'.search_link().'</span>';
-echo '<a href="viewforum.php?forum='.Security::remove_XSS($_GET['forum']).'&'.api_get_cidreq().'">'.
-    Display::return_icon('back.png',get_lang('BackToForum'),'',ICON_SIZE_MEDIUM).'</a>';
+echo '<a href="viewforum.php?forum='.intval($_GET['forum']).'&'.$cidreq.'">'.
+    Display::return_icon('back.png', get_lang('BackToForum'), '', ICON_SIZE_MEDIUM).'</a>';
 echo '</div>';
 
 // Set forum attachment data into $_SESSION
@@ -186,6 +180,8 @@ if (!empty($values) && isset($values['SubmitPost'])) {
     store_thread($current_forum, $values);
 }
 
-if (isset($origin) && $origin != 'learnpath') {
-    Display :: display_footer();
+if (isset($origin) && $origin == 'learnpath') {
+    Display::display_reduced_footer();
+} else {
+    Display::display_footer();
 }

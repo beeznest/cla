@@ -103,12 +103,30 @@ if ($is_platform_admin) {
 
 if ($is_drh) {
 	$view = 'drh';
-    $menu_items[] = Display::url(Display::return_icon('user_na.png', get_lang('Students'), array(), ICON_SIZE_MEDIUM), '#');
-    $menu_items[] = Display::url(Display::return_icon('teacher.png', get_lang('Trainers'), array(), ICON_SIZE_MEDIUM), 'teachers.php');
-    $menu_items[] = Display::url(Display::return_icon('course.png', get_lang('Courses'), array(), ICON_SIZE_MEDIUM), 'course.php');
-    $menu_items[] = Display::url(Display::return_icon('session.png', get_lang('Sessions'), array(), ICON_SIZE_MEDIUM), 'session.php');
-    $menu_items[] = Display::url(Display::return_icon('empty_evaluation.png', get_lang('CompanyReport'), array(), ICON_SIZE_MEDIUM), 'company_reports.php');
-    $menu_items[] = Display::url(Display::return_icon('evaluation_rate.png', get_lang('CompanyReportResumed'), array(), ICON_SIZE_MEDIUM), 'company_reports_resumed.php');
+    $menu_items[] = Display::url(
+        Display::return_icon('user_na.png', get_lang('Students'), array(), ICON_SIZE_MEDIUM),
+        '#'
+    );
+    $menu_items[] = Display::url(
+        Display::return_icon('teacher.png', get_lang('Trainers'), array(), ICON_SIZE_MEDIUM),
+        'teachers.php'
+    );
+    $menu_items[] = Display::url(
+        Display::return_icon('course.png', get_lang('Courses'), array(), ICON_SIZE_MEDIUM),
+        'course.php'
+    );
+    $menu_items[] = Display::url(
+        Display::return_icon('session.png', get_lang('Sessions'), array(), ICON_SIZE_MEDIUM),
+        'session.php'
+    );
+    $menu_items[] = Display::url(
+        Display::return_icon('empty_evaluation.png', get_lang('CompanyReport'), array(), ICON_SIZE_MEDIUM),
+        'company_reports.php'
+    );
+    $menu_items[] = Display::url(
+        Display::return_icon('evaluation_rate.png', get_lang('CompanyReportResumed'), array(), ICON_SIZE_MEDIUM),
+        'company_reports_resumed.php'
+    );
 }
 
 echo '<div id="actions" class="actions">';
@@ -171,6 +189,7 @@ $userId  = api_get_user_id();
 $stats = Tracking::getStats($userId);
 
 $students = $stats['students'];
+$studentBosses = $stats['studentBosses'];
 $teachers = $stats['teachers'];
 $humanResourcesUsers = $stats['drh'];
 $assignedCourses = $stats['assignedCourses'];
@@ -200,6 +219,7 @@ $nb_posts = $nb_assignments = 0;
 $inactiveTime = time() - (3600 * 24 * 7);
 $nb_students = 0;
 $numberTeachers = 0;
+$numberStudentBosses = 0;
 $countHumanResourcesUsers = 0;
 $daysAgo = 7;
 $studentIds = array();
@@ -210,13 +230,19 @@ if (!empty($students)) {
     $progress  = Tracking::get_avg_student_progress($studentIds);
     $countAssignments = Tracking::count_student_assignments($studentIds);
     $studentIds = array_values($students);
-    $countHumanResourcesUsers = count($humanResourcesUsers);
 
     // average progress
     $avg_total_progress = $progress / $nb_students;
     // average assignments
     $nb_assignments = $countAssignments / $nb_students;
     $avg_courses_per_student = $count_courses / $nb_students;
+}
+
+if (!empty($studentBosses)) {
+    $numberStudentBosses = count($studentBosses);
+}
+if (!empty($humanResourcesUsers)) {
+    $countHumanResourcesUsers = count($humanResourcesUsers);
 }
 
 if (!empty($teachers)) {
@@ -272,6 +298,15 @@ echo '<div class="report_section">
                 ).'</td>
                 <td align="right">'.$nb_students.'</td>
             </tr>
+
+            <tr>
+                <td>'.Display::url(
+                    get_lang('FollowedStudentBosses'),
+                    api_get_path(WEB_CODE_PATH).'mySpace/users.php?status='.STUDENT_BOSS
+                ).'</td>
+                <td align="right">'.$numberStudentBosses.'</td>
+            </tr>
+
             <tr>
                 <td>'.Display::url(
                     get_lang('FollowedTeachers'),
@@ -294,7 +329,7 @@ echo '<div class="report_section">
                 api_get_path(WEB_CODE_PATH).'mySpace/users.php'
             ).
             '</td>
-                <td align="right">'.($nb_students + $numberTeachers + $countHumanResourcesUsers).$linkAddUser.'</td>
+                <td align="right">'.($nb_students + $numberStudentBosses + $numberTeachers + $countHumanResourcesUsers).$linkAddUser.'</td>
             </tr>
             <tr>
                 <td>'.Display::url(

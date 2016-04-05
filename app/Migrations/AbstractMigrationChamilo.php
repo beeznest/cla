@@ -33,11 +33,11 @@ abstract class AbstractMigrationChamilo extends AbstractMigration
         if (empty($this->manager)) {
             $dbParams = array(
                 'driver' => 'pdo_mysql',
-                'host' => api_get_configuration_value('db_host'),
-                'user' => api_get_configuration_value('db_user'),
-                'password' => api_get_configuration_value('db_password'),
-                'dbname' => api_get_configuration_value('main_database'),
-                'port' => api_get_configuration_value('db_port')
+                'host' => $this->connection->getHost(),
+                'user' => $this->connection->getUsername(),
+                'password' => $this->connection->getPassword(),
+                'dbname' => $this->connection->getDatabase(),
+                'port' => $this->connection->getPort()
             );
             $database = new \Database();
             $database->connect(
@@ -121,5 +121,18 @@ abstract class AbstractMigrationChamilo extends AbstractMigration
             }
         }
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @param $variable
+     * @return mixed
+     */
+    public function getConfigurationValue($variable)
+    {
+        global $_configuration;
+        if (isset($_configuration[$variable])) {
+            return $_configuration[$variable];
+        }
+        return false;
     }
 }

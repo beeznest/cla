@@ -2,6 +2,7 @@
 /* For licensing terms, see /license.txt */
 
 require_once 'Resource.class.php';
+require_once 'GradeBookBackup.php';
 require_once 'Course.class.php';
 require_once 'Event.class.php';
 require_once 'Link.class.php';
@@ -68,6 +69,7 @@ class CourseRestorer
         'thematic',
         'wiki',
         'works',
+        'gradebook',
     );
 
     /** Setting per tool */
@@ -80,9 +82,10 @@ class CourseRestorer
     public $add_text_in_items = false;
     public $destination_course_id;
 
-	/**
-	 * Create a new CourseRestorer
-	 */
+    /**
+     * CourseRestorer constructor.
+     * @param array $course
+     */
     public function __construct($course)
     {
         $this->course = $course;
@@ -95,17 +98,17 @@ class CourseRestorer
         $this->file_option = FILE_RENAME;
         $this->set_tools_invisible_by_default = false;
         $this->skip_content = array();
-	}
+    }
 
-	/**
-	 * Set the file-option
-	 * @param int $option (optional) What to do with files with same name
+    /**
+     * Set the file-option
+     * @param int $option (optional) What to do with files with same name
      * FILE_SKIP, FILE_RENAME or FILE_OVERWRITE
-	 */
+     */
     public function set_file_option($option = FILE_OVERWRITE)
     {
-		$this->file_option = $option;
-	}
+        $this->file_option = $option;
+    }
 
     /**
      * @param string $status
@@ -226,6 +229,8 @@ class CourseRestorer
                                 $params['tool'] = self::DBUTF8(
                                     $property['tool']
                                 );
+                                $property['insert_user_id'] = $this->checkUserId($property['insert_user_id']);
+
                                 $params['insert_user_id'] = self::DBUTF8(
                                     $property['insert_user_id']
                                 );
@@ -251,6 +256,9 @@ class CourseRestorer
                                 $params['end_visible'] = self::DBUTF8(
                                     $property['end_visible']
                                 );
+
+                                $property['to_user_id'] = $this->checkUserId($property['to_user_id'], true);
+
                                 $params['to_user_id'] = self::DBUTF8(
                                     $property['to_user_id']
                                 );
@@ -315,10 +323,9 @@ class CourseRestorer
                     $my_session_id = $session_id;
                 }
 
-		    	if ($document->file_type == FOLDER) {
-		    		$visibility = $document->item_properties[0]['visibility'];
-
-		    		$new = substr($document->path, 8);
+                if ($document->file_type == FOLDER) {
+                    $visibility = $document->item_properties[0]['visibility'];
+                    $new = substr($document->path, 8);
 
                     $folderList = explode('/', $new);
                     $tempFolder = '';
@@ -333,7 +340,11 @@ class CourseRestorer
                             continue;
                         }
 
-                        $title = basename($sysFolderPath);
+                        $title = $document->title;
+                        if (empty($title)) {
+                            $title = basename($sysFolderPath);
+                        }
+
                         // File doesn't exist in file system.
                         if (!is_dir($sysFolderPath)) {
                             // Creating directory
@@ -388,8 +399,11 @@ class CourseRestorer
                             if (Database::num_rows($res) == 0) {
                                 //continue;
                                 $visibility = $document->item_properties[0]['visibility'];
-                                $new        = '/'.substr(dirname($document->path), 9);
-                                $title      = str_replace('/', '', $new);
+                                $new = '/'.substr(dirname($document->path), 9);
+                                $title = $document->title;
+                                if (empty($title)) {
+                                    $title = str_replace('/', '', $new);
+                                }
 
                                 // This code fixes the possibility for a file without a directory entry to be
                                 $document_id = add_document(
@@ -403,14 +417,22 @@ class CourseRestorer
                                     false
                                 );
 
+                                $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                                $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                                $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                                $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                                $insertUserId = $this->checkUserId($insertUserId);
+                                $toUserId = $this->checkUserId($toUserId, true);
+
                                 api_item_property_update(
                                     $course_info,
                                     TOOL_DOCUMENT,
                                     $document_id,
                                     'FolderCreated',
-                                    $document->item_properties[0]['insert_user_id'],
-                                    $document->item_properties[0]['to_group_id'],
-                                    $document->item_properties[0]['to_user_id'],
+                                    $insertUserId,
+                                    $toGroupId,
+                                    $toUserId,
                                     null,
                                     null,
                                     $my_session_id
@@ -421,7 +443,7 @@ class CourseRestorer
 
 					if (file_exists($path.$document->path)) {
 						switch ($this->file_option) {
-							case FILE_OVERWRITE :
+							case FILE_OVERWRITE:
                                 $origin_path = $this->course->backup_path.'/'.$document->path;
 
 								if (file_exists($origin_path)) {
@@ -442,7 +464,7 @@ class CourseRestorer
                                             'title' => self::DBUTF8($document->title),
                                             'filetype' => self::DBUTF8($document->file_type),
                                             'size' => self::DBUTF8($document->size),
-                                            'session_id' => $my_session_id
+                                            'session_id' => $my_session_id,
                                         ];
 
     									$document_id = Database::insert($table, $params);
@@ -453,14 +475,22 @@ class CourseRestorer
                                         }
                                         $this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $document_id;
 
+                                        $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                                        $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                                        $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                                        $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                                        $insertUserId = $this->checkUserId($insertUserId);
+                                        $toUserId = $this->checkUserId($toUserId, true);
+
                                         api_item_property_update(
                                             $course_info,
                                             TOOL_DOCUMENT,
                                             $document_id,
                                             'DocumentAdded',
-                                            $document->item_properties[0]['insert_user_id'],
-                                            $document->item_properties[0]['to_group_id'],
-                                            $document->item_properties[0]['to_user_id'],
+                                            $insertUserId,
+                                            $toGroupId,
+                                            $toUserId,
                                             null,
                                             null,
                                             $my_session_id
@@ -475,7 +505,7 @@ class CourseRestorer
                                             'title' => self::DBUTF8($document->title),
                                             'filetype' => self::DBUTF8($document->file_type),
                                             'size' => self::DBUTF8($document->size),
-                                            'session_id' => $my_session_id
+                                            'session_id' => $my_session_id,
                                         ];
 
                                         Database::update(
@@ -490,14 +520,23 @@ class CourseRestorer
                                         );
 
                                         $this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $obj->id;
+
+                                        $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                                        $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                                        $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                                        $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                                        $insertUserId = $this->checkUserId($insertUserId);
+                                        $toUserId = $this->checkUserId($toUserId, true);
+
                                         api_item_property_update(
                                             $course_info,
                                             TOOL_DOCUMENT,
                                             $obj->id,
                                             'default',
-                                            $document->item_properties[0]['insert_user_id'],
-                                            $document->item_properties[0]['to_group_id'],
-                                            $document->item_properties[0]['to_user_id'],
+                                            $insertUserId,
+                                            $toGroupId,
+                                            $toUserId,
                                             null,
                                             null,
                                             $my_session_id
@@ -532,14 +571,14 @@ class CourseRestorer
                                         [
                                             'c_id = ? AND id = ?' => [
                                                 $this->destination_course_id,
-                                                $document_id
+                                                $document_id,
                                             ],
                                         ]
                                     );
 								}
 
 								break;
-							case FILE_SKIP :
+							case FILE_SKIP:
 								$sql = "SELECT id FROM $table
 								        WHERE
 								            c_id = ".$this->destination_course_id." AND
@@ -548,7 +587,7 @@ class CourseRestorer
 								$obj = Database::fetch_object($res);
 								$this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $obj->id;
 								break;
-							case FILE_RENAME :
+							case FILE_RENAME:
 								$i = 1;
 								$ext = explode('.', basename($document->path));
 								if (count($ext) > 1) {
@@ -610,7 +649,6 @@ class CourseRestorer
 										$dest_document_path = $new_base_path.'/'.$document_path[2];		// e.g: "/var/www/wiener/courses/CURSO4/document/carpeta1_1/subcarpeta1/collaborative.png"
 										$basedir_dest_path 	= dirname($dest_document_path);				// e.g: "/var/www/wiener/courses/CURSO4/document/carpeta1_1/subcarpeta1"
 										$base_path_document = $course_path.$document_path[0];			// e.g: "/var/www/wiener/courses/CURSO4/document"
-
 										$path_title = '/'.$new_base_foldername.'/'.$document_path[2];
 
 										copy_folder_course_session(
@@ -652,7 +690,7 @@ class CourseRestorer
                                             'title' => self::DBUTF8(basename($path_title)),
                                             'filetype' => self::DBUTF8($document->file_type),
                                             'size' => self::DBUTF8($document->size),
-                                            'session_id' => $my_session_id
+                                            'session_id' => $my_session_id,
                                         ];
 
 										$document_id = Database::insert($table, $params);
@@ -663,25 +701,31 @@ class CourseRestorer
                                         }
 
                                         $this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $document_id;
+
+                                        $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                                        $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                                        $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                                        $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                                        $insertUserId = $this->checkUserId($insertUserId);
+                                        $toUserId = $this->checkUserId($toUserId, true);
+
                                         api_item_property_update(
                                             $course_info,
                                             TOOL_DOCUMENT,
                                             $document_id,
                                             'DocumentAdded',
-                                            $document->item_properties[0]['insert_user_id'],
-                                            $document->item_properties[0]['to_group_id'],
-                                            $document->item_properties[0]['to_user_id'],
+                                            $insertUserId,
+                                            $toGroupId,
+                                            $toUserId,
                                             null,
                                             null,
                                             $my_session_id
                                         );
-
 									} else {
-
 									    if (file_exists($path.$document->path)) {
                                             copy($path.$document->path, $path.$new_file_name);
 									    }
-
                                         //Replace old course code with the new destination code see BT#1985
                                         if (file_exists($path.$new_file_name)) {
                                             $file_info = pathinfo($path.$new_file_name);
@@ -708,7 +752,7 @@ class CourseRestorer
                                             'title' => self::DBUTF8($document->title),
                                             'filetype' => self::DBUTF8($document->file_type),
                                             'size' => self::DBUTF8($document->size),
-                                            'session_id' => $my_session_id
+                                            'session_id' => $my_session_id,
                                         ];
 
                                         $document_id = Database::insert($table, $params);
@@ -718,14 +762,23 @@ class CourseRestorer
                                             Database::query($sql);
 
                                             $this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $document_id;
+
+                                            $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                                            $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                                            $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                                            $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                                            $insertUserId = $this->checkUserId($insertUserId);
+                                            $toUserId = $this->checkUserId($toUserId, true);
+
                                             api_item_property_update(
                                                 $course_info,
                                                 TOOL_DOCUMENT,
                                                 $document_id,
                                                 'DocumentAdded',
-                                                $document->item_properties[0]['insert_user_id'],
-                                                $document->item_properties[0]['to_group_id'],
-                                                $document->item_properties[0]['to_user_id'],
+                                                $insertUserId,
+                                                $toGroupId,
+                                                $toUserId,
                                                 null,
                                                 null,
                                                 $my_session_id
@@ -762,7 +815,7 @@ class CourseRestorer
                                         'title' => self::DBUTF8($document->title),
                                         'filetype' => self::DBUTF8($document->file_type),
                                         'size' => self::DBUTF8($document->size),
-                                        'session_id' => $my_session_id
+                                        'session_id' => $my_session_id,
                                     ];
 
                                     $document_id = Database::insert($table, $params);
@@ -773,14 +826,23 @@ class CourseRestorer
                                     }
 
                                     $this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $document_id;
+
+                                    $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                                    $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                                    $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                                    $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                                    $insertUserId = $this->checkUserId($insertUserId);
+                                    $toUserId = $this->checkUserId($toUserId, true);
+
                                     api_item_property_update(
                                         $course_info,
                                         TOOL_DOCUMENT,
                                         $document_id,
                                         'DocumentAdded',
-                                        $document->item_properties[0]['insert_user_id'],
-                                        $document->item_properties[0]['to_group_id'],
-                                        $document->item_properties[0]['to_user_id'],
+                                        $insertUserId,
+                                        $toGroupId,
+                                        $toUserId,
                                         null,
                                         null,
                                         $my_session_id
@@ -826,7 +888,7 @@ class CourseRestorer
                                 'title' => self::DBUTF8($document->title),
                                 'filetype' => self::DBUTF8($document->file_type),
                                 'size' => self::DBUTF8($document->size),
-                                'session_id' => $my_session_id
+                                'session_id' => $my_session_id,
                             ];
 
                             $document_id = Database::insert($table, $params);
@@ -837,21 +899,31 @@ class CourseRestorer
                             }
 
 							$this->course->resources[RESOURCE_DOCUMENT][$id]->destination_id = $document_id;
+
+                            $itemProperty = isset($document->item_properties[0]) ? $document->item_properties[0] : '';
+                            $insertUserId = isset($itemProperty['insert_user_id']) ? $itemProperty['insert_user_id'] : api_get_user_id();
+                            $toGroupId = isset($itemProperty['to_group_id']) ? $itemProperty['to_group_id'] : 0;
+                            $toUserId = isset($itemProperty['to_user_id']) ? $itemProperty['to_user_id'] : null;
+
+                            $insertUserId = $this->checkUserId($insertUserId);
+                            $toUserId = $this->checkUserId($toUserId, true);
+
                             api_item_property_update(
                                 $course_info,
                                 TOOL_DOCUMENT,
                                 $document_id,
                                 'DocumentAdded',
-                                $document->item_properties[0]['insert_user_id'],
-                                $document->item_properties[0]['to_group_id'],
-                                $document->item_properties[0]['to_user_id'],
+                                $insertUserId,
+                                $toGroupId,
+                                $toUserId,
                                 null,
                                 null,
                                 $my_session_id
                             );
 						} else {
-						    //echo 'not Copying';
-							if (is_file($this->course->backup_path.'/'.$document->path) && is_readable($this->course->backup_path.'/'.$document->path)) {
+							if (is_file($this->course->backup_path.'/'.$document->path) &&
+                                is_readable($this->course->backup_path.'/'.$document->path)
+                            ) {
 								error_log('Course copy generated an ignoreable error while trying to copy '.$this->course->backup_path.'/'.$document->path.': file not found');
 							}
 							if (!is_dir(dirname($path.$document->path))) {
@@ -1310,7 +1382,7 @@ class CourseRestorer
                     'c_id' => $this->destination_course_id,
                     'id' => self::DBUTF8($tool_intro->id),
                     'intro_text' => self::DBUTF8($tool_intro->intro_text),
-                    'session_id' => $sessionId
+                    'session_id' => $sessionId,
                 ];
 
                 $id = Database::insert($tool_intro_table, $params);
@@ -1354,7 +1426,7 @@ class CourseRestorer
                     'all_day' => $event->all_day,
                     'start_date' => $event->start_date,
                     'end_date' => $event->end_date,
-                    'session_id' => $sessionId
+                    'session_id' => $sessionId,
                 ];
 				$new_event_id = Database::insert($table, $params);
 
@@ -1398,7 +1470,7 @@ class CourseRestorer
                                 'comment' => self::DBUTF8($attachment_event->comment),
                                 'size' => $attachment_event->size,
                                 'filename' => $attachment_event->filename,
-                                'agenda_id' => $new_event_id
+                                'agenda_id' => $new_event_id,
                             ];
                             $id = Database::insert($table_attachment, $params);
                             if ($id) {
@@ -1424,7 +1496,7 @@ class CourseRestorer
                                 'comment' => self::DBUTF8($event->attachment_comment),
                                 'size' => $event->size,
                                 'filename' => $event->filename,
-                                'agenda_id' => $new_event_id
+                                'agenda_id' => $new_event_id,
                             ];
                             $id = Database::insert($table_attachment, $params);
 
@@ -1448,9 +1520,15 @@ class CourseRestorer
 			$table = Database :: get_course_table(TABLE_COURSE_DESCRIPTION);
 			$resources = $this->course->resources;
 			foreach ($resources[RESOURCE_COURSEDESCRIPTION] as $id => $cd) {
+                $courseDescription = (array) $cd;
+
+                $content = isset($courseDescription['content']) ? $courseDescription['content'] : '';
+                $descriptionType = isset($courseDescription['description_type']) ? $courseDescription['description_type'] : '';
+                $title = isset($courseDescription['title']) ? $courseDescription['title'] : '';
+
 				// check resources inside html from ckeditor tool and copy correct urls into recipient course
                 $description_content = DocumentManager::replace_urls_inside_content_html_from_copy_course(
-                    $cd->content,
+                    $content,
                     $this->course->code,
                     $this->course->destination_path,
                     $this->course->backup_path,
@@ -1458,13 +1536,12 @@ class CourseRestorer
                 );
 
                 $params = [];
-				if (!empty($session_id)) {
-					$session_id = intval($session_id);
-                    $params['session_id'] = $session_id;
-				}
+
+                $session_id = intval($session_id);
+                $params['session_id'] = $session_id;
                 $params['c_id'] = $this->destination_course_id;
-                $params['description_type'] = self::DBUTF8($cd->description_type);
-                $params['title'] = self::DBUTF8($cd->title);
+                $params['description_type'] = self::DBUTF8($descriptionType);
+                $params['title'] = self::DBUTF8($title);
                 $params['content'] = self::DBUTF8($description_content);
 
                 $id = Database::insert($table, $params);
@@ -1508,7 +1585,7 @@ class CourseRestorer
                     'end_date' => $announcement->date,
                     'display_order' => $announcement->display_order,
                     'email_sent' => $announcement->email_sent,
-                    'session_id' => $sessionId
+                    'session_id' => $sessionId,
                 ];
 
 				$new_announcement_id = Database::insert($table, $params);
@@ -1556,7 +1633,7 @@ class CourseRestorer
                                 'comment' => self::DBUTF8($attachment_event->comment),
                                 'size' => $attachment_event->size,
                                 'filename' => $attachment_event->filename,
-                                'announcement_id' => $new_announcement_id
+                                'announcement_id' => $new_announcement_id,
                             ];
 
                             $attachmentId = Database::insert($table_attachment, $params);
@@ -1592,7 +1669,7 @@ class CourseRestorer
                                 'comment' => self::DBUTF8($announcement->attachment_comment),
                                 'size' => $announcement->attachment_size,
                                 'filename' => $announcement->attachment_filename,
-                                'announcement_id' => $new_announcement_id
+                                'announcement_id' => $new_announcement_id,
                             ];
 
                             $attachmentId = Database::insert($table_attachment, $params);
@@ -1769,7 +1846,7 @@ class CourseRestorer
                 'type' => self::DBUTF8($question->quiz_type),
                 'picture' => self::DBUTF8($question->picture),
                 'level' => self::DBUTF8($question->level),
-                'extra' => self::DBUTF8($question->extra)
+                'extra' => self::DBUTF8($question->extra),
             ];
 
 			$new_id = Database::insert($table_que, $params);
@@ -1822,7 +1899,7 @@ class CourseRestorer
                         'ponderation' => $answer['ponderation'],
                         'position' => $answer['position'],
                         'hotspot_coordinates' => $answer['hotspot_coordinates'],
-                        'hotspot_type' => $answer['hotspot_type']
+                        'hotspot_type' => $answer['hotspot_type'],
                     ];
                     $answerId = Database::insert($table_ans, $params);
 
@@ -1863,7 +1940,7 @@ class CourseRestorer
                         'ponderation' => $answer['ponderation'],
                         'position' => $answer['position'],
                         'hotspot_coordinates' => $answer['hotspot_coordinates'],
-                        'hotspot_type' => $answer['hotspot_type']
+                        'hotspot_type' => $answer['hotspot_type'],
                     ];
 
                     $answerId = Database::insert($table_ans, $params);
@@ -1911,9 +1988,9 @@ class CourseRestorer
                                 'WHERE' => array(
                                     'question_id = ? AND c_id = ? ' => array(
                                         $new_id,
-                                        $this->destination_course_id
-                                    )
-                                )
+                                        $this->destination_course_id,
+                                    ),
+                                ),
                             )
                         );
 
@@ -1927,8 +2004,8 @@ class CourseRestorer
                                     'iid = ? AND c_id = ? AND question_id = ? ' => array(
                                         $answer_item['iid'],
                                         $this->destination_course_id,
-                                        $new_id
-                                    )
+                                        $new_id,
+                                    ),
                                 ),
                                 false
                             );
@@ -2122,7 +2199,7 @@ class CourseRestorer
                     'answered' => '0',
                     'invite_mail' => self::DBUTF8($survey->invite_mail),
                     'reminder_mail' => self::DBUTF8($survey->reminder_mail),
-                    'session_id' => $sessionId
+                    'session_id' => $sessionId,
                 ];
 
 				//An existing survey exists with the same code and the same language
@@ -2427,7 +2504,7 @@ class CourseRestorer
                             'visibility' => '0',
                             'admin' => '0',
                             'address' => 'squaregrey.gif',
-                            'session_id' => $session_id
+                            'session_id' => $session_id,
                         ];
                         $insertId = Database::insert($table_tool, $params);
                         if ($insertId) {
@@ -2504,7 +2581,7 @@ class CourseRestorer
                         'prerequisite' => self::DBUTF8($item['prerequisite']),
                         'parameters' => self::DBUTF8($item['parameters']),
                         'audio' => self::DBUTF8($item['audio']),
-                        'launch_data' => self::DBUTF8($item['launch_data'])
+                        'launch_data' => self::DBUTF8($item['launch_data']),
                     ];
 
 					$new_item_id = Database::insert($table_item, $params);
@@ -2875,7 +2952,7 @@ class CourseRestorer
                         'max_version' => 0,
                         'startdate_assig' => '',
                         'enddate_assig' => '',
-                        'delayedsubmit' => 0
+                        'delayedsubmit' => 0,
                     ];
 
                     Database::insert($table_wiki_conf, $params);
@@ -3140,6 +3217,40 @@ class CourseRestorer
     }
 
     /**
+     * Restore Works
+     * @param int $sessionId
+     */
+    public function restore_gradebook($sessionId = 0)
+    {
+        if ($this->course->has_resources(RESOURCE_GRADEBOOK)) {
+            $resources = $this->course->resources;
+            /**
+             * @var GradeBookBackup $obj
+             */
+            foreach ($resources[RESOURCE_GRADEBOOK] as $id => $obj) {
+                if (!empty($obj->categories)) {
+                    $categoryIdList = [];
+                    /** @var Category $cat */
+                    foreach ($obj->categories as $cat) {
+                        $cat->set_course_code($this->destination_course_info['code']);
+                        $cat->set_session_id($sessionId);
+
+                        $parentId = $cat->get_parent_id();
+                        if (!empty($parentId)) {
+                            if (isset($categoryIdList[$parentId])) {
+                                $cat->set_parent_id($categoryIdList[$parentId]);
+                            }
+                        }
+                        $oldId = $cat->get_id();
+                        $categoryId = $cat->add();
+                        $categoryIdList[$oldId] = $categoryId;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * @param string $str
      * @return string
      */
@@ -3177,5 +3288,28 @@ class CourseRestorer
         } else {
             return $array;
         }
+    }
+
+    /**
+     * Check if user exist otherwise use current user
+     * @param int $userId
+     * @param bool $returnNull
+     *
+     * @return int
+     */
+    private function checkUserId($userId, $returnNull = false) {
+
+        if (!empty($userId)) {
+            $userInfo = api_get_user_info($userId);
+            if (empty($userInfo)) {
+                return api_get_user_id();
+            }
+        }
+
+        if ($returnNull) {
+            return null;
+        }
+
+        return $userId;
     }
 }

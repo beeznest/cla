@@ -70,7 +70,7 @@ if (isset($_POST['action'])) {
             $title,
             $content,
             $_FILES,
-            '',
+            [],
             $group_id,
             $parent_id,
             $edit_message_id,
@@ -86,7 +86,7 @@ if (isset($_POST['action'])) {
             $title,
             $content,
             $_FILES,
-            '',
+            [],
             $group_id,
             $parent_id,
             0,
@@ -134,7 +134,7 @@ function add_image_form() {
 	filepaths.appendChild(elem1);
 	id_elem1 = "filepath_"+counter_image;
 	id_elem1 = "\'"+id_elem1+"\'";
-	document.getElementById("filepath_"+counter_image).innerHTML = "<input type=\"file\" name=\"attach_"+counter_image+"\"  size=\"20\" />&nbsp;<a href=\"javascript:remove_image_form("+id_elem1+")\"><img src=\"'.api_get_path(WEB_IMG_PATH).'delete.gif\"></a>";
+	document.getElementById("filepath_"+counter_image).innerHTML = "<input type=\"file\" name=\"attach_"+counter_image+"\"  size=\"20\" />&nbsp;<a href=\"javascript:remove_image_form("+id_elem1+")\"><img src=\"'.Display::returnIconPath('delete.gif').'\"></a>";
 
 	if (filepaths.childNodes.length == 3) {
 		var link_attach = document.getElementById("link-more-attach");

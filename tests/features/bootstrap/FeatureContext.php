@@ -3,6 +3,7 @@
 use Behat\Behat\Context\ClosuredContextInterface,
     Behat\Behat\Context\TranslatedContextInterface,
     Behat\Behat\Context\BehatContext,
+    Behat\Behat\Context\Step,
     Behat\Behat\Context\Step\Given,
     Behat\Behat\Exception\PendingException,
     Behat\Behat\Event\SuiteEvent;
@@ -187,5 +188,143 @@ class FeatureContext extends MinkContext
             new Given('I am on "/main/auth/profile.php"'),
             new Given('the "language" field should contain "' . $argument . '"')
         );
+    }
+
+    /**
+     * @Given /^I am logged as "([^"]*)"$/
+     */
+    public function iAmLoggedAs($username)
+    {
+        return [
+            new Given('I am on "/index.php?logout=logout"'),
+            new Given('I am on homepage'),
+            new Given('I fill in "login" with "' . $username . '"'),
+            new Given('I fill in "password" with "' . $username . '"'),
+            new Given('I press "submitAuth"')
+        ];
+    }
+
+    /**
+     * @Given /^I have a friend named "([^"]*)" with id "([^"]*)"$/
+     */
+    public function iHaveAFriend($friendUsername, $friendId)
+    {
+        $adminId = 1;
+        $friendId = $friendId;
+        $friendUsername = $friendUsername;
+
+        $sendInvitationURL = '/main/inc/ajax/message.ajax.php?' . http_build_query([
+            'a' => 'send_invitation',
+            'user_id' => $friendId,
+            'content' => 'Add me'
+        ]);
+        $acceptInvitationURL = '/main/inc/ajax/social.ajax.php?' . http_build_query([
+            'a' => 'add_friend',
+            'friend_id' => $adminId,
+            'is_my_friend' => 'friend'
+        ]);
+
+        return array(
+            new Given('I am a platform administrator'),
+            new Given('I am on "' . $sendInvitationURL . '"'),
+            new Given('I am logged as "' . $friendUsername . '"'),
+            new Given('I am on "' . $acceptInvitationURL . '"'),
+            new Given('I am a platform administrator')
+        );
+    }
+
+    /**
+     * @Given /^I have a public password-protected course named "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iHaveAPublicPasswordProtectedCourse($code, $password)
+    {
+        return [
+            new Given('I am on "/main/admin/course_add.php"'),
+            new Given('I fill in "title" with "Password Protected"'),
+            new Given('I fill in "visual_code" with "' . $code . '"'),
+            new Given('I fill in "visibility" with "3"'),
+            new Given('I press "submit"'),
+            new Given('I am on "/main/course_info/infocours.php?cidReq=' . $code . '"'),
+            new Given('I should see "Course registration password"'),
+            new Given('I fill in "course_registration_password" with "' . $password . '"'),
+            new Given('I press "submit_save"'),
+            new Given('the "course_registration_password" field should contain "' . $password . '"')
+        ];
+    }
+
+    /**
+     * @Given /^I am not logged$/
+     */
+    public function iAmNotLogged()
+    {
+        return [
+            new Given('I am on "/index.php?logout=logout"'),
+            new Given('I am on homepage')
+        ];
+    }
+
+    /**
+     * @When /^I invite to a friend with id "([^"]*)" to a social group with id "([^"]*)"$/
+     */
+    public function iInviteAFrienToASocialGroup($friendId, $groupId)
+    {
+        return [
+            new Step\Given('I am on "/main/social/group_invitation.php?id=' . $groupId . '"'),
+            new Step\When('I fill in "invitation[]" with "' . $friendId . '"'),
+            new Step\When('I press "submit"')
+        ];
+    }
+    /**
+     * Sometimes the top admin toolbar has form buttons
+     * that conflicts with the main page forms so we need
+     * to disable it
+     * @Given /^Admin top bar is disabled$/
+     */
+    public function adminTopBarIsDisabled()
+    {
+        return [
+            new Step\Given('I am a platform administrator'),
+            new Step\Given('I am on "/main/admin/settings.php"'),
+            new Step\When('I fill in "search_field" with "show_admin_toolbar"'),
+            new Step\When('I press "submit_button"'),
+            new Step\When('I select "do_not_show" from "show_admin_toolbar"'),
+            new Step\When('I press "submit"')
+        ];
+    }
+    /**
+     * @Given /^Admin top bar is enabled$/
+     */
+    public function adminTopBarIsEnabled()
+    {
+        return [
+            new Step\Given('I am a platform administrator'),
+            new Step\Given('I am on "/main/admin/settings.php"'),
+            new Step\When('I fill in "search_field" with "show_admin_toolbar"'),
+            new Step\When('I press "submit_button"'),
+            new Step\When('I select "show_to_admin_and_teachers" from "show_admin_toolbar"'),
+            new Step\When('I press "submit"')
+        ];
+    }
+
+    /**
+     * @Given /^I am on the social group members page with id "([^"]*)"$/
+     */
+    public function iAmOnSocialGroupMembersPageWithId($groupId)
+    {
+        return [
+            new Step\Given('I am on "/main/social/group_view.php?id=' . $groupId . '"')
+        ];
+    }
+
+    /**
+     * @When /^I try delete a friend with id "([^"]*)" from the social group with id "([^"]*)"$/
+     */
+    public function iTryDeleteAFriendFromSocialGroup($friendId, $groupId)
+    {
+        return [
+            new Step\When(
+                'I am on "/main/social/group_members.php?id=' . $groupId . '&u=' . $friendId . '&action=delete"'
+            )
+        ];
     }
 }

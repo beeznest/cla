@@ -32,10 +32,14 @@ api_protect_course_script(true);
 
 $nameTools = get_lang('ToolForum');
 
+// Unset the formElements in session before the includes function works
+unset($_SESSION['formelements']);
+
 /* Including necessary files */
 require_once 'forumconfig.inc.php';
 require_once 'forumfunction.inc.php';
 
+// Are we in a lp ?
 $origin = '';
 if (isset($_GET['origin'])) {
     $origin = Security::remove_XSS($_GET['origin']);
@@ -69,23 +73,23 @@ if (!empty($gradebook) && $gradebook == 'view') {
 }
 
 if ($origin == 'group') {
-    $_clean['toolgroup'] = (int) $_SESSION['toolgroup'];
+    $_clean['toolgroup'] = api_get_group_id();
     $group_properties = GroupManager::get_group_properties($_clean['toolgroup']);
-    $interbreadcrumb[] = array('url' => '../group/group.php?'.api_get_cidreq(), 'name' => get_lang('Groups'));
-    $interbreadcrumb[] = array('url' => '../group/group_space.php?gidReq='.$_SESSION['toolgroup'], 'name' => get_lang('GroupSpace').' '.$group_properties['name']);
-    $interbreadcrumb[] = array('url' => 'viewforum.php?origin='.$origin.'&gidReq='.$_SESSION['toolgroup'].'&forum='.Security::remove_XSS($_GET['forum']), 'name' => prepare4display($current_forum['forum_title']));
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'group/group.php?'.api_get_cidreq(), 'name' => get_lang('Groups'));
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'group/group_space.php?'.api_get_cidreq(), 'name' => get_lang('GroupSpace').' '.$group_properties['name']);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewforum.php?origin='.$origin.'&'.api_get_cidreq().'&forum='.intval($_GET['forum']), 'name' => prepare4display($current_forum['forum_title']));
     $interbreadcrumb[] = array('url' => 'javascript: void (0);', 'name' => get_lang('EditPost'));
 } else {
-    $interbreadcrumb[] = array('url' => 'index.php?'.api_get_cidreq(), 'name' => $nameTools);
-    $interbreadcrumb[] = array('url' => 'viewforumcategory.php?forumcategory='.$current_forum_category['cat_id'], 'name' => prepare4display($current_forum_category['cat_title']));
-    $interbreadcrumb[] = array('url' => 'viewforum.php?origin='.$origin.'&forum='.Security::remove_XSS($_GET['forum']), 'name' => prepare4display($current_forum['forum_title']));
-    $interbreadcrumb[] = array('url' => 'viewthread.php?'.api_get_cidreq().'&origin='.$origin.'&forum='.Security::remove_XSS($_GET['forum']).'&thread='.Security::remove_XSS($_GET['thread']), 'name' => prepare4display($current_thread['thread_title']));
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/index.php?'.api_get_cidreq(), 'name' => $nameTools);
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewforumcategory.php?forumcategory='.$current_forum_category['cat_id'], 'name' => prepare4display($current_forum_category['cat_title']));
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewforum.php?origin='.$origin.'&forum='.intval($_GET['forum']), 'name' => prepare4display($current_forum['forum_title']));
+    $interbreadcrumb[] = array('url' => api_get_path(WEB_CODE_PATH).'forum/viewthread.php?'.api_get_cidreq().'&origin='.$origin.'&forum='.intval($_GET['forum']).'&thread='.intval($_GET['thread']), 'name' => prepare4display($current_thread['thread_title']));
     $interbreadcrumb[] = array('url' => 'javascript: void (0);', 'name' => get_lang('EditPost'));
 }
 
 /* Resource Linker */
 
-if (isset($_POST['add_resources']) AND $_POST['add_resources'] == get_lang('Resources')) {
+if (isset($_POST['add_resources']) && $_POST['add_resources'] == get_lang('Resources')) {
     $_SESSION['formelements'] = $_POST;
     $_SESSION['origin'] = $_SERVER['REQUEST_URI'];
     $_SESSION['breadcrumbs'] = $interbreadcrumb;
@@ -111,16 +115,10 @@ $htmlHeadXtra[] = <<<JS
     </script>
 JS;
 
-// Are we in a lp ?
-$origin = '';
-if (isset($_GET['origin'])) {
-    $origin = Security::remove_XSS($_GET['origin']);
-}
-
 if ($origin == 'learnpath') {
     Display::display_reduced_header();
 } else {
-    Display :: display_header(null);
+    Display::display_header();
 }
 /* Is the user allowed here? */
 
@@ -184,7 +182,7 @@ if ($origin != 'learnpath') {
         echo '<a href="index.php?'.api_get_cidreq().'">'.
             Display::return_icon('back.png', get_lang('BackToForumOverview'), '', ICON_SIZE_MEDIUM).'</a>';
     }
-    echo '<a href="viewforum.php?forum='.Security::remove_XSS($_GET['forum']).'&gidReq='.Security::remove_XSS($_GET['gidReq']).'&origin='.$origin.'">'.
+    echo '<a href="viewforum.php?forum='.intval($_GET['forum']).'&'.api_get_cidreq().'&origin='.$origin.'">'.
         Display::return_icon('forum.png', get_lang('BackToForum'), '', ICON_SIZE_MEDIUM).'</a>';
     echo '</div>';
 }
@@ -215,44 +213,11 @@ $values = show_edit_post_form(
 
 if (!empty($values) and isset($_POST['SubmitPost'])) {
     store_edit_post($values);
-
-    $option_chek = isset($values['thread_qualify_gradebook']) ? $values['thread_qualify_gradebook'] : null; // values 1 or 0
-    if (1 == $option_chek) {
-        $id = $values['thread_id'];
-        $title_gradebook = Security::remove_XSS(stripslashes($values['calification_notebook_title']));
-        $value_calification = $values['numeric_calification'];
-        $weight_calification = $values['weight_calification'];
-        $description = '';
-        $session_id = api_get_session_id();
-
-        $link_info = GradebookUtils::is_resource_in_course_gradebook(
-            api_get_course_id(),
-            5,
-            $id,
-            $session_id
-        );
-        $link_id = $link_info['id'];
-
-        if (!$link_info) {
-            GradebookUtils::add_resource_to_course_gradebook(
-                $values['category_id'],
-                api_get_course_id(),
-                5,
-                $id,
-                $title_gradebook,
-                $weight_calification,
-                $value_calification,
-                $description,
-                1,
-                api_get_session_id()
-            );
-        } else {
-            Database::query('UPDATE '.$table_link.' SET weight='.$weight_calification.' WHERE id='.$link_id.'');
-        }
-    }
 }
 
 // Footer
-if (isset($origin) && $origin != 'learnpath') {
-    Display :: display_footer();
+if (isset($origin) && $origin == 'learnpath') {
+    Display::display_reduced_footer();
+} else {
+    Display::display_footer();
 }

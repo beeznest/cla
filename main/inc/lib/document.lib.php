@@ -328,13 +328,14 @@ class DocumentManager
         $len = filesize($full_file_name);
         // Fixing error when file name contains a ","
         $filename = str_replace(',', '', $filename);
-        global $_configuration;
+
+        $sendFileHeaders = api_get_configuration_value('enable_x_sendfile_headers');
 
         if ($forced) {
             // Force the browser to save the file instead of opening it
 
-            if (isset($_configuration['enable_x_sendfile_headers']) &&
-                !empty($_configuration['enable_x_sendfile_headers'])) {
+            if (isset($sendFileHeaders) &&
+                !empty($sendFileHeaders)) {
                 header("X-Sendfile: $filename");
             }
 
@@ -361,6 +362,7 @@ class DocumentManager
             //no forced download, just let the browser decide what to do according to the mimetype
 
             $content_type = self::file_get_mime_type($filename);
+            $lpFixedEncoding = api_get_configuration_value('lp_fixed_encoding');
 
             header('Expires: Wed, 01 Jan 1990 00:00:00 GMT');
             header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -369,7 +371,7 @@ class DocumentManager
             //header('Pragma: no-cache');
             switch ($content_type) {
                 case 'text/html':
-                    if (isset($_configuration['lp_fixed_encoding']) && $_configuration['lp_fixed_encoding'] === 'true') {
+                    if (isset($lpFixedEncoding) && $lpFixedEncoding === 'true') {
                         $content_type .= '; charset=UTF-8';
                     } else {
                         $encoding = @api_detect_encoding_html(file_get_contents($full_file_name));
@@ -379,7 +381,7 @@ class DocumentManager
                     }
                     break;
                 case 'text/plain':
-                    if (isset($_configuration['lp_fixed_encoding']) && $_configuration['lp_fixed_encoding'] === 'true') {
+                    if (isset($lpFixedEncoding) && $lpFixedEncoding === 'true') {
                         $content_type .= '; charset=UTF-8';
                     } else {
                         $encoding = @api_detect_encoding(strip_tags(file_get_contents($full_file_name)));
@@ -1586,7 +1588,7 @@ class DocumentManager
         if (Database::num_rows($result) > 0) {
             $row = Database::fetch_array($result, 'ASSOC');
             if ($row['visibility'] == 1) {
-                $is_visible = $_SESSION['is_allowed_in_course'] || api_is_platform_admin();
+                $is_visible = api_is_allowed_in_course() || api_is_platform_admin();
             }
         }
 
@@ -2797,7 +2799,8 @@ class DocumentManager
         $unzip = 0,
         $if_exists = null,
         $index_document = false,
-        $show_output = false
+        $show_output = false,
+        $fileKey = 'file'
     ) {
         $course_info = api_get_course_info();
         $sessionId = api_get_session_id();
@@ -2805,14 +2808,19 @@ class DocumentManager
         $sys_course_path = api_get_path(SYS_COURSE_PATH);
         $base_work_dir = $sys_course_path . $course_dir;
 
-        if (isset($files['file'])) {
-            $upload_ok = process_uploaded_file($files['file'], $show_output);
+        if (isset($files[$fileKey])) {
+            $upload_ok = process_uploaded_file($files[$fileKey], $show_output);
 
             if ($upload_ok) {
                 // File got on the server without problems, now process it
+                if ($title) {
+                    $titleAndExt = explode('.', $files[$fileKey]['name']);
+                    $ext = end($titleAndExt);
+                    $files[$fileKey]['name'] = $title.'.'.$ext;
+                }
                 $new_path = handle_uploaded_document(
                     $course_info,
-                    $files['file'],
+                    $files[$fileKey],
                     $base_work_dir,
                     $path,
                     api_get_user_id(),
@@ -2898,11 +2906,13 @@ class DocumentManager
                             false,
                             $sessionId
                         );
+
                         return $documentData;
                     }
                 }
             }
         }
+
         return false;
     }
 
@@ -3106,8 +3116,8 @@ class DocumentManager
      * on the base of a maximum directory size allowed
      *
      * @author Bert Vanderkimpen
-     * @param  int file_size size of the file in byte
-     * @param  int max_dir_space maximum size
+     * @param  int $file_size size of the file in byte
+     * @param  int $max_dir_space maximum size
      * @return boolean true if there is enough space, false otherwise
      *
      * @see enough_space() uses  documents_total_space() function
@@ -3123,31 +3133,33 @@ class DocumentManager
     }
 
     /**
-     * @param array parameters: count, url, extension
+     * @param array $params count, url, extension
      * @return string
      */
     static function generate_jplayer_jquery($params = array())
     {
         $js_path = api_get_path(WEB_LIBRARY_PATH) . 'javascript/';
 
-        $js = ' $("#jquery_jplayer_' . $params['count'] . '").jPlayer({
-                    ready: function() {
-                        $(this).jPlayer("setMedia", {
-                            ' . $params['extension'] . ' : "' . $params['url'] . '"
-                        });
-                    },
-                    play: function() { // To avoid both jPlayers playing together.
-                        $(this).jPlayer("pauseOthers");
-                    },
-                    //errorAlerts: true,
-                    //warningAlerts: true,
-                    swfPath: "' . $js_path . 'jquery-jplayer/jplayer/",
-                    //supplied: "m4a, oga, mp3, ogg, wav",
-                    supplied: "' . $params['extension'] . '",
-                    wmode: "window",
-                    solution: "flash, html",  // Do not change this setting
-                    cssSelectorAncestor: "#jp_container_' . $params['count'] . '",
-                });  	 ' . "\n\n";
+        $js = '
+            $("#jquery_jplayer_' . $params['count'] . '").jPlayer({
+                ready: function() {
+                    $(this).jPlayer("setMedia", {
+                        ' . $params['extension'] . ' : "' . $params['url'] . '"
+                    });
+                },
+                play: function() { // To avoid both jPlayers playing together.
+                    $(this).jPlayer("pauseOthers");
+                },
+                //errorAlerts: true,
+                //warningAlerts: true,
+                swfPath: "' . $js_path . 'jquery-jplayer/jplayer/",
+                //supplied: "m4a, oga, mp3, ogg, wav",
+                supplied: "' . $params['extension'] . '",
+                wmode: "window",
+                solution: "flash, html",  // Do not change this setting
+                cssSelectorAncestor: "#jp_container_' . $params['count'] . '",
+            });  	 ' . "\n\n";
+
         return $js;
     }
 
@@ -3200,7 +3212,7 @@ class DocumentManager
     {
         //<button class="jp-video-play-icon" role="button" tabindex="0">play</button>
         $html = '
-        <div id="jp_container_1" class="jp-video" role="application" aria-label="media player">
+        <div id="jp_container_1" class="jp-video center-block" role="application" aria-label="media player">
             <div class="jp-type-single">
                 <div id="jquery_jplayer_1" class="jp-jplayer"></div>
                 <div class="jp-gui">
@@ -3463,7 +3475,6 @@ class DocumentManager
         );
 
         $return .= $write_result;
-        $img_path = api_get_path(WEB_IMG_PATH);
         if ($lp_id == false) {
             $url = api_get_path(WEB_AJAX_PATH).'lp.ajax.php?a=get_documents&url='.$overwrite_url.'&lp_id='.$lp_id.'&cidReq='.$course_info['code'];
             $return .= "<script>
@@ -3509,12 +3520,12 @@ class DocumentManager
 
                 if (image.hasClass('open')) {
                     image.removeClass('open');
-                    image.attr('src', '" . $img_path . "nolines_plus.gif');
+                    image.attr('src', '" . Display::returnIconPath('nolines_plus.gif')."');
                     $('#'+id).show();
                     $('#'+tempId).hide();
                 } else {
                     image.addClass('open');
-                    image.attr('src', '" . $img_path . "nolines_minus.gif');
+                    image.attr('src', '" . Display::returnIconPath('nolines_minus.gif') . "');
                     $('#'+id).hide();
                     $('#'+tempId).show();
 
@@ -3561,7 +3572,6 @@ class DocumentManager
         $target,
         $overwrite_url
     ) {
-        $img_path = api_get_path(WEB_IMG_PATH);
         $img_sys_path = api_get_path(SYS_CODE_PATH) . 'img/';
         $web_code_path = api_get_path(WEB_CODE_PATH);
 
@@ -3588,7 +3598,7 @@ class DocumentManager
 
         // Show the "image name" not the filename of the image.
         if ($lp_id) {
-            //LP URL
+            // LP URL
             $url = api_get_path(WEB_CODE_PATH).'newscorm/lp_controller.php?'.api_get_cidreq().'&amp;action=add_item&amp;type=' . TOOL_DOCUMENT . '&amp;file=' . $documentId . '&amp;lp_id=' . $lp_id;
             if (!empty($overwrite_url)) {
                 $url = $overwrite_url . '&cidReq=' . $course_info['code'] . '&id_session=' . $session_id . '&document_id=' . $documentId.'';
@@ -3601,9 +3611,9 @@ class DocumentManager
             }
         }
 
-        $img = $img_path . $icon;
+        $img = Display::returnIconPath($icon);
         if (!file_exists($img_sys_path . $icon)) {
-            $img = $img_path . 'icons/16/default_small.gif';
+            $img = Display::returnIconPath('default_small.gif');
         }
 
         $link = Display::url(
@@ -3646,8 +3656,6 @@ class DocumentManager
     {
         $title = isset($resource['title']) ? $resource['title'] : null;
         $path = isset($resource['path']) ? $resource['path'] : null;
-
-        $img_path = api_get_path(WEB_IMG_PATH);
 
         if (empty($path)) {
             $num = 0;
@@ -3700,13 +3708,12 @@ class DocumentManager
 
         $return .= '<li class="doc_folder '.$folder_class_hidden.'" id="doc_id_' . $resource['id'] . '"  style="margin-left:' . ($num * 18) . 'px; ">';
 
-        $image = $img_path.'nolines_plus.gif';
+        $image = Display::returnIconPath('nolines_plus.gif');
         if (empty($path)) {
-            $image = $img_path.'nolines_minus.gif';
+            $image = Display::returnIconPath('nolines_minus.gif');
         }
         $return .= '<img style="cursor: pointer;" src="'.$image.'" align="absmiddle" id="img_'.$resource['id'] . '" '.$onclick.'>';
-
-        $return .= '<img alt="" src="' . $img_path . 'lp_folder.gif" title="" align="absmiddle" />&nbsp;';
+        $return .= Display::return_icon('lp_folder.gif').'&nbsp;';
         $return .= '<span '.$onclick.' style="cursor: pointer;" >'.$title.'</span>';
         $return .= '</li>';
 
@@ -5244,8 +5251,13 @@ class DocumentManager
                 $copy_myfiles_link = ($filetype == 'file') ? api_get_self() . '?' . api_get_cidreq() . '&action=copytomyfiles&id=' . $document_data['id'] : api_get_self() . '?' . api_get_cidreq();
 
                 if ($filetype == 'file') {
+
                     $copy_to_myfiles = '<a href="' . $copy_myfiles_link . '" style="float:right"' . $prevent_multiple_click . '>' .
                         Display::return_icon('briefcase.png', get_lang('CopyToMyFiles'), array(), ICON_SIZE_SMALL) . '&nbsp;&nbsp;</a>';
+
+                    if (api_get_setting('allow_my_files') === 'false') {
+                        $copy_to_myfiles = '';
+                    }
                 }
 
                 if ($filetype == 'file') {
@@ -5310,8 +5322,8 @@ class DocumentManager
                             'style' => 'float: left;'
                         ]
                     )
-                        . $force_download_html . $send_to . $copy_to_myfiles
-                        . $open_in_new_window_link . $pdf_icon;
+                    . $force_download_html . $send_to . $copy_to_myfiles
+                    . $open_in_new_window_link . $pdf_icon;
                 } else {
                     // For PDF Download the file.
                     $pdfPreview = null;
@@ -5737,8 +5749,9 @@ class DocumentManager
                         $certificate = get_lang('NoDefaultCertificate');
                     }
                     if (isset($_GET['selectcat'])) {
-                        $modify_icons .= '&nbsp;<a href="' . api_get_self() . '?' . api_get_cidreq() . '&amp;curdirpath=' . $curdirpath . '&amp;selectcat=' . Security::remove_XSS($_GET['selectcat']) . '&amp;set_certificate=' . $id . '&amp;' . $sort_params . '">
-                    <img src="../img/' . $visibility_icon_certificate . '.png" border="0" title="' . $certificate . '" alt="" /></a>';
+                        $modify_icons .= '&nbsp;<a href="' . api_get_self() . '?' . api_get_cidreq() . '&amp;curdirpath=' . $curdirpath . '&amp;selectcat=' . intval($_GET['selectcat']) . '&amp;set_certificate=' . $id . '&amp;' . $sort_params . '">';
+                        $modify_icons .= Display::return_icon($visibility_icon_certificate.'.png', $certificate);
+                        $modify_icons .= '</a>';
                         if ($is_preview) {
                             $modify_icons .= '&nbsp;<a target="_blank"  href="' . api_get_self() . '?' . api_get_cidreq() . '&amp;curdirpath=' . $curdirpath . '&amp;set_preview=' . $id . '&amp;' . $sort_params . '" >' .
                                 Display::return_icon('preview_view.png', $preview, '', ICON_SIZE_SMALL) . '</a>';
@@ -6214,8 +6227,9 @@ class DocumentManager
         $documentTable = Database::get_course_table(TABLE_DOCUMENT);
 
         $conditionSession = api_get_session_condition($sessionId, true, false, 'd.session_id');
+        $courseId = $courseInfo['real_id'];
 
-        //get invisible folders
+        // get invisible folders
         $sql = "SELECT DISTINCT d.id, path
                 FROM $itemPropertyTable i
                 INNER JOIN $documentTable d
@@ -6224,8 +6238,8 @@ class DocumentManager
                     d.id = i.ref AND
                     i.tool = '" . TOOL_DOCUMENT . "'
                     $conditionSession AND
-                    i.c_id = {$courseInfo['real_id']} AND
-                    d.c_id = {$courseInfo['real_id']} ";
+                    i.c_id = $courseId AND
+                    d.c_id = $courseId ";
 
         $result = Database::query($sql);
         $documents = Database::store_result($result, 'ASSOC');
@@ -6246,5 +6260,12 @@ class DocumentManager
             }
         }
 
+        $sql = "DELETE FROM $documentTable
+                WHERE c_id = $courseId AND session_id = $sessionId";
+        Database::query($sql);
+
+        $sql = "DELETE FROM $itemPropertyTable
+                WHERE c_id = $courseId AND session_id = $sessionId AND tool = '".TOOL_DOCUMENT."'";
+        Database::query($sql);
     }
 }

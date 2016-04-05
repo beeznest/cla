@@ -669,7 +669,7 @@ class Template
 
         $bowerJsFiles = [
             'modernizr/modernizr.js',
-            'jquery/jquery.min.js',
+            'jquery/dist/jquery.min.js',
             'bootstrap/dist/js/bootstrap.min.js',
             'jquery-ui/jquery-ui.min.js',
             'moment/min/moment-with-locales.min.js',
@@ -678,7 +678,7 @@ class Template
             'jquery-timeago/jquery.timeago.js',
             'mediaelement/build/mediaelement-and-player.min.js',
             'jqueryui-timepicker-addon/dist/jquery-ui-timepicker-addon.min.js',
-            'imagemap-resizer/js/imageMapResizer.min.js',
+            'image-map-resizer/js/imageMapResizer.min.js',
             'jquery.scrollbar/jquery.scrollbar.min.js'
         ];
 
@@ -1108,6 +1108,15 @@ class Template
     public function show_footer_template()
     {
         $tpl = $this->get_template('layout/show_footer.tpl');
+        $this->display($tpl);
+    }
+    
+    /**
+     * Show footer js template.
+     */
+    public function show_footer_js_template()
+    {
+        $tpl = $this->get_template('layout/footer.js.tpl');
         $this->display($tpl);
     }
 

@@ -233,7 +233,6 @@ class learnpath
 
             $sql = "UPDATE $lp_table SET id = iid WHERE iid = ".$this->lp_view_id;
             Database::query($sql);
-
         }
 
         // Initialise items.
@@ -266,7 +265,9 @@ class learnpath
                             error_log(
                                 'New LP - learnpath::__construct() - ' .
                                 'aicc object with id ' . $my_item_id .
-                                ' set in items[]', 0);
+                                ' set in items[]',
+                                0
+                            );
                         }
                     }
                     break;
@@ -482,6 +483,8 @@ class learnpath
      * @param string $description
      * @param int $prerequisites
      * @param int $max_time_allowed
+     * @param int $userId
+     *
      * @return int
      */
     public function add_item(
@@ -492,7 +495,8 @@ class learnpath
         $title,
         $description,
         $prerequisites = 0,
-        $max_time_allowed = 0
+        $max_time_allowed = 0,
+        $userId = 0
     ) {
         $course_id = $this->course_info['real_id'];
         if ($this->debug > 0) {
@@ -503,6 +507,8 @@ class learnpath
             $this->course_info = api_get_course_info($this->cc);
             $course_id = $this->course_info['real_id'];
         }
+        $userId = empty($userId) ? api_get_user_id() : $userId;
+        $sessionId = api_get_session_id();
         $tbl_lp_item = Database :: get_course_table(TABLE_LP_ITEM);
         $_course = $this->course_info;
         $parent = intval($parent);
@@ -589,20 +595,20 @@ class learnpath
         $params = array(
             "c_id" => $course_id,
             "lp_id" => $this->get_id(),
-            "item_type" =>$typeCleaned ,
+            "item_type" => $typeCleaned,
             "ref" => '',
-            "title" =>$title ,
+            "title" => $title,
             "description" => $description,
             "path" => $id,
             "max_score" => $max_score,
             "parent_item_id" => $parent,
             "previous_item_id" => $previous,
-            "next_item_id" => $next,
-            "display_order" => $display_order +1,
+            "next_item_id" => intval($next),
+            "display_order" => $display_order + 1,
             "prerequisite" => $prerequisites,
             "max_time_allowed" => $max_time_allowed,
             'min_score' => 0,
-            'launch_data' => ''
+            'launch_data' => '',
         );
 
         if ($prerequisites != 0) {
@@ -656,31 +662,37 @@ class learnpath
                         '/audio',
                         'folder',
                         0,
-                        'audio'
+                        'audio',
+                        '',
+                        0,
+                        true,
+                        null,
+                        $sessionId,
+                        $userId
                     );
                     api_item_property_update(
                         $_course,
                         TOOL_DOCUMENT,
                         $audio_id,
                         'FolderCreated',
-                        api_get_user_id(),
+                        $userId,
                         null,
                         null,
                         null,
                         null,
-                        api_get_session_id()
+                        $sessionId
                     );
                     api_item_property_update(
                         $_course,
                         TOOL_DOCUMENT,
                         $audio_id,
                         'invisible',
-                        api_get_user_id(),
+                        $userId,
                         null,
                         null,
                         null,
                         null,
-                        api_get_session_id()
+                        $sessionId
                     );
                 }
 
@@ -689,7 +701,7 @@ class learnpath
                     $_FILES['mp3'],
                     api_get_path(SYS_COURSE_PATH) . $_course['path'] . '/document',
                     '/audio',
-                    api_get_user_id(),
+                    $userId,
                     '',
                     '',
                     '',
@@ -731,7 +743,8 @@ class learnpath
         $zipname = '',
         $publicated_on = '',
         $expired_on = '',
-        $categoryId = 0
+        $categoryId = 0,
+        $userId = 0
     ) {
         global $charset;
 
@@ -752,6 +765,8 @@ class learnpath
 
         // Session id.
         $session_id = api_get_session_id();
+
+        $userId = empty($userId) ? api_get_user_id() : $userId;
 
         $check_name = "SELECT * FROM $tbl_lp
                        WHERE c_id = $course_id AND name = '$name'";
@@ -859,9 +874,9 @@ class learnpath
                         TOOL_LEARNPATH,
                         $id,
                         'LearnpathAdded',
-                        api_get_user_id()
+                        $userId
                     );
-                    api_set_default_visibility($id, TOOL_LEARNPATH, 0, $courseInfo);
+                    api_set_default_visibility($id, TOOL_LEARNPATH, 0, $courseInfo, $session_id, $userId);
                     return $id;
                 }
                 break;
@@ -1950,21 +1965,29 @@ class learnpath
         if(empty($idBar)){
             $idBar='control-top';
         }
-        if(empty($display)){
+        /* if(empty($display)){
             $display='display:block';
-        }
+        } */
         $navbar = null;
         $lp_id = $this->lp_id;
         $mycurrentitemid = $this->get_current_item_id();
 
         if ($this->mode == 'fullscreen') {
             $navbar = '
-                  <div id="'.$idBar.'" class="buttons well" style="'.$display.'">
-                    <a href="lp_controller.php?action=stats&'.api_get_cidreq(true).'&lp_id='.$lp_id.'" onclick="window.parent.API.save_asset();return true;" target="content_name_blank" title="stats" id="stats_link"><img border="0" src="../img/btn_stats.png" title="' . get_lang('Reporting') . '"></a>
-                    <a id="scorm-previous" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'previous\');return false;" title="previous"><img border="0" src="../img/btn_previous.png" title="' . get_lang('ScormPrevious') . '"></a>
-                    <a id="scorm-next" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'next\');return false;" title="next"  ><img border="0" src="../img/btn_next.png" title="' . get_lang('ScormNext') . '"></a>.
-                    <a href="lp_controller.php?action=mode&mode=embedded" target="_top" title="embedded mode"><img border="0" src="../img/view_choose.gif" title="'.get_lang('ScormExitFullScreen').'"></a>
-                  </div>';
+                  <span id="'.$idBar.'" class="buttons">
+                    <a class="icon-toolbar" href="lp_controller.php?action=stats&'.api_get_cidreq(true).'&lp_id='.$lp_id.'" onclick="window.parent.API.save_asset();return true;" target="content_name" title="stats" id="stats_link">
+                        <span class="fa fa-info"></span><span class="sr-only">' . get_lang('Reporting') . '</span>
+                    </a>
+                    <a class="icon-toolbar" id="scorm-previous" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'previous\');return false;" title="previous">
+                        <span class="fa fa-chevron-left"></span><span class="sr-only">' . get_lang('ScormPrevious') . '</span>
+                    </a>
+                    <a class="icon-toolbar" id="scorm-next" href="#" onclick="switch_item(' . $mycurrentitemid . ',\'next\');return false;" title="next">
+                        <span class="fa fa-chevron-right"></span><span class="sr-only">' . get_lang('ScormNext') . '</span>
+                    </a>
+                    <a class="icon-toolbar" id="view-embedded" href="lp_controller.php?action=mode&mode=embedded" target="_top" title="embedded mode">
+                        <span class="fa fa-columns"></span><span class="sr-only">' . get_lang('ScormExitFullScreen') . '</span>
+                    </a>
+                  </span>';
 
         } else {
             $navbar = '
@@ -3168,28 +3191,17 @@ class learnpath
         $i = 0;
 
         foreach ($toc_list as $item) {
-            // TODO: Complete this
-            $icon_name = array (
-                'not attempted' => '../img/notattempted.gif',
-                'incomplete'    => '../img/incomplete.png',
-                'failed'        => '../img/delete.png',
-                'completed'     => '../img/completed.png',
-                'passed'        => '../img/passed.png',
-                'succeeded'     => '../img/succeeded.png',
-                'browsed'       => '../img/completed.png',
-            );
 
             // Style Status
-
-            $class_name = array (
+            $class_name = [
                 'not attempted' => 'scorm_not_attempted',
-                'incomplete'    => 'scorm_not_attempted',
-                'failed'        => 'scorm_failed',
-                'completed'     => 'scorm_completed',
-                'passed'        => 'scorm_completed',
-                'succeeded'     => 'scorm_completed',
-                'browsed'       => 'scorm_completed',
-            );
+                'incomplete' => 'scorm_not_attempted',
+                'failed' => 'scorm_failed',
+                'completed' => 'scorm_completed',
+                'passed' => 'scorm_completed',
+                'succeeded' => 'scorm_completed',
+                'browsed' => 'scorm_completed',
+            ];
 
             $scorm_color_background = 'row_odd';
             $style_item = '';
@@ -3274,11 +3286,11 @@ class learnpath
             if ($this->get_lp_session_id() == api_get_session_id()) {
                 $html .= '<div id="actions_lp" class="actions_lp"><hr>';
                 $html .= '<div class="btn-group">';
-                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&gradebook=$gradebook&action=build&lp_id=" . $this->lp_id . "' target='_parent'>" .
+                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&gradebook=$gradebook&action=build&lp_id=" . $this->lp_id . "&isStudentView=false' target='_parent'>" .
                     Display::returnFontAwesomeIcon('street-view') . get_lang('Overview') . "</a>";
-                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&action=add_item&type=step&lp_id=" . $this->lp_id . "' target='_parent'>" .
+                $html .= "<a class='btn btn-sm btn-default' href='lp_controller.php?" . api_get_cidreq()."&action=add_item&type=step&lp_id=" . $this->lp_id . "&isStudentView=false' target='_parent'>" .
                     Display::returnFontAwesomeIcon('pencil') . get_lang('Edit') . "</a>";
-                $html .= '<a class="btn btn-sm btn-default" href="lp_controller.php?'.api_get_cidreq()."&gradebook=$gradebook&action=edit&lp_id=" . $this->lp_id.'">' .
+                $html .= '<a class="btn btn-sm btn-default" href="lp_controller.php?'.api_get_cidreq()."&gradebook=$gradebook&action=edit&lp_id=" . $this->lp_id.'&isStudentView=false">' .
                     Display::returnFontAwesomeIcon('cog') . get_lang('Settings').'</a>';
                 $html .= '</div>';
                 $html .= '</div>';
@@ -5068,13 +5080,13 @@ class learnpath
             $default_view_mode = $row['default_view_mod'];
             $view_mode = $default_view_mode;
             switch ($default_view_mode) {
-                case 'fullscreen':
+                case 'fullscreen': // default with popup
                     $view_mode = 'embedded';
                     break;
-                case 'embedded':
+                case 'embedded': // default view with left menu
                     $view_mode = 'embedframe';
                     break;
-                case 'embedframe':
+                case 'embedframe': //folded menu
                     $view_mode = 'impress';
                     break;
                 case 'impress':
@@ -5573,14 +5585,14 @@ class learnpath
 
             $title_cut = cut($arrLP[$i]['title'], 25);
 
-            //Link for the documents
+            // Link for the documents
             if ($arrLP[$i]['item_type'] == 'document') {
                 $url = api_get_self() . '?'.api_get_cidreq().'&action=view_item&mode=preview_document&id=' . $arrLP[$i]['id'] . '&lp_id=' . $this->lp_id;
                 $title_cut = Display::url(
                     $title_cut,
                     $url,
                     array(
-                        'class' => 'ajax',
+                        'class' => 'ajax moved',
                         'data-title' => $title_cut
                     )
                 );
@@ -5595,32 +5607,22 @@ class learnpath
 
             $icon_name = str_replace(' ', '', $arrLP[$i]['item_type']);
 
-            $icon = '';
             if (file_exists('../img/lp_' . $icon_name . '.png')) {
-                $icon = '<img src="../img/lp_' . $icon_name . '.png" />';
+                $icon = Display::return_icon('lp_'.$icon_name.'.png');
             } else {
                 if (file_exists('../img/lp_' . $icon_name . '.gif')) {
-                    $icon = '<img src="../img/lp_' . $icon_name . '.gif"  />';
+                    $icon = Display::return_icon('lp_'.$icon_name.'.gif');
                 } else {
-                    $icon = '<img src="../img/folder_document.gif" />';
+                    $icon = Display::return_icon('folder_document.gif');
                 }
             }
 
             // The audio column.
             $return_audio  .= '<td align="left" style="padding-left:10px;">';
-
             $audio = '';
 
             if (!$update_audio || $update_audio <> 'true') {
                 if (!empty($arrLP[$i]['audio'])) {
-                    /*$audio .= '<span id="container'.$i.'"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</span>';
-                    $audio .= '<script type="text/javascript" src="../inc/lib/mediaplayer/swfobject.js"></script>';
-                    $audio .= '<script type="text/javascript">
-                                    var s1 = new SWFObject("../inc/lib/mediaplayer/player.swf","ply","250","20","9","#FFFFFF");
-                                    s1.addParam("allowscriptaccess","always");
-                                    s1.addParam("flashvars","file=../../courses/' . $_course['path'] . '/document/audio/' . $arrLP[$i]['audio'] . '");
-                                    s1.write("container' . $i . '");
-                                </script>';*/
                 } else {
                     $audio .= '';
                 }
@@ -5668,10 +5670,10 @@ class learnpath
                             )
                             ) {
                                 $forumIconUrl = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
-                                        'action' => 'dissociate_forum',
-                                        'id' => $arrLP[$i]['id'],
-                                        'lp_id' => $this->lp_id
-                                    ]);
+                                    'action' => 'dissociate_forum',
+                                    'id' => $arrLP[$i]['id'],
+                                    'lp_id' => $this->lp_id
+                                ]);
                                 $forumIcon = Display::url(
                                     Display::return_icon('forum.png', get_lang('DissociateForumToLPItem'), [], ICON_SIZE_TINY),
                                     $forumIconUrl,
@@ -5679,10 +5681,10 @@ class learnpath
                                 );
                             } else {
                                 $forumIconUrl = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
-                                        'action' => 'create_forum',
-                                        'id' => $arrLP[$i]['id'],
-                                        'lp_id' => $this->lp_id
-                                    ]);
+                                    'action' => 'create_forum',
+                                    'id' => $arrLP[$i]['id'],
+                                    'lp_id' => $this->lp_id
+                                ]);
                                 $forumIcon = Display::url(
                                     Display::return_icon('forum.png', get_lang('AssociateForumToLPItem'), [], ICON_SIZE_TINY),
                                     $forumIconUrl,
@@ -5867,18 +5869,22 @@ class learnpath
     /**
      * Creates the default learning path folder
      * @param array $course
+     * @param int $creatorId
+     *
      * @return bool
      */
-    public static function generate_learning_path_folder($course)
+    public static function generate_learning_path_folder($course, $creatorId = 0)
     {
         // Creating learning_path folder
         $dir = '/learning_path';
         $filepath = api_get_path(SYS_COURSE_PATH).$course['path'] . '/document';
+        $creatorId = empty($creatorId) ? api_get_user_id() : $creatorId;
+
         $folder = false;
         if (!is_dir($filepath.'/'.$dir)) {
             $folderData = create_unexisting_directory(
                 $course,
-                api_get_user_id(),
+                $creatorId,
                 api_get_session_id(),
                 0,
                 0,
@@ -5893,15 +5899,18 @@ class learnpath
         } else {
             $folder = true;
         }
+
         return $folder;
     }
 
     /**
      * @param array $course
      * @param string $lp_name
+     * @param int $creatorId
+     *
      * @return array
      */
-    public function generate_lp_folder($course, $lp_name = null)
+    public function generate_lp_folder($course, $lp_name = '', $creatorId = 0)
     {
         $filepath = '';
         $dir = '/learning_path/';
@@ -5909,8 +5918,9 @@ class learnpath
         if (empty($lp_name)) {
             $lp_name = $this->name;
         }
+        $creatorId = empty($creatorId) ? api_get_user_id() : $creatorId;
 
-        $folder = self::generate_learning_path_folder($course);
+        $folder = self::generate_learning_path_folder($course, $creatorId);
         // Creating LP folder
         if ($folder) {
             //Limits title size
@@ -5920,7 +5930,7 @@ class learnpath
             if (!is_dir($filepath.'/'.$dir)) {
                 $folderData = create_unexisting_directory(
                     $course,
-                    api_get_user_id(),
+                    $creatorId,
                     0,
                     0,
                     0,
@@ -5953,16 +5963,19 @@ class learnpath
      * @param string $content
      * @param string $title
      * @param string $extension
+     * @param int $creatorId creator id
      *
      * @return string
      */
-    public function create_document($courseInfo, $content = '', $title = '', $extension = 'html')
+    public function create_document($courseInfo, $content = '', $title = '', $extension = 'html', $creatorId = 0)
     {
         if (!empty($courseInfo)) {
             $course_id = $courseInfo['real_id'];
         } else {
             $course_id = api_get_course_int_id();
         }
+        $creatorId = empty($creatorId) ? api_get_user_id() : $creatorId;
+        $sessionId = api_get_session_id();
 
         global $charset;
         $postDir = isset($_POST['dir']) ? $_POST['dir'] : '';
@@ -5984,7 +5997,7 @@ class learnpath
 
         if (empty($_POST['dir']) && empty($_GET['dir'])) {
             //Generates folder
-            $result = $this->generate_lp_folder($courseInfo);
+            $result = $this->generate_lp_folder($courseInfo, '', $creatorId);
             $dir = $result['dir'];
             $filepath = $result['filepath'];
         }
@@ -6005,11 +6018,8 @@ class learnpath
         }
 
         $title = disable_dangerous_file($title);
-
         $filename = $title;
-
-        $content = isset($content) ? $content : $_POST['content_lp'];
-
+        $content = !empty($content) ? $content : $_POST['content_lp'];
         $tmp_filename = $filename;
 
         $i = 0;
@@ -6064,7 +6074,13 @@ class learnpath
                     $save_file_path,
                     'file',
                     $file_size,
-                    $tmp_filename
+                    $tmp_filename,
+                    '',
+                    0, //readonly
+                    true,
+                    null,
+                    $sessionId,
+                    $creatorId
                 );
 
                 if ($document_id) {
@@ -6073,15 +6089,15 @@ class learnpath
                         TOOL_DOCUMENT,
                         $document_id,
                         'DocumentAdded',
-                        api_get_user_id(),
+                        $creatorId,
                         null,
                         null,
                         null,
                         null,
-                        api_get_session_id()
+                        $sessionId
                     );
 
-                    $new_comment = (isset($_POST['comment'])) ? trim($_POST['comment']) : '';
+                    $new_comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
                     $new_title = $originalTitle;
 
                     if ($new_comment || $new_title) {
@@ -8492,14 +8508,15 @@ class learnpath
             $icon_name = str_replace(' ', '', $item['item_type']);
 
             if (file_exists('../img/lp_' . $icon_name . '.png')) {
-                $return .= '<img alt="" src="../img/lp_' . $icon_name . '.png" style="margin-right:5px;" title="" />';
+                $return .= Display::return_icon('lp_' . $icon_name . '.png');
             } else {
                 if (file_exists('../img/lp_' . $icon_name . '.gif')) {
-                    $return .= '<img alt="" src="../img/lp_' . $icon_name . '.gif" style="margin-right:5px;" title="" />';
+                    $return .= Display::return_icon('lp_' . $icon_name . '.gif');
                 } else {
-                    $return .= Display::return_icon('folder_document.gif','',array('style'=>'margin-right:5px;'));
+                    $return .= Display::return_icon('folder_document.gif', '', array('style'=>'margin-right:5px;'));
                 }
             }
+
             $return .=  $item['title'] . '</label>';
             $return .= '</td>';
 
@@ -8620,8 +8637,15 @@ class learnpath
         $session_id = api_get_session_id();
         $condition_session = api_get_session_condition($session_id);
 
+        $setting = api_get_configuration_value('show_invisible_exercise_in_lp_list');
+
+        $activeCondition = " active <> -1 ";
+        if ($setting) {
+            $activeCondition = " active = 1 ";
+        }
+
         $sql_quiz = "SELECT * FROM $tbl_quiz
-                     WHERE c_id = $course_id AND active<>'-1' $condition_session
+                     WHERE c_id = $course_id AND $activeCondition $condition_session
                      ORDER BY title ASC";
 
         $sql_hot  = "SELECT * FROM $tbl_doc
@@ -8632,10 +8656,9 @@ class learnpath
         $res_hot  = Database::query($sql_hot);
 
         $return = '<ul class="lp_resource">';
-
         $return .= '<li class="lp_resource_element">';
-        $return .= '<img alt="" src="../img/new_test_small.gif" style="margin-right:5px;" title="" />';
-        $return .= '<a href="' . api_get_path(REL_CODE_PATH) . 'exercice/exercise_admin.php?'.api_get_cidreq().'&lp_id=' . $this->lp_id . '">' .
+        $return .= Display::return_icon('new_test_small.gif');
+        $return .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'exercice/exercise_admin.php?'.api_get_cidreq().'&lp_id=' . $this->lp_id . '">' .
             get_lang('NewExercise') . '</a>';
         $return .= '</li>';
 
@@ -8647,7 +8670,7 @@ class learnpath
             $return .= Display::return_icon('move_everywhere.png', get_lang('Move'), array(), ICON_SIZE_TINY);
             $return .= '</a> ';
 
-            $return .= '<img src="../img/hotpotatoes_s.png" style="margin-right:5px;" title="" width="16px" />';
+            $return .= Display::return_icon('hotpotatoes_s.png');
             $return .= '<a href="' . api_get_self() . '?' . api_get_cidreq().'&action=add_item&type=' . TOOL_HOTPOTATOES . '&file=' . $row_hot['id'] . '&lp_id=' . $this->lp_id . '">'.
                 ((!empty ($row_hot['comment'])) ? $row_hot['comment'] : Security :: remove_XSS($row_hot['title'])) . '</a>';
             $return .= '</li>';
@@ -8658,7 +8681,7 @@ class learnpath
             $return .= '<a class="moved" href="#">';
             $return .= Display::return_icon('move_everywhere.png', get_lang('Move'), array(), ICON_SIZE_TINY);
             $return .= '</a> ';
-            $return .= '<img alt="" src="../img/quizz_small.gif" style="margin-right:5px;" title="" />';
+            $return .= Display::return_icon('quizz_small.gif', '', array(), ICON_SIZE_TINY);
             $return .= '<a href="' . api_get_self() . '?'.api_get_cidreq().'&action=add_item&type=' . TOOL_QUIZ . '&file=' . $row_quiz['id'] . '&lp_id=' . $this->lp_id . '">' .
                 Security :: remove_XSS(cut($row_quiz['title'], 80)).
                 '</a>';
@@ -8666,6 +8689,7 @@ class learnpath
         }
 
         $return .= '</ul>';
+
         return $return;
     }
 
@@ -8713,30 +8737,32 @@ class learnpath
             function toggle_tool(tool, id){
                 if(document.getElementById(tool+"_"+id+"_content").style.display == "none"){
                     document.getElementById(tool+"_"+id+"_content").style.display = "block";
-                    document.getElementById(tool+"_"+id+"_opener").src = "' . api_get_path(WEB_IMG_PATH) . 'remove.gif";
+                    document.getElementById(tool+"_"+id+"_opener").src = "' . Display::returnIconPath('remove.gif').'";
                 } else {
                     document.getElementById(tool+"_"+id+"_content").style.display = "none";
-                    document.getElementById(tool+"_"+id+"_opener").src = "' . api_get_path(WEB_IMG_PATH) . 'add.gif";
+                    document.getElementById(tool+"_"+id+"_opener").src = "'.Display::returnIconPath('add.gif').'";
                 }
             }
         </script>
+
         <ul class="lp_resource">
             <li class="lp_resource_element">
-                <img alt="" src="../img/linksnew.gif" style="margin-right:5px;width:16px"/>
-                <a href="'.api_get_path(REL_CODE_PATH).'link/link.php?'.$courseIdReq.
-            '&action=addlink&lp_id='.$this->lp_id.'" title="'.get_lang('LinkAdd').'">'.get_lang('LinkAdd').'</a>
+                '.Display::return_icon('linksnew.gif').'
+                <a href="'.api_get_path(WEB_CODE_PATH).'link/link.php?'.$courseIdReq.'&action=addlink&lp_id='.$this->lp_id.'" title="'.get_lang('LinkAdd').'">'.
+                get_lang('LinkAdd').'
+                </a>
             </li>';
+
         foreach ($categorizedLinks as $categoryId => $links) {
             $linkNodes = null;
             foreach ($links as $key => $title) {
                 if (api_get_item_visibility($course, TOOL_LINK, $key, $session_id) != 2)  {
                     $linkNodes .=
-                        '<li class="lp_resource_element" data_id="'.$key.
-                        '" data_type="'.TOOL_LINK.'" title="'.$title.'" >
+                        '<li class="lp_resource_element" data_id="'.$key.'" data_type="'.TOOL_LINK.'" title="'.$title.'" >
                         <a class="moved" href="#">'.
                         $moveEverywhereIcon.
                         '</a>
-                        <img alt="" src="../img/lp_link.gif" style="margin-right:5px;width:16px"/>
+                        '.Display::return_icon('lp_link.png').'
                         <a href="'.$selfUrl.'?'.$courseIdReq.'&action=add_item&type='.
                         TOOL_LINK.'&file='.$key.'&lp_id='.$this->lp_id.'">'.
                         Security::remove_XSS($title).
@@ -8746,9 +8772,8 @@ class learnpath
             }
             $linksHtmlCode .=
                 '<li>
-                <a style="cursor:hand" onclick="javascript: toggle_tool(\''.TOOL_LINK.'\','.$categoryId.')"
-                style="vertical-align:middle">
-                    <img src="'.api_get_path(WEB_IMG_PATH).'add.gif" id="'.TOOL_LINK.'_'.$categoryId.'_opener"
+                <a style="cursor:hand" onclick="javascript: toggle_tool(\''.TOOL_LINK.'\','.$categoryId.')" style="vertical-align:middle">
+                    <img src="'.Display::returnIconPath('add.gif').'" id="'.TOOL_LINK.'_'.$categoryId.'_opener"
                     align="absbottom" />
                 </a>
                 <span style="vertical-align:middle">'.Security::remove_XSS($categories[$categoryId]).'</span>
@@ -8768,7 +8793,7 @@ class learnpath
     {
         $return = '<div class="lp_resource" >';
         $return .= '<div class="lp_resource_element">';
-        $return .= '<img align="left" alt="" src="../img/works_small.gif" style="margin-right:5px;" title="" />';
+        $return .= Display::return_icon('works_small.gif', '', array(), ICON_SIZE_TINY);
         $return .= '<a href="' . api_get_self() . '?' . api_get_cidreq() . '&action=add_item&type=' . TOOL_STUDENTPUBLICATION . '&lp_id=' . $this->lp_id . '">' . get_lang('AddAssignmentPage') . '</a>';
         $return .= '</div>';
         $return .= '</div>';
@@ -8785,23 +8810,22 @@ class learnpath
         require_once '../forum/forumconfig.inc.php';
 
         $a_forums = get_forums();
-
         $return = '<ul class="lp_resource">';
 
         //First add link
         $return .= '<li class="lp_resource_element">';
-        $return .= '<img alt="" src="../img/forum_new_small.gif" style="margin-right:5px;" title="" />';
-        $return .= '<a href="' . api_get_path(REL_CODE_PATH) . 'forum/index.php?' . api_get_cidreq() . '&action=add&content=forum&origin=learnpath&lp_id=' . $this->lp_id . '" title="' . get_lang('CreateANewForum') . '">' . get_lang('CreateANewForum') . '</a>';
+        $return .= Display::return_icon('forum_new_small.gif');
+        $return .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'forum/index.php?' . api_get_cidreq() . '&action=add&content=forum&origin=learnpath&lp_id=' . $this->lp_id . '" title="' . get_lang('CreateANewForum') . '">' . get_lang('CreateANewForum') . '</a>';
         $return .= '</li>';
 
         $return .= '<script>
                     function toggle_forum(forum_id){
                         if(document.getElementById("forum_"+forum_id+"_content").style.display == "none"){
                             document.getElementById("forum_"+forum_id+"_content").style.display = "block";
-                            document.getElementById("forum_"+forum_id+"_opener").src = "' . api_get_path(WEB_IMG_PATH) . 'remove.gif";
+                            document.getElementById("forum_"+forum_id+"_opener").src = "' . Display::returnIconPath('remove.gif').'";
                         } else {
                             document.getElementById("forum_"+forum_id+"_content").style.display = "none";
-                            document.getElementById("forum_"+forum_id+"_opener").src = "' . api_get_path(WEB_IMG_PATH) . 'add.gif";
+                            document.getElementById("forum_"+forum_id+"_opener").src = "' . Display::returnIconPath('add.gif').'";
                         }
                     }
                 </script>';
@@ -8812,9 +8836,9 @@ class learnpath
                 $return .= '<a class="moved" href="#">';
                 $return .= Display::return_icon('move_everywhere.png', get_lang('Move'), array(), ICON_SIZE_TINY);
                 $return .= ' </a>';
-                $return .= '<img alt="" src="../img/lp_forum.gif" style="margin-right:5px;" title="" />';
+                $return .= Display::return_icon('lp_forum.png', '', array(), ICON_SIZE_TINY);
                 $return .= '<a style="cursor:hand" onclick="javascript: toggle_forum(' . $forum['forum_id'] . ')" style="vertical-align:middle">
-                                <img src="' . api_get_path(WEB_IMG_PATH) . 'add.gif" id="forum_' . $forum['forum_id'] . '_opener" align="absbottom" />
+                                <img src="' . Display::returnIconPath('add.gif').'" id="forum_' . $forum['forum_id'] . '_opener" align="absbottom" />
                             </a>
                             <a href="' . api_get_self() . '?'.api_get_cidreq().'&action=add_item&type=' . TOOL_FORUM . '&forum_id=' . $forum['forum_id'] . '&lp_id=' . $this->lp_id . '" style="vertical-align:middle">' .
                     Security :: remove_XSS($forum['forum_title']) . '</a>';
@@ -10346,15 +10370,15 @@ EOD;
                     $exerciseItem->db_id
                 );
 
-                $exerciseResult = 0;
+                $exerciseResultInfo = end($exerciseResultInfo);
 
-                foreach ($exerciseResultInfo as $result) {
-                    $exerciseResult += $result['exe_result'] * 100 / $result['exe_weighting'];
+                if (!$exerciseResultInfo) {
+                    continue;
                 }
 
-                $exerciseAverage = $exerciseResult / (count($exerciseResultInfo) > 0 ? count($exerciseResultInfo) : 1);
+                $exerciseResult = $exerciseResultInfo['exe_result'] * 100 / $exerciseResultInfo['exe_weighting'];
 
-                $totalResult += $exerciseAverage;
+                $totalResult += $exerciseResult;
             }
 
             $totalExerciseAverage = $totalResult / (count($exercisesItems) > 0 ? count($exercisesItems) : 1);
@@ -10381,18 +10405,14 @@ EOD;
                 $finalEvaluationItem->db_id
             );
 
-            $evaluationResult = 0;
+            $evaluationResultInfo = end($evaluationResultInfo);
 
-            foreach ($evaluationResultInfo as $result) {
-                $evaluationResult += $result['exe_result'] * 100 / $result['exe_weighting'];
-            }
+            if ($evaluationResultInfo) {
+                $evaluationResult = $evaluationResultInfo['exe_result'] * 100 / $evaluationResultInfo['exe_weighting'];
 
-            $averageDivisor = count($evaluationResultInfo) > 0 ? count($evaluationResultInfo) : 1;
-
-            $evaluationAverage = $evaluationResult / $averageDivisor;
-
-            if ($evaluationAverage >= 80) {
-                $stars++;
+                if ($evaluationResult >= 80) {
+                    $stars++;
+                }
             }
         }
 
@@ -10464,13 +10484,13 @@ EOD;
                     $exerciseItem->db_id
                 );
 
-                $exerciseResult = 0;
+                $exerciseResultInfo = end($exerciseResultInfo);
 
-                foreach ($exerciseResultInfo as $result) {
-                    $exerciseResult += $result['exe_result'];
+                if (!$exerciseResultInfo) {
+                    continue;
                 }
 
-                $totalExercisesResult += $exerciseResult;
+                $totalExercisesResult += $exerciseResultInfo['exe_result'];
             }
         }
 
@@ -10484,8 +10504,10 @@ EOD;
                 $finalEvaluationItem->db_id
             );
 
-            foreach ($evaluationResultInfo as $result) {
-                $totalEvaluationResult += $result['exe_result'];
+            $evaluationResultInfo = end($evaluationResultInfo);
+
+            if ($evaluationResultInfo) {
+                $totalEvaluationResult += $evaluationResultInfo['exe_result'];
             }
         }
 

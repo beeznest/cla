@@ -227,7 +227,8 @@ class Notification extends Model
         $user_list,
         $title,
         $content,
-        $senderInfo = array()
+        $senderInfo = array(),
+        $attachments = array()
     ) {
         $this->type = intval($type);
         $content = $this->formatContent($content, $senderInfo);
@@ -307,24 +308,28 @@ class Notification extends Model
                                 Security::filter_terms($content),
                                 $this->adminName,
                                 $this->adminEmail,
-                                $extraHeaders
+                                $extraHeaders,
+                                $attachments
                             );
                         }
                         $sendDate = api_get_utc_datetime();
                 }
 
                 // Saving the notification to be sent some day.
+                $content = cut($content, $this->max_content_length);
                 $params = array(
                     'sent_at' => $sendDate,
                     'dest_user_id' => $user_id,
                     'dest_mail' => $userInfo['email'],
                     'title' => $title,
-                    'content' => cut($content, $this->max_content_length),
+                    'content' => $content,
                     'send_freq' => $userSetting
                 );
 
                 $this->save($params);
             }
+
+            MessagesWebService::sendPushNotification($user_list, $title, $content);
         }
     }
 
@@ -352,7 +357,7 @@ class Notification extends Model
 
         switch ($this->type) {
             case self::NOTIFICATION_TYPE_DIRECT_MESSAGE:
-                $newMessageText = $content;
+                $newMessageText = '';
                 $linkToNewMessage = Display::url(
                     get_lang('SeeMessage'),
                     api_get_path(WEB_CODE_PATH) . 'messages/inbox.php'

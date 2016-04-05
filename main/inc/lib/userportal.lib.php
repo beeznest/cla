@@ -80,7 +80,8 @@ class IndexManager
     {
         //// Display System announcements
         $hideAnnouncements = api_get_setting('hide_global_announcements_when_not_connected');
-        if ($hideAnnouncements == 'true' && empty($userId)) {
+        $currentUserId = api_get_user_id();
+        if ($hideAnnouncements == 'true' && empty($currentUserId)) {
             return null;
         }
         $announcement = isset($_GET['announcement']) ? $_GET['announcement'] : null;
@@ -863,7 +864,13 @@ class IndexManager
             }
 
             if (isset($_configuration['allow_my_files_link_in_homepage']) && $_configuration['allow_my_files_link_in_homepage']) {
-                $profile_content .= '<li class="myfiles-social"><a href="'.api_get_path(WEB_PATH).'main/social/myfiles.php">'.get_lang('MyFiles').'</a></li>';
+                $myFiles = '<li class="myfiles-social"><a href="'.api_get_path(WEB_PATH).'main/social/myfiles.php">'.get_lang('MyFiles').'</a></li>';
+
+                if (api_get_setting('allow_my_files') === 'false') {
+                    $myFiles = '';
+                }
+
+                $profile_content .= $myFiles;
             }
         }
 
@@ -1064,7 +1071,6 @@ class IndexManager
                 ) {
                     // Independent sessions
                     foreach ($session_category['sessions'] as $session) {
-
                         $session_id = $session['session_id'];
 
                         // Don't show empty sessions.

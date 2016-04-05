@@ -20,36 +20,36 @@ class DisplayGradebook
         if (api_is_allowed_to_edit(null, true)) {
             $header = '<div class="actions">';
             if ($page != 'statistics') {
-                $header .= '<a href="' . Security::remove_XSS($_SESSION['gradebook_dest']) . '?selectcat=' . $selectcat . '">' .
+                $header .= '<a href="' . Security::remove_XSS($_SESSION['gradebook_dest']) . '?selectcat=' . $selectcat . '&'.api_get_cidreq().'">' .
                     Display::return_icon(('back.png'), get_lang('FolderView'), '', ICON_SIZE_MEDIUM) . '</a>';
                 if ($evalobj->get_course_code() == null) {
 
                 } elseif (!$evalobj->has_results()) {
-                    $header .= '<a href="gradebook_add_result.php?selectcat=' . $selectcat . '&selecteval=' . $evalobj->get_id() . '">
+                    $header .= '<a href="gradebook_add_result.php?'.api_get_cidreq().'&selectcat=' . $selectcat . '&selecteval=' . $evalobj->get_id() . '">
     				' . Display::return_icon('evaluation_rate.png', get_lang('AddResult'), '', ICON_SIZE_MEDIUM) . '</a>';
                 }
 
                 if (api_is_platform_admin() || $evalobj->is_locked() == false) {
-                    $header .= '<a href="' . api_get_self() . '?&selecteval=' . $evalobj->get_id() . '&import=">' .
+                    $header .= '<a href="' . api_get_self() . '?'.api_get_cidreq().'&selecteval=' . $evalobj->get_id() . '&import=">' .
                         Display::return_icon('import_evaluation.png', get_lang('ImportResult'), '', ICON_SIZE_MEDIUM) . '</a>';
                 }
 
                 if ($evalobj->has_results()) {
-                    $header .= '<a href="' . api_get_self() . '?&selecteval=' . $evalobj->get_id() . '&export=">' .
+                    $header .= '<a href="' . api_get_self() . '?'.api_get_cidreq().'&selecteval=' . $evalobj->get_id() . '&export=">' .
                         Display::return_icon('export_evaluation.png', get_lang('ExportResult'), '', ICON_SIZE_MEDIUM) . '</a>';
 
                     if (api_is_platform_admin() || $evalobj->is_locked() == false) {
-                        $header .= '<a href="gradebook_edit_result.php?selecteval=' . $evalobj->get_id() . '">' .
+                        $header .= '<a href="gradebook_edit_result.php?'.api_get_cidreq().'&selecteval=' . $evalobj->get_id() . '">' .
                             Display::return_icon('edit.png', get_lang('EditResult'), '', ICON_SIZE_MEDIUM) . '</a>';
-                        $header .= '<a href="' . api_get_self() . '?&selecteval=' . $evalobj->get_id() . '&deleteall=" onclick="return confirmationall();">' .
+                        $header .= '<a href="' . api_get_self() . '?'.api_get_cidreq().'&selecteval=' . $evalobj->get_id() . '&deleteall=" onclick="return confirmationall();">' .
                             Display::return_icon('delete.png', get_lang('DeleteResult'), '', ICON_SIZE_MEDIUM) . '</a>';
                     }
                 }
 
-                $header .= '<a href="' . api_get_self() . '?print=&selecteval=' . $evalobj->get_id() . '" target="_blank">' .
+                $header .= '<a href="' . api_get_self() . '?'.api_get_cidreq().'&print=&selecteval=' . $evalobj->get_id() . '" target="_blank">' .
                     Display::return_icon('printer.png', get_lang('Print'), '', ICON_SIZE_MEDIUM) . '</a>';
             } else {
-                $header .= '<a href="gradebook_view_result.php?selecteval=' . Security::remove_XSS($_GET['selecteval']) . '"> ' .
+                $header .= '<a href="gradebook_view_result.php?'.api_get_cidreq().'&selecteval=' . Security::remove_XSS($_GET['selecteval']) . '"> ' .
                     Display::return_icon(('back.png'), get_lang('FolderView'), '', ICON_SIZE_MEDIUM) . '</a>';
             }
             $header .= '</div>';
@@ -92,7 +92,6 @@ class DisplayGradebook
         $evalinfo .= '<h2>' . $evalobj->get_name() . '</h2><hr>';
         $evalinfo .= $description;
         $evalinfo .= get_lang('Course') . ' :<b> ' . $course . '</b><br />';
-        //'<br>' . get_lang('Weight') . ' :<b> ' . $evalobj->get_weight() . '</b><br>' . get_lang('Visible') . ' :<b> ' . $visible . '</b>
         $evalinfo .= get_lang('QualificationNumeric') . ' :<b> ' . $evalobj->get_max() . '</b><br>' . $average;
 
         if (!api_is_allowed_to_edit()) {
@@ -110,10 +109,11 @@ class DisplayGradebook
         }
         if ($page != 'statistics') {
             if (api_is_allowed_to_edit(null, true)) {
-                $evalinfo .= '<br /><a href="gradebook_statistics.php?' . api_get_cidreq() . '&selecteval=' . Security::remove_XSS($_GET['selecteval']) . '"> ' . Display::return_icon(('statistics.png'), get_lang('ViewStatistics'), '', ICON_SIZE_MEDIUM) . '</a>';
+                $evalinfo .= '<br /><a href="gradebook_statistics.php?' . api_get_cidreq() . '&selecteval=' . Security::remove_XSS($_GET['selecteval']) . '"> ' .
+                    Display::return_icon('statistics.png', get_lang('ViewStatistics'), '', ICON_SIZE_MEDIUM) . '</a>';
             }
         }
-        $evalinfo .= '</td><td><img style="float:right; position:relative;" src="../img/tutorial.gif"></td></table>';
+        $evalinfo .= '</td><td>'.Display::return_icon('tutorial.gif', '', ['style' => 'float:right; position:relative;']).'</td></table>';
         echo $evalinfo;
         echo $header;
     }
@@ -145,14 +145,23 @@ class DisplayGradebook
         }
         $header .= '</td></select></form>';
         if (!$catobj->get_id() == '0') {
-            $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?selectcat=' . $catobj->get_parent_id() . '"><img src="../img/gradebook.gif" border="0" alt="' . get_lang('Up') . '" /></a></td>';
+            $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?selectcat=' . $catobj->get_parent_id() . '">';
+            $header .= Display::return_icon('gradebook.gif', get_lang('Up'));
+            $header .= '</a></td>';
         }
         $header .= '<td style="vertical-align: top;">' . $simple_search_form->toHtml() . '</td>';
-        $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?exportpdf=&offset=' . Security::remove_XSS($_GET['offset']) . '&search=' . Security::remove_XSS($_GET['search']) . '&selectcat=' . $catobj->get_id() . '"><img src=../img/icons/32/pdf.png alt=' . get_lang('ExportPDF') . '/> ' . get_lang('ExportPDF') . '</a>';
-        $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?print=&selectcat=' . $catobj->get_id() . '" target="_blank"><img src="../img/icons/32/printer.png" alt=' . get_lang('Print') . '/> ' . get_lang('Print') . '</a>';
+        $header .= '<td style="vertical-align: top;">
+                    <a href="' . api_get_self() . '?exportpdf=&offset=' . Security::remove_XSS($_GET['offset']) . '&search=' . Security::remove_XSS($_GET['search']) . '&selectcat=' . $catobj->get_id() . '">
+                     '.Display::return_icon('pdf.png', get_lang('ExportPDF'), [], ICON_SIZE_MEDIUM).'
+                    ' . get_lang('ExportPDF') . '</a>';
+        $header .= '<td style="vertical-align: top;">
+                    <a href="' . api_get_self() . '?print=&selectcat=' . $catobj->get_id() . '" target="_blank">
+                     '.Display::return_icon('printer.png', get_lang('Print'), [], ICON_SIZE_MEDIUM).'
+                    ' . get_lang('Print') . '</a>';
         $header .= '</td></tr></table>';
         if (!$catobj->get_id() == '0') {
-            $header .= '<table border="0" cellpadding="5"><tr><td><form name="itemfilter" method="post" action="' . api_get_self() . '?selectcat=' . $catobj->get_id() . '"><input type="checkbox" name="showeval" onclick="document.itemfilter.submit()" ' . (($showeval == '1') ? 'checked' : '') . '>Show Evaluations &nbsp;';
+            $header .= '<table border="0" cellpadding="5"><tr><td><form name="itemfilter" method="post" action="' . api_get_self() . '?selectcat=' . $catobj->get_id() . '">
+            <input type="checkbox" name="showeval" onclick="document.itemfilter.submit()" ' . (($showeval == '1') ? 'checked' : '') . '>Show Evaluations &nbsp;';
             $header .= '<input type="checkbox" name="showlink" onclick="document.itemfilter.submit()" ' . (($showlink == '1') ? 'checked' : '') . '>' . get_lang('ShowLinks') . '</form></td></tr></table>';
         }
         if (isset($_GET['search'])) {
@@ -283,17 +292,15 @@ class DisplayGradebook
             } else {
                 $header .= '<td></td>';
             }
+
             if ($is_course_admin && $message_resource === false && $_GET['selectcat'] != 0) {
-                /* $header .= '<td style="vertical-align: top;"><a href="gradebook_flatview.php?'.api_get_cidreq().'&selectcat=' . $catobj->get_id() . '"><img src="../img/view_list.gif" alt="' . get_lang('FlatView') . '" /> ' . get_lang('FlatView') . '</a>';
-                  if ($is_course_admin && $message_resource===false) {
-                  $header .= '<td style="vertical-align: top;"><a href="gradebook_scoring_system.php?'.api_get_cidreq().'&selectcat=' . $catobj->get_id() .'"><img src="../img/acces_tool.gif" alt="' . get_lang('ScoreEdit') . '" /> ' . get_lang('ScoreEdit') . '</a>';
-                  } */
+
             } elseif (!(isset($_GET['studentoverview']))) {
-                if ($message_resource === false) {
-                    //$header .= '<td style="vertical-align: top;"><a href="'.api_get_self().'?'.api_get_cidreq().'&studentoverview=&selectcat=' . $catobj->get_id() . '"><img src="../img/view_list.gif" alt="' . get_lang('FlatView') . '" /> ' . get_lang('FlatView') . '</a>';
-                }
+
             } else {
-                $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?' . api_get_cidreq() . '&studentoverview=&exportpdf=&selectcat=' . $catobj->get_id() . '" target="_blank"><img src="../img/icons/32/pdf.png" alt="' . get_lang('ExportPDF') . '" /> ' . get_lang('ExportPDF') . '</a>';
+                $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?' . api_get_cidreq() . '&studentoverview=&exportpdf=&selectcat=' . $catobj->get_id() . '" target="_blank">
+                '.Display::return_icon('pdf.png', get_lang('ExportPDF'), [], ICON_SIZE_MEDIUM).'
+                ' . get_lang('ExportPDF') . '</a>';
             }
             $header .= '</td></tr>';
         }
@@ -309,35 +316,15 @@ class DisplayGradebook
         $courseId = $courseInfo['real_id'];
 
         $status_user = api_get_status_of_user_in_course($user_id, $courseId);
-
-        //$header .= '<a href="gradebook_add_cat.php?'.api_get_cidreq().'&selectcat=0"><img src="../img/folder_new.gif" alt="' . get_lang('AddGradebook') . '" /></a></td>';
-
         if (api_is_allowed_to_edit(null, true)) {
             if ($selectcat == '0') {
-                if ($show_add_qualification === true) {
 
-                }
-                if ($show_add_link) {
-                    //$header .= '<td><a href="gradebook_add_eval.php?'.api_get_cidreq().'"><img src="../img/filenew.gif" alt="' . get_lang('NewEvaluation') . '" /> ' . get_lang('NewEvaluation') . '</a>';
-                }
             } else {
-                if ($show_add_qualification === true && $message_resource === false) {
-                    //$header .= '<a href="gradebook_add_cat.php?'.api_get_cidreq().'&selectcat=' . $catobj->get_id() . '" ><img src="../img/folder_new.gif" alt="' . get_lang('NewSubCategory') . '" align="absmiddle" /> ' . get_lang('NewSubCategory') . '</a></td>';
-                }
+
                 $my_category = $catobj->shows_all_information_an_category($catobj->get_id());
                 $my_api_cidreq = api_get_cidreq();
                 if ($my_api_cidreq == '') {
                     $my_api_cidreq = 'cidReq=' . $my_category['course_code'];
-                }
-                if ($show_add_link && !$message_resource) {
-                    //$header .= '<td><a href="gradebook_add_eval.php?'.$my_api_cidreq.'&selectcat=' . $catobj->get_id() . '" >'.Display::return_icon('new_evaluation.png', get_lang('NewEvaluation'),'',ICON_SIZE_MEDIUM).'</a>';
-                    $cats = Category :: load($selectcat);
-                    if ($cats[0]->get_course_code() != null && !$message_resource) {
-                        //$header .= '<td><a href="gradebook_add_link.php?'.api_get_cidreq().'&selectcat=' . $catobj->get_id() . '"><img src="../img/link.gif" alt="' . get_lang('MakeLink') . '" align="absmiddle" /> ' . get_lang('MakeLink') . '</a>';
-                        //$header .= '<td><a href="gradebook_add_link.php?'.$my_api_cidreq.'&selectcat=' . $catobj->get_id() . '">'.Display::return_icon('new_online_evaluation.png', get_lang('MakeLink'),'',ICON_SIZE_MEDIUM).'</a>';
-                    } else {
-                        //	$header .= '<td><a href="gradebook_add_link_select_course.php?'.$my_api_cidreq.'&selectcat=' . $catobj->get_id() . '">'.Display::return_icon('new_online_evaluation.png', get_lang('MakeLink'),'',ICON_SIZE_MEDIUM).'</a>';
-                    }
                 }
 
                 if (!$message_resource) {
@@ -356,10 +343,6 @@ class DisplayGradebook
 
                     //Right icons
                     $modify_icons = '<a href="gradebook_edit_cat.php?editcat=' . $catobj->get_id() . '&cidReq=' . $catobj->get_course_code() . '&id_session='.$catobj->get_session_id(). '">' . Display::return_icon('edit.png', get_lang('Edit'), '', ICON_SIZE_MEDIUM) . '</a>';
-                    //$modify_icons .= '<a href="../document/document.php?curdirpath=/certificates&'.$my_api_cidreq.'&origin=gradebook&selectcat=' . $catobj->get_id() . '">'.
-                    //Display::return_icon('certificate.png', get_lang('AttachCertificate'),'',ICON_SIZE_MEDIUM).'</a>';
-                    //hide or delete are not options available
-                    //$modify_icons .= '&nbsp;<a  href="' . api_get_self() . '?visiblecat=' . $catobj->get_id() . '&amp;' . $visibility_command . '=&amp;selectcat=0 ">'.Display::return_icon($visibility_icon.'.png', get_lang('Visible'),'',ICON_SIZE_MEDIUM).'</a>';
                     if ($catobj->get_name() != api_get_course_id()) {
                         $modify_icons .= '&nbsp;<a  href="' . api_get_self() . '?deletecat=' . $catobj->get_id() . '&amp;selectcat=0&amp;cidReq=' . $catobj->get_course_code() . '" onclick="return confirmation();">' . Display::return_icon('delete.png', get_lang('DeleteAll'), '', ICON_SIZE_MEDIUM) . '</a>';
                     }
@@ -522,24 +505,19 @@ class DisplayGradebook
                 $message_resource === false &&
                 isset($_GET['selectcat']) && $_GET['selectcat'] != 0
             ) {
-                /* $header .= '<td style="vertical-align: top;"><a href="gradebook_flatview.php?'.api_get_cidreq().'&selectcat=' . $catobj->get_id() . '"><img src="../img/view_list.gif" alt="' . get_lang('FlatView') . '" /> ' . get_lang('FlatView') . '</a>';
-                  if ($is_course_admin && $message_resource===false) {
-                  $header .= '<td style="vertical-align: top;"><a href="gradebook_scoring_system.php?'.api_get_cidreq().'&selectcat=' . $catobj->get_id() .'"><img src="../img/acces_tool.gif" alt="' . get_lang('ScoreEdit') . '" /> ' . get_lang('ScoreEdit') . '</a>';
-                  } */
             } elseif (!(isset($_GET['studentoverview']))) {
-                if ($message_resource === false) {
-                    //$header .= '<td style="vertical-align: top;"><a href="'.api_get_self().'?'.api_get_cidreq().'&studentoverview=&selectcat=' . $catobj->get_id() . '"><img src="../img/view_list.gif" alt="' . get_lang('FlatView') . '" /> ' . get_lang('FlatView') . '</a>';
-                }
+
             } else {
                 $header .= '<td style="vertical-align: top;"><a href="' . api_get_self() . '?' . api_get_cidreq() . '&studentoverview=&exportpdf=&selectcat=' . $catobj->get_id() . '" target="_blank">
-							<img src="../img/icons/32/pdf.png" alt="' . get_lang('ExportPDF') . '" /> ' . get_lang('ExportPDF') . '</a>';
+							 '.Display::return_icon('pdf.png', get_lang('ExportPDF'), [], ICON_SIZE_MEDIUM).'
+							' . get_lang('ExportPDF') . '</a>';
             }
             $header .= '</td></tr>';
-            $header.='</table></div>';
+            $header .= '</table></div>';
         }
 
         // for course admin & platform admin add item buttons are added to the header
-       
+
         $actionsLeft = '';
         $my_category = $catobj->shows_all_information_an_category($catobj->get_id());
         $user_id = api_get_user_id();
@@ -613,7 +591,7 @@ class DisplayGradebook
                         $actionsRight .= '<a href="gradebook_scoring_system.php?' . $my_api_cidreq . '&selectcat=' . $catobj->get_id() . '">' .
                             Display::return_icon('ranking.png', get_lang('ScoreEdit'), '', ICON_SIZE_MEDIUM) . '</a>';
                     }
-                    
+
                 }
             }
         } elseif (isset($_GET['search'])) {

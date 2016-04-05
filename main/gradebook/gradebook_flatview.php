@@ -6,6 +6,8 @@
  * @package chamilo.gradebook
  */
 require_once '../inc/global.inc.php';
+require_once api_get_path(SYS_CODE_PATH).'gradebook/lib/fe/exportgradebook.php';
+
 $current_course_tool  = TOOL_GRADEBOOK;
 
 api_protect_course_script(true);
@@ -228,18 +230,28 @@ if (!empty($_GET['export_report']) &&
 
         switch ($_GET['export_format']) {
             case 'xls':
+                ob_start();
                 $export = new GradeBookResult();
                 $export->exportCompleteReportXLS($printable_data);
+                $content = ob_get_contents();
+                ob_end_clean();
+                echo $content;
                 break;
             case 'doc':
+                ob_start();
                 $export = new GradeBookResult();
                 $export->exportCompleteReportDOC($printable_data);
+                ob_end_clean();
                 exit;
                 break;
             case 'csv':
             default:
+                ob_start();
                 $export = new GradeBookResult();
                 $export->exportCompleteReportCSV($printable_data);
+                $content = ob_get_contents();
+                ob_end_clean();
+                echo $content;
                 exit;
                 break;
         }

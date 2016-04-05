@@ -119,7 +119,9 @@ class CourseHome
                 }
             }
 
-            if (api_get_session_id() != 0 && in_array($tool['name'], array('course_maintenance', 'course_setting'))) {
+            if (api_get_session_id() != 0 &&
+                in_array($tool['name'], array('course_maintenance', 'course_setting'))
+            ) {
                 continue;
             }
 
@@ -143,10 +145,13 @@ class CourseHome
             }
 
             // Setting the actual image url
-            $tool['img'] = api_get_path(WEB_IMG_PATH).$tool['img'];
+            $tool['img'] = Display::returnIconPath($tool['img']);
 
             // VISIBLE
-            if (($tool['visibility'] || ((api_is_coach() || api_is_course_tutor()) && $tool['name'] == TOOL_TRACKING)) || $cat == 'courseAdmin' || $cat == 'platformAdmin') {
+            if (($tool['visibility'] ||
+                ((api_is_coach() || api_is_course_tutor()) && $tool['name'] == TOOL_TRACKING)) ||
+                $cat == 'courseAdmin' || $cat == 'platformAdmin'
+            ) {
                 if (strpos($tool['name'], 'visio_') !== false) {
                     $cell_content .= '<a  href="javascript: void(0);" onclick="javascript: window.open(\''.$tool['link'].$link_annex.'\',\'window_visio'.$_SESSION['_cid'].'\',config=\'height=\'+730+\', width=\'+1020+\', left=2, top=2, toolbar=no, menubar=no, scrollbars=yes, resizable=yes, location=no, directories=no, status=no\')" target="'.$tool['target'].'"><img src="'.$tool['img'].'" title="'.$tool_name.'" alt="'.$tool_name.'" align="absmiddle" border="0">'.$tool_name.'</a>';
                 } elseif (strpos($tool['name'], 'chat') !== false && api_get_course_setting('allow_open_chat_window')) {
@@ -1091,7 +1096,7 @@ class CourseHome
             /* 	Link to the Course homepage */
 
             $navigation_items['home']['image'] = 'home.gif';
-            $navigation_items['home']['link'] = api_get_path(REL_COURSE_PATH).Security::remove_XSS($_SESSION['_course']['path']).'/index.php';
+            $navigation_items['home']['link'] = api_get_path(WEB_CODE_PATH).Security::remove_XSS($_SESSION['_course']['path']).'/index.php';
             $navigation_items['home']['name'] = get_lang('CourseHomepageLink');
 
             $sql_menu_query = "SELECT * FROM $course_tools_table
@@ -1101,7 +1106,7 @@ class CourseHome
             while ($row = Database::fetch_array($sql_result)) {
                 $navigation_items[$row['id']] = $row;
                 if (stripos($row['link'], 'http://') === false && stripos($row['link'], 'https://') === false) {
-                    $navigation_items[$row['id']]['link'] = api_get_path(REL_CODE_PATH).$row['link'];
+                    $navigation_items[$row['id']]['link'] = api_get_path(WEB_CODE_PATH).$row['link'];
                     $navigation_items[$row['id']]['name'] = CourseHome::translate_tool_name($row);
                 }
             }
@@ -1119,7 +1124,7 @@ class CourseHome
                 if (api_get_session_id() == 0) {
                     // course settings item
                     $navigation_items['course_settings']['image'] = $course_setting_info['image'];
-                    $navigation_items['course_settings']['link'] = api_get_path(REL_CODE_PATH).'course_info/infocours.php';
+                    $navigation_items['course_settings']['link'] = api_get_path(WEB_CODE_PATH).'course_info/infocours.php';
                     $navigation_items['course_settings']['name'] = $course_setting_visual_name;
                 }
             }

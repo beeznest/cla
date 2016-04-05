@@ -32,10 +32,10 @@ class quiz_processor extends search_processor {
                     $item = array(
                         'courseid' => $courseid,
                         'question' => $question,
-                        'score' => $row_val['score'],
+                        'total_score' => $row_val['score'],
                         'row_id' => $row_id,
                     );
-                    $this->exercises[$courseid][$exercise_id][] = $item;
+                    $this->exercises[$courseid][$exercise_id] = $item;
                     $this->exercises[$courseid][$exercise_id]['total_score'] += $row_val['score'];
                     break;
                 case SE_DOCTYPE_EXERCISE_QUESTION:
@@ -45,10 +45,10 @@ class quiz_processor extends search_processor {
                             $item = array(
                                 'courseid' => $courseid,
                                 'question' => $question,
-                                'score' => $row_val['score'],
+                                'total_score' => $row_val['score'],
                                 'row_id' => $row_id,
                             );
-                            $this->exercises[$courseid][$exercise_id][] = $item;
+                            $this->exercises[$courseid][$exercise_id] = $item;
                             $this->exercises[$courseid][$exercise_id]['total_score'] += $row_val['score'];
                         }
                     }
@@ -74,7 +74,7 @@ class quiz_processor extends search_processor {
                         $url = sprintf($url, $courseid, $exercise_id);
                         $result = array(
                             'toolid' => TOOL_QUIZ,
-                            'score' => $exercise['total_score'] / (count($exercise) - 1), // not count total_score array item
+                            'total_score' => $exercise['total_score'] / (count($exercise) - 1), // not count total_score array item
                             'url' => $url,
                             'thumbnail' => $thumbnail,
                             'image' => $image,
@@ -96,7 +96,7 @@ class quiz_processor extends search_processor {
 
         // get information to sort
         foreach ($results as $key => $row) {
-            $score[$key] = $row['score'];
+            $score[$key] = $row['total_score'];
         }
         // Sort results with score descending
         array_multisort($score, SORT_DESC, $results);
@@ -106,36 +106,40 @@ class quiz_processor extends search_processor {
     /**
      * Get learning path information
      */
-    private function get_information($courseCode, $exercise_id) {
+    private function get_information($courseCode, $exercise_id)
+    {
         $course_information = api_get_course_info($courseCode);
         $course_id = $course_information['real_id'];
 
-        if (!empty($course_information)) {
-            $exercise_table = Database::get_course_table(TABLE_QUIZ_TEST);
-            $item_property_table = Database::get_course_table(TABLE_ITEM_PROPERTY);
-            $exercise_id = intval($exercise_id);
-            $sql = "SELECT * FROM $exercise_table WHERE id = $exercise_id AND c_id = $course_id LIMIT 1";
-            $dk_result = Database::query($sql);
+        $em = Database::getManager();
 
-            //actually author isn't saved on exercise tool, but prepare for when it's ready
-            /*
-            $sql = "SELECT insert_user_id FROM $item_property_table
-                    WHERE ref = $doc_id AND tool = '" . TOOL_DOCUMENT . "' AND c_id = $course_id 
-                    LIMIT 1";
-            */
+        if (!empty($course_information)) {
+            $exercise_id = intval($exercise_id);
+            $dk_result = $em
+                ->getRepository('ChamiloCourseBundle:CQuiz')
+                ->findOneBy([
+                    'id' => $exercise_id,
+                    'cId' => $course_id
+                ]);
 
             $name = '';
-            if ($row = Database::fetch_array($dk_result)) {
+            if ($dk_result) {
                 // Get the image path
-                $thumbnail = api_get_path(WEB_PATH) . 'main/img/quiz.gif';
+                $thumbnail = Display::returnIconPath('quiz.png');
                 $image = $thumbnail; //FIXME: use big images
-                $name = $row['title'];
+                $name = $dk_result->getTitle();
                 // get author
                 $author = '';
-                $item_result = Database::query($sql);
-                if ($item_result !== FALSE && $row = Database::fetch_array($item_result)) {
-                    $user_data = api_get_user_info($row['insert_user_id']);
-                    $author = api_get_person_name($user_data['firstName'], $user_data['lastName']);
+                $item_result = $em
+                    ->getRepository('ChamiloCourseBundle:CItemProperty')
+                    ->findOneBy([
+                        'ref' => $exercise_id,
+                        'tool' => TOOL_QUIZ,
+                        'course' => $course_id
+                    ]);
+
+                if ($item_result) {
+                    $author = $item_result->getInsertUser()->getCompleteName();
                 }
             }
             return array($thumbnail, $image, $name, $author);
@@ -143,5 +147,4 @@ class quiz_processor extends search_processor {
             return array();
         }
     }
-
 }

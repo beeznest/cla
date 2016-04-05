@@ -86,6 +86,7 @@ class Statistics
         }
         $res = Database::query($sql);
         $obj = Database::fetch_object($res);
+
         return $obj->number;
     }
 
@@ -238,7 +239,9 @@ class Statistics
                     user.username         as col5,
                     user.user_id         as col6,
                     default_date         as col7
-                    FROM $track_e_default as track_default, $table_user as user, $access_url_rel_user_table as url
+                    FROM $track_e_default as track_default,
+                    $table_user as user,
+                    $access_url_rel_user_table as url
                     WHERE
                         track_default.default_user_id = user.user_id AND
                         url.user_id = user.user_id AND
@@ -527,6 +530,40 @@ class Statistics
             Statistics::printStats(get_lang('Logins'), $totalLogin, false);
         }
     }
+    
+    /**
+     * get the number of recent logins
+     * @param bool    $distinct   Whether to only give distinct users stats, or *all* logins
+     * @return array
+     */
+    public static function getRecentLoginStats($distinct = false)
+    {
+        $totalLogin = [];
+        $table = Database::get_main_table(TABLE_STATISTIC_TRACK_E_LOGIN);
+        $access_url_rel_user_table= Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_USER);
+        $current_url_id = api_get_current_access_url_id();
+        if (api_is_multiple_url_enabled()) {
+            $table_url = ", $access_url_rel_user_table";
+            $where_url = " AND login_user_id=user_id AND access_url_id='".$current_url_id."'";
+        } else {
+            $table_url = '';
+            $where_url='';
+        }
+        $now = api_get_utc_datetime();
+        $field = 'login_user_id';
+        if ($distinct) {
+            $field = 'DISTINCT(login_user_id)';
+        }
+        $sql = "SELECT count($field) AS number, date(login_date) as login_date FROM $table $table_url WHERE DATE_ADD(login_date, INTERVAL 15 DAY) >= '$now' $where_url GROUP BY date(login_date)";
+        
+        $res = Database::query($sql);
+        while($row = Database::fetch_array($res,'ASSOC')){
+            $totalLogin[$row['login_date']] = $row['number'];
+        }
+        
+        return $totalLogin;
+    }
+    
     /**
      * Show some stats about the accesses to the different course tools
      */

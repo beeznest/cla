@@ -45,17 +45,26 @@ class Version110 extends AbstractMigrationChamilo
         $this->addSql("CREATE TABLE IF NOT EXISTS c_student_publication_comment (iid INT NOT NULL PRIMARY KEY, id INT NULL, work_id INT NOT NULL, c_id INT NOT NULL, comment text, file VARCHAR(255), user_id int NOT NULL, sent_at datetime NOT NULL)");
         $this->addSql("CREATE TABLE IF NOT EXISTS c_attendance_calendar_rel_group (iid int NOT NULL auto_increment PRIMARY KEY, id INT, c_id INT NOT NULL, group_id INT NOT NULL, calendar_id INT NOT NULL)");
 
+        $this->addSql("ALTER TABLE session MODIFY COLUMN date_start date default NULL, MODIFY COLUMN date_end date default NULL");
+        $this->addSql("ALTER TABLE skill_rel_user MODIFY COLUMN acquired_skill_at datetime default NULL");
+        $this->addSql("ALTER TABLE track_e_access MODIFY COLUMN access_date datetime DEFAULT NULL");
+        $this->addSql("ALTER TABLE track_e_lastaccess MODIFY COLUMN access_date datetime DEFAULT NULL");
         $this->addSql("ALTER TABLE skill_rel_user ADD COLUMN course_id INT NOT NULL DEFAULT 0 AFTER id");
         $this->addSql("ALTER TABLE skill_rel_user ADD COLUMN session_id INT NOT NULL DEFAULT 0 AFTER course_id");
         $this->addSql("ALTER TABLE skill_rel_user ADD INDEX idx_select_cs (course_id, session_id)");
+
+        // Delete info of session_rel_user if session does not exists;
+        $this->addSql("DELETE FROM session_rel_user WHERE id_session NOT IN (SELECT id FROM session)");
+
+        // Delete info of usergroup_rel_user if usergroup does not exists;
+        $this->addSql("DELETE FROM usergroup_rel_user WHERE usergroup_id NOT IN (SELECT id FROM usergroup)");
 
         $session = $schema->getTable('session');
         $session->getColumn('id')->setType(Type::getType(Type::INTEGER))->setUnsigned(false);
         if (!$session->hasColumn('description')) {
             $session->addColumn(
                 'description',
-                'text',
-                array('default' => 'NULL')
+                'text'
             );
         }
 
@@ -69,7 +78,7 @@ class Version110 extends AbstractMigrationChamilo
 
         $this->addSql("ALTER TABLE session ADD COLUMN duration int");
         $this->addSql("ALTER TABLE session_rel_user ADD COLUMN duration int");
-        $this->addSql("ALTER TABLE skill ADD COLUMN criteria text DEFAULT ''");
+        $this->addSql("ALTER TABLE skill ADD COLUMN criteria text");
         $this->addSql("ALTER TABLE gradebook_category ADD COLUMN generate_certificates TINYINT NOT NULL DEFAULT 0");
         $this->addSql("ALTER TABLE track_e_access ADD COLUMN c_id int NOT NULL");
 

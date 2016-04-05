@@ -595,7 +595,7 @@ function countCoursesInCategory($category_code="", $searchTerm = '')
 
     $without_special_courses = '';
     if (!empty($specialCourseList)) {
-        $without_special_courses = ' AND course.code NOT IN ("' . implode('","', $special_course_list) . '")';
+        $without_special_courses = ' AND course.code NOT IN ("' . implode('","', $specialCourseList) . '")';
     }
 
     $visibilityCondition = null;
@@ -668,7 +668,7 @@ function browseCoursesInCategory($category_code, $random_value = null, $limit = 
 
     $without_special_courses = '';
     if (!empty($specialCourseList)) {
-        $without_special_courses = ' AND course.code NOT IN ("' . implode('","', $special_course_list) . '")';
+        $without_special_courses = ' AND course.code NOT IN ("' . implode('","', $specialCourseList) . '")';
     }
     $visibilityCondition = null;
     $hidePrivate = api_get_setting('course_catalog_hide_private');
@@ -1040,6 +1040,10 @@ function getCourseCategoryUrl(
     $requestAction = isset($_REQUEST['action']) ? Security::remove_XSS($_REQUEST['action']) : null;
     $action = isset($action) ? Security::remove_XSS($action) : $requestAction;
     $searchTerm = isset($_REQUEST['search_term']) ? Security::remove_XSS($_REQUEST['search_term']) : null;
+
+    if ($action === 'subscribe_user_with_password') {
+        $action = 'subscribe';
+    }
 
     $categoryCodeRequest = isset($_REQUEST['category_code']) ? Security::remove_XSS($_REQUEST['category_code']) : null;
     $categoryCode = isset($categoryCode) ? Security::remove_XSS($categoryCode) : $categoryCodeRequest;

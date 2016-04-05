@@ -7,6 +7,15 @@
 require_once '../inc/global.inc.php';
 $libpath = api_get_path(LIBRARY_PATH);
 
+ini_set('memory_limit', -1);
+/*
+ini_set('upload_max_filesize', '4000M');
+ini_set('post_max_size', '4000M');
+ini_set('max_execution_time', '80000');
+ini_set('max_input_time', '80000');
+*/
+
+
 $debug = true;
 
 define('WS_ERROR_SECRET_KEY', 1);
@@ -36,7 +45,7 @@ function WSHelperVerifyKey($params)
     // if we are behind a reverse proxy, assume it will send the
     // HTTP_X_FORWARDED_FOR header and use this IP instead
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        list($ip1, $ip2) = split(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        list($ip1, $ip2) = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
         $ip = trim($ip1);
     }
     if ($debug)
@@ -140,12 +149,10 @@ function WSImportLP($params)
 
     $lpName = $params['lp_name'];
 
-    $courseCode = CourseManager::get_course_id_from_original_id(
+    $courseInfo = CourseManager::getCourseInfoFromOriginalId(
         $courseIdValue,
         $courseIdName
     );
-
-    $courseInfo = api_get_course_info($courseCode);
     $courseId = $courseInfo['real_id'];
 
     if (empty($courseInfo)) {
@@ -155,7 +162,7 @@ function WSImportLP($params)
 
     $sessionId = 0;
     if (!empty($sessionIdName) && !empty($sessionIdValue)) {
-        $sessionId = SessionManager::get_session_id_from_original_id(
+        $sessionId = SessionManager::getSessionIdFromOriginalId(
             $sessionIdValue,
             $sessionIdName
         );
@@ -171,10 +178,11 @@ function WSImportLP($params)
     $maker = 'Scorm';
     $maxScore = ''; //$_REQUEST['use_max_score']
 
-    $oScorm = new scorm($courseCode);
+    $oScorm = new scorm($courseInfo['code']);
     $fileData = base64_decode($params['file_data']);
 
     $uniqueFile = uniqid();
+    $userId = 1; // admin
     $filePath = api_get_path(SYS_ARCHIVE_PATH) . $uniqueFile;
     file_put_contents($filePath, $fileData);
 
@@ -199,12 +207,15 @@ function WSImportLP($params)
         $oScorm->import_manifest(
             $courseInfo['code'],
             $maxScore,
-            $sessionId
+            $sessionId,
+            $userId
         );
         $oScorm->set_name($lpName);
         $oScorm->set_proximity($proximity, $courseId);
         $oScorm->set_maker($maker, $courseId);
         //$oScorm->set_jslib('scorm_api.php');
+
+        if ($debug) error_log('scorm was added');
         return 1;
     } else {
         if ($debug) error_log('manifest data empty');
@@ -294,18 +305,17 @@ function WSGetLpList($params)
     $sessionIdName = isset($params['session_id_name']) ? $params['session_id_name'] : null;
     $sessionIdValue = isset($params['session_id_value']) ? $params['session_id_value'] : null;
 
-    $courseCode = CourseManager::get_course_id_from_original_id(
+    $courseInfo = CourseManager::getCourseInfoFromOriginalId(
         $courseIdValue,
         $courseIdName
     );
-
-    $courseInfo = api_get_course_info($courseCode);
-    //$courseId = $courseInfo['real_id'];
 
     if (empty($courseInfo)) {
         if ($debug) error_log("Course not found: $courseIdName : $courseIdValue");
         return 'Course not found';
     }
+
+    $courseId = $courseInfo['real_id'];
 
     $sessionId = 0;
     if (!empty($sessionIdName) && !empty($sessionIdValue)) {
@@ -391,18 +401,17 @@ function WSDeleteLp($params)
     $sessionIdName = isset($params['session_id_name']) ? $params['session_id_name'] : null;
     $sessionIdValue = isset($params['session_id_value']) ? $params['session_id_value'] : null;
 
-    $courseCode = CourseManager::get_course_id_from_original_id(
+    $courseInfo = CourseManager::getCourseInfoFromOriginalId(
         $courseIdValue,
         $courseIdName
     );
-
-    $courseInfo = api_get_course_info($courseCode);
-    $courseId = $courseInfo['real_id'];
 
     if (empty($courseInfo)) {
         if ($debug) error_log("Course not found: $courseIdName : $courseIdValue");
         return 'Course not found';
     }
+    $courseId = $courseInfo['real_id'];
+    $courseCode = $courseInfo['code'];
 
     $sessionId = 0;
 
@@ -421,7 +430,7 @@ function WSDeleteLp($params)
     }
     */
 
-    $lp = new learnpath($courseInfo['code'], $lpId, null);
+    $lp = new learnpath($courseCode, $lpId, null);
     if ($lp) {
         if ($debug) error_log("LP deleted $lpId");
 
@@ -572,19 +581,20 @@ function WSCreateLp($params)
     /*$sessionIdName = isset($params['session_id_name']) ? $params['session_id_name'] : null;
     $sessionIdValue = isset($params['session_id_value']) ? $params['session_id_value'] : null;*/
 
-    $courseCode = CourseManager::get_course_id_from_original_id(
+     $courseInfo = CourseManager::getCourseInfoFromOriginalId(
         $courseIdValue,
         $courseIdName
     );
-
-    $courseInfo = api_get_course_info($courseCode);
-    $courseId = $courseInfo['real_id'];
 
     if (empty($courseInfo)) {
         if ($debug) {
             error_log('Course not found');
         }
     }
+
+    $userId = 1;
+    $courseId = $courseInfo['real_id'];
+    $courseCode = $courseInfo['code'];
 
     /*$sessionId = 0;
     if (!empty($sessionIdName) && !empty($sessionIdValue)) {
@@ -602,8 +612,22 @@ function WSCreateLp($params)
             return 'Session not found';
         }
     }*/
+    if ($debug) {
+        error_log('add_lp');
+    }
+    $lpId = learnpath::add_lp(
+        $courseCode,
+        $lpName,
+        '',
+        'chamilo',
+        'manual',
+        '',
+        '',
+        '',
+        0,
+        $userId
+    );
 
-    $lpId = learnpath::add_lp($courseCode, $lpName, '', 'chamilo', 'manual');
     if ($lpId) {
         if ($debug) {
             error_log('LP created');
@@ -617,11 +641,16 @@ function WSCreateLp($params)
             $extension = $info['extension'];
             $data = base64_decode($lpItem['data']);
 
+            if ($debug) {
+                error_log('create_document: '.$info['filename']);
+            }
+
             $documentId = $lp->create_document(
                 $courseInfo,
                 $data,
                 $info['filename'],
-                $extension
+                $extension,
+                $userId
             );
 
             if ($documentId) {
@@ -635,7 +664,9 @@ function WSCreateLp($params)
                         $documentId,
                         $lpItem['title'],
                         '',
-                        ''
+                        '',
+                        0,
+                        $userId
                     );
 
                     $previousId = $itemId;

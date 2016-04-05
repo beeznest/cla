@@ -59,7 +59,7 @@ $form = new FormValidator(
     )
 );
 $form->addElement('header', $nameTools);
-$form->addLabel(null, Display::img(api_get_path(WEB_IMG_PATH).'scorm_logo.jpg'));
+$form->addLabel(null, Display::return_icon('scorm_logo.jpg', null, ['style' => 'width:230px;height:100px']));
 $form->addElement('hidden', 'curdirpath', $path);
 $form->addElement('hidden', 'tool', $my_tool);
 $form->addElement('file', 'user_file', get_lang('FileToUpload'));
@@ -106,6 +106,8 @@ if (count($list)>0) {
 
 $form->addButtonUpload(get_lang('Upload'));
 
+/*
+TODO: check the pens plugin is enabled before using it
 if (is_dir(api_get_path(PLUGIN_PATH)."/pens")) {
     require_once api_get_path(PLUGIN_PATH)."/pens/chamilo_pens.php";
     $list = ChamiloPens::findAll();
@@ -116,6 +118,7 @@ if (is_dir(api_get_path(PLUGIN_PATH)."/pens")) {
         }
     }
 }
+*/
 
 // the default values for the form
 $defaults = array('index_document' => 'checked="checked"', 'use_max_score' => 1);

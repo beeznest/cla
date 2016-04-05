@@ -72,11 +72,12 @@ if ($slide_id != 'all') {
 		// Back forward buttons
 		if ($slide == 0) {
 			$imgp = 'action_prev_na.png';
-			$first = '<img src="'.api_get_path(WEB_IMG_PATH).'action_first_na.png">';
+			$first = Display::return_icon('action_first_na.png');
 		} else {
 			$imgp = 'action_prev.png';
 			$first = '<a href="slideshow.php?slide_id=0&curdirpath='.$pathurl.'">
-			          <img src="'.api_get_path(WEB_IMG_PATH).'action_first.png" title="'.get_lang('FirstSlide').'" alt="'.get_lang('FirstSlide').'"></a>';
+			          '.Display::return_icon('action_first.png', get_lang('FirstSlide')).'
+			          </a>';
 		}
 
 		// First slide
@@ -86,7 +87,8 @@ if ($slide_id != 'all') {
 		if ($slide > 0) {
 			echo '<a href="slideshow.php?slide_id='.$previous_slide.'&curdirpath='.$pathurl.'">';
 		}
-		echo '<img src="'.api_get_path(WEB_IMG_PATH).$imgp.'" title="'.get_lang('Previous').'" alt="'.get_lang('Previous').'">';
+
+        echo Display::return_icon($imgp, get_lang('Previous'));
 		if ($slide > 0) {
 			echo '</a>';
 		}
@@ -100,12 +102,14 @@ if ($slide_id != 'all') {
 		}
 		if ($slide == $total_slides - 1) {
 			$imgn = 'action_next_na.png';
-			$last = '<img src="'.api_get_path(WEB_IMG_PATH).'action_last_na.png" title="'.get_lang('LastSlide').'" alt="'.get_lang('LastSlide').'">';
+            $last = Display::return_icon('action_last_na.png', get_lang('LastSlide'));
 		} else {
 			$imgn = 'action_next.png';
-			$last = '<a href="slideshow.php?slide_id='.($total_slides-1).'&curdirpath='.$pathurl.'"><img src="'.api_get_path(WEB_IMG_PATH).'action_last.png" title="'.get_lang('LastSlide').'" alt="'.get_lang('LastSlide').'"></a>';
+			$last = '<a href="slideshow.php?slide_id='.($total_slides-1).'&curdirpath='.$pathurl.'">
+			        '.Display::return_icon('action_last.png', get_lang('LastSlide')).'
+                </a>';
 		}
-		echo '<img src="'.api_get_path(WEB_IMG_PATH).$imgn.'" title="'.get_lang('Next').'" alt="'.get_lang('Next').'">';
+        echo Display::return_icon($imgn, get_lang('Next'));
 		if ($slide > 0) {
 			echo '</a>';
 		}
@@ -129,12 +133,9 @@ if ($slide_id != 'all') {
 }
 // Slideshow options
 echo '<a href="slideshowoptions.php?curdirpath='.$pathurl.'&'.api_get_cidreq().'">'.
-    Display::return_icon('settings.png',get_lang('SetSlideshowOptions'),'',ICON_SIZE_MEDIUM).'</a>';
+    Display::return_icon('settings.png', get_lang('SetSlideshowOptions'),'',ICON_SIZE_MEDIUM).'</a>';
 
-?>
-</div>
-
-<?php
+echo '</div>';
 echo '<br />';
 
 /*	TREATING THE POST DATA FROM SLIDESHOW OPTIONS */
@@ -165,22 +166,23 @@ if (isset($_SESSION["image_resizing"]) &&  $_SESSION["image_resizing"] == "resiz
 
 // This is for viewing all the images in the slideshow as thumbnails.
 $image_tag = array ();
+$html = '';
 if ($slide_id == 'all') {
 
 	// Config for make thumbnails
     $allowed_thumbnail_types = array('jpg', 'jpeg', 'gif', 'png');
-	$max_thumbnail_width     = 100;
-	$max_thumbnail_height    = 100;
-	$png_compression	     = 0;//0(none)-9
-	$jpg_quality  	         = 75;//from 0 to 100 (default is 75). More quality less compression
+	$max_thumbnail_width     = 250;
+	$max_thumbnail_height    = 250;
+	$png_compression	     = 0; // 0(none)-9
+	$jpg_quality  	         = 75; // from 0 to 100 (default is 75). More quality less compression
 
 	$directory_thumbnails = $sys_course_path.$_course['path'].'/document'.$folder.'.thumbs/';
 
 	//Other parameters only for show tumbnails
 	$row_items 			     = 4;//only in slideshow.php
 	$number_image 			 = 7;//num icons cols to show
-	$thumbnail_width_frame=$max_thumbnail_width;//optional $max_thumbnail_width+x
-	$thumbnail_height_frame=$max_thumbnail_height;
+	$thumbnail_width_frame = $max_thumbnail_width;//optional $max_thumbnail_width+x
+	$thumbnail_height_frame = $max_thumbnail_height;
 
 	// Create the template_thumbnails folder (if no exist)
 
@@ -201,7 +203,7 @@ if ($slide_id == 'all') {
                 //or check $imagetype = image_type_to_extension(exif_imagetype($image), false);
 				$imagetype = strtolower($imagetype[count($imagetype)-1]);
 
-				if(in_array($imagetype,$allowed_thumbnail_types)) {
+				if (in_array($imagetype,$allowed_thumbnail_types)) {
 					if (!file_exists($image_thumbnail)){
                         //run each once we view thumbnails is too heavy, then need move into  !file_exists($image_thumbnail, and only run when haven't the thumbnail
 						$original_image_size = api_getimagesize($image);
@@ -227,8 +229,7 @@ if ($slide_id == 'all') {
                             $max_thumbnail_width,
                             $max_thumbnail_height
                         );
-
-						if($max_thumbnail_width>$original_image_size['width'] && $max_thumbnail_height>$original_image_size['height']){
+						if ($max_thumbnail_width>$original_image_size['width'] && $max_thumbnail_height>$original_image_size['height']){
 							$new_thumbnail_size['width']=$original_image_size['width'];
 							$new_thumbnail_size['height']=$original_image_size['height'];
 						}
@@ -236,7 +237,7 @@ if ($slide_id == 'all') {
 						$crop = imagecreatetruecolor($new_thumbnail_size['width'], $new_thumbnail_size['height']);
 
 						// preserve transparency
-						if($imagetype == "png"){
+						if ($imagetype == "png"){
 							imagesavealpha($crop, true);
 							$color = imagecolorallocatealpha($crop,0x00,0x00,0x00,127);
 							imagefill($crop, 0, 0, $color);
@@ -291,7 +292,7 @@ if ($slide_id == 'all') {
 
 					$one_image_thumbnail_file='.thumbs/.'.$one_image_file;//get path thumbnail
 					$doc_url = ($path && $path !== '/') ? $path.'/'.$one_image_thumbnail_file : $path.$one_image_thumbnail_file;
-					$image_tag[] = '<img src="download.php?doc_url='.$doc_url.'" border="0" title="'.$one_image_file.'">';
+					$image_tag[] = '<img class="img-gallery" src="download.php?doc_url='.$doc_url.'" border="0" title="'.$one_image_file.'">';
 				} else {
 					//if images aren't support by gd (not gif, jpg, jpeg, png)
 					if ($imagetype=="bmp") {
@@ -326,23 +327,30 @@ if ($slide_id == 'all') {
 	$count_image = count($image_tag);
 	$number_iteration = ceil($count_image/$number_image);
 	$p = 0;
-    echo '<ul class="thumbnails">';
+    $html = '';
+    $html .= '<div class="gallery">';
 	for ($k = 0; $k < $number_iteration; $k++) {
 		for ($i = 0; $i < $number_image; $i++) {
 			if (isset($image_tag[$p])) {
-				echo '<li class="col-md-4">
-                      <div class="thumbnail">';
-				echo '<a href="slideshow.php?slide_id='.$p.'&curdirpath='.$pathurl.'">'.$image_tag[$p].'</a>';
-				echo '</div>';
-                echo '</li>';
+                            $html .= '<div class="col-xs-6 col-sm-3 col-md-2">';
+                            $html .= '<div class="canvas-one">';
+                            $html .= '<a class="canvas-two" href="slideshow.php?slide_id='.$p.'&curdirpath='.$pathurl.'">';
+                            $html .= '<div class="frame">';
+                            $html .= '<div class="photo">';
+                            $html .=  $image_tag[$p];
+                            $html .= '</div>';
+                            $html .= '</div>';
+                            $html .= '</a>';
+                            $html .= '</div>';
+                            $html .= '</div>';
 			}
 			$p++;
 		}
 	}
-    echo '</ul>';
+    $html .= '</div>';
 
 }//end slide==all
-
+echo $html;
 /*	ONE AT A TIME VIEW */
 $course_id = api_get_course_int_id();
 
@@ -372,9 +380,7 @@ if ($slide_id != 'all' && !empty($image_files_only)) {
 		$result = Database::query($sql);
 		$row = Database::fetch_array($result);
 
-		echo '<table align="center" border="0" cellspacing="10">';
-		echo '<tr>';
-		echo '<td id="td_image" align="center">';
+        echo '<div class="thumbnail">';
 		if ($slide < $total_slides - 1 && $slide_id != 'all') {
 			echo "<a href='slideshow.php?slide_id=".$next_slide."&curdirpath=$pathurl'>";
 		} else {
@@ -433,7 +439,7 @@ if ($slide_id != 'all' && !empty($image_files_only)) {
 
 			 if (initial_height>height || initial_width>width) {
 				document.getElementById('image').style.visibility='hidden';
-				document.getElementById('td_image').style.background='url(../img/loadingAnimation.gif) center no-repeat';
+				document.getElementById('td_image').style.background='url(<?php echo Display::returnIconPath('loadingAnimation.gif'); ?>) center no-repeat';
 				document.getElementById('image').onload = resizeImage;
 			    window.onresize = resizeImage;
 			}
@@ -441,62 +447,58 @@ if ($slide_id != 'all' && !empty($image_files_only)) {
 		</script>
     <?php
 		} else {
-			echo "<img src='download.php?doc_url=$path/".$image_files_only[$slide]."' alt='".$image_files_only[$slide]."' border='0'".$height_width_tags.">";
+			echo "<img class=\"img-responsive\" src='download.php?doc_url=$path/".$image_files_only[$slide]."' alt='".$image_files_only[$slide]."' border='0'".$height_width_tags.">";
 		}
 
 		echo '</a>';
-		echo '</td>';
-		echo '</tr>';
-		echo '<tr>';
-		echo '<td>';
-		echo $row['comment'];
-		echo '</td>';
-
-        echo '<tr>';
-        echo '<td style="padding:10px;" align="center">';
+        echo '<div class="caption text-center">';
         echo Display::tag('h3', $row['title']);
-        echo '</td>';
-        echo '</tr>';
-		echo '</tr>';
-		echo '</table>';
+        echo '<p>' . $row['comment'] . '</p>';
+        echo '</div>';
+        echo '</div>';
 
-		echo '<table align="center" border="0">';
 		if (api_is_allowed_to_edit(null, true)) {
+            echo '<ul class="list-unstyled">';
 			$aux = explode('.', htmlspecialchars($image_files_only[$slide]));
 			$ext = $aux[count($aux) - 1];
 
-            if ($_SESSION['image_resizing'] == 'resizing') {
+            if (isset($_SESSION['image_resizing']) && $_SESSION['image_resizing'] == 'resizing') {
                 $resize_info = get_lang('Resizing').'<br />';
-                $resize_widht = $_SESSION["image_resizing_width"].' x ';
+                $resize_width = $_SESSION["image_resizing_width"].' x ';
                 $resize_height = $_SESSION['image_resizing_height'];
-            } elseif($_SESSION['image_resizing'] != 'noresizing'){
+            } elseif (isset($_SESSION['image_resizing']) && $_SESSION['image_resizing'] != 'noresizing'){
                 $resize_info = get_lang('Resizing').'<br />';
-                $resize_widht = get_lang('Auto').' x ';
+                $resize_width = get_lang('Auto').' x ';
                 $resize_height = get_lang('Auto');
             } else {
                 $resize_info = get_lang('NoResizing').'<br />';
+				$resize_width = '';
+				$resize_height = '';
             }
 
-            echo '<tr>';
-            echo '<td align="center">';
-            echo '<a href="edit_document.php?'.api_get_cidreq().'&id='.$row['id'].'&origin=slideshow&origin_opt='.$edit_slide_id.'&">
-			      <img src="../img/edit.gif" border="0" title="'.get_lang('Modify').'" alt="'.get_lang('Modify').'" /></a><br />';
-
-			echo $image_files_only[$slide].' <br />';
-			echo $width.' x '.$height.' <br />';
-			echo round((filesize($image)/1024), 2).' KB';
-			echo ' - '.$ext;
-			echo '</td>';
-			echo '</tr>';
-			echo '<tr>';
-			echo '<td align="center">';
-			echo $resize_info;
-			echo $resize_widht;
-			echo $resize_height;
-			echo '</td>';
-			echo '</tr>';
+            echo '<li class="text-center">';
+            echo $image_files_only[$slide] . ' ';
+            echo Display::toolbarButton(
+                get_lang('Modify'),
+                'edit_document.php?' . api_get_cidreq() . '&' . http_build_query([
+                    'id' => $row['id'],
+                    'origin' => 'slideshow',
+                    'origin_opt' => $edit_slide_id,
+                    'curdirpath' => $pathurl
+                ]),
+                'edit',
+                'link',
+                [],
+                false
+            );
+            echo '</li>';
+            echo '<li class="text-center">' . $width.' x '.$height . '</li>';
+			echo '<li class="text-center">' . round((filesize($image) / 1024), 2) . ' KB - ' . $ext . '</li>';
+            echo '<li class="text-center">' . $resize_info . '</li>';
+			echo '<li class="text-center">' . $resize_width . '</li>';
+			echo '<li class="text-center">' . $resize_height . '</li>';
+            echo '</ul>';
 		}
-		echo '</table>';
 
 	} else {
 		Display::display_warning_message(get_lang('FileNotFound'));

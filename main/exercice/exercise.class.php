@@ -1315,7 +1315,12 @@ class Exercise
 
                 foreach ($specific_fields as $specific_field) {
                     $form->addElement ('text', $specific_field['code'], $specific_field['name']);
-                    $filter = array('c_id'=> "'". api_get_course_int_id() ."'", 'field_id' => $specific_field['id'], 'ref_id' => $this->id, 'tool_id' => '\''. TOOL_QUIZ .'\'');
+                    $filter = array(
+                        'c_id' => api_get_course_int_id(),
+                        'field_id' => $specific_field['id'],
+                        'ref_id' => $this->id,
+                        'tool_id' => "'" . TOOL_QUIZ . "'"
+                    );
                     $values = get_specific_field_values_list($filter, array('value'));
                     if ( !empty($values) ) {
                         $arr_str_values = array();
@@ -2137,6 +2142,8 @@ class Exercise
         global $learnpath_id, $learnpath_item_id;
         require_once api_get_path(LIBRARY_PATH).'geometry.lib.php';
 
+        $em = Database::getManager();
+
         $feedback_type = $this->selectFeedbackType();
         $results_disabled = $this->selectResultsDisabled();
 
@@ -2271,6 +2278,20 @@ class Exercise
         if ($debug) error_log('Start answer loop ');
 
         $answer_correct_array = array();
+
+        $orderedHotspots = [];
+
+        if ($answerType == HOT_SPOT) {
+            $orderedHotspots = $em
+                ->getRepository('ChamiloCoreBundle:TrackEHotspot')
+                ->findBy([
+                        'hotspotQuestionId' => $questionId,
+                        'cId' => $course_id,
+                        'hotspotExeId' => $exeId
+                    ],
+                    ['hotspotId' => 'ASC']
+                );
+        }
 
         for ($answerId = 1; $answerId <= $nbrAnswers; $answerId++) {
             $answer = $objAnswerTmp->selectAnswer($answerId);
@@ -3223,13 +3244,20 @@ class Exercise
                             //}
                         } elseif ($answerType == HOT_SPOT) {
                             //if ($origin != 'learnpath') {
+                            foreach ($orderedHotspots as $correctAnswerId => $hotspot) {
+                                if ($hotspot->getHotspotAnswerId() == $answerAutoId) {
+                                    break;
+                                }
+                            }
+
                             ExerciseShowFunctions::display_hotspot_answer(
                                 $feedback_type,
-                                $answerId,
+                                ++$correctAnswerId,
                                 $answer,
                                 $studentChoice,
                                 $answerComment,
-                                $results_disabled
+                                $results_disabled,
+                                $answerId
                             );
                             //	}
                         } elseif ($answerType == HOT_SPOT_ORDER) {
@@ -3956,12 +3984,14 @@ class Exercise
                 // We made an extra table for the answers
 
                 if ($show_result) {
+                    $relPath = api_get_path(REL_PATH);
                     //	if ($origin != 'learnpath') {
                     echo '</table></td></tr>';
                     echo "
                         <tr>
                             <td colspan=\"2\">
                                 <p><em>" . get_lang('HotSpot') . "</em></p>
+
                                 <div id=\"hotspot-solution-$questionId\"></div>
 
                                 <script>
@@ -3970,9 +4000,11 @@ class Exercise
                                             questionId: $questionId,
                                             exerciseId: $exeId,
                                             selector: '#hotspot-solution-$questionId',
-                                            for: 'solution'
+                                            for: 'solution',
+                                            relPath: '$relPath'
                                         });
                                     });
+
                                 </script>
                             </td>
                         </tr>
@@ -4984,8 +5016,8 @@ class Exercise
             get_lang('YouWillBeRedirectedInXSeconds'),
             '<span id="counter_to_redirect" class="red_alert"></span>'
         );
-        $html .= '</div>';
-        $html .= '<div id="exercise_clock_warning" class="well count_down"></div>';
+        $html .= '</div>'; 
+        $html .= '<div id="exercise_clock_warning" class="count_down"></div>';
         return $html;
     }
 

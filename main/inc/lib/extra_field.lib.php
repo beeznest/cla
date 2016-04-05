@@ -80,6 +80,7 @@ class ExtraField extends Model
         $this->table = Database::get_main_table(TABLE_EXTRA_FIELD);
         $this->table_field_options = Database::get_main_table(TABLE_EXTRA_FIELD_OPTIONS);
         $this->table_field_values = Database::get_main_table(TABLE_EXTRA_FIELD_VALUES);
+        $this->handler_id = 'item_id';
 
         switch ($this->type) {
             case 'calendar_event':
@@ -87,12 +88,15 @@ class ExtraField extends Model
                 break;
             case 'course':
                 $this->extraFieldType = EntityExtraField::COURSE_FIELD_TYPE;
+                $this->primaryKey = 'id';
                 break;
             case 'user':
                 $this->extraFieldType = EntityExtraField::USER_FIELD_TYPE;
+                $this->primaryKey = 'id';
                 break;
             case 'session':
                 $this->extraFieldType = EntityExtraField::SESSION_FIELD_TYPE;
+                $this->primaryKey = 'id';
                 break;
             case 'question':
                 $this->extraFieldType = EntityExtraField::QUESTION_FIELD_TYPE;
@@ -806,7 +810,7 @@ class ExtraField extends Model
                         if (isset($field_details['options']) && !empty($field_details['options'])) {
                             foreach ($field_details['options'] as $option_details) {
                                 $options[$option_details['option_value']] = $option_details['display_text'];
-                                $group[]                                  = $form->createElement(
+                                $group[] = $form->createElement(
                                     'checkbox',
                                     'extra_'.$field_details['variable'],
                                     $option_details['option_value'],
@@ -820,7 +824,9 @@ class ExtraField extends Model
                             $checkboxAttributes = array();
 
                             if (is_array($extraData) && array_key_exists($fieldVariable, $extraData)) {
-                                $checkboxAttributes['checked'] = true;
+                                if (!empty($extraData[$fieldVariable])) {
+                                    $checkboxAttributes['checked'] = 1;
+                                }
                             }
 
                             // We assume that is a switch on/off with 1 and 0 as values
@@ -833,6 +839,7 @@ class ExtraField extends Model
                                 $checkboxAttributes
                             );
                         }
+
                         $form->addGroup(
                             $group,
                             'extra_'.$field_details['variable'],
@@ -2126,7 +2133,7 @@ EOF;
                 if (strpos($rule->field, '_second') === false) {
                     //No _second
                     $original_field = str_replace($stringToSearch, '', $rule->field);
-                    $field_option = $this->get_handler_field_info_by_variable($original_field);
+                    $field_option = $this->get_handler_field_info_by_field_variable($original_field);
 
                     if ($field_option['field_type'] == ExtraField::FIELD_TYPE_DOUBLE_SELECT) {
 

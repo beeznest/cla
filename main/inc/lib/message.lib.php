@@ -1,6 +1,8 @@
 <?php
 /* For licensing terms, see /license.txt */
 
+use ChamiloSession as Session;
+
 /**
  * Class MessageManager
  *
@@ -69,7 +71,9 @@ class MessageManager
             return false;
         }
         $sql = "SELECT * FROM $table
-                WHERE user_receiver_id=".api_get_user_id()." AND msg_status=".MESSAGE_STATUS_UNREAD;
+                WHERE
+                    user_receiver_id=".api_get_user_id()." AND
+                    msg_status=".MESSAGE_STATUS_UNREAD;
         $result = Database::query($sql);
         $i = Database::num_rows($result);
 
@@ -103,11 +107,22 @@ class MessageManager
             $condition_msg_status = ' msg_status IN('.MESSAGE_STATUS_NEW.','.MESSAGE_STATUS_UNREAD.') ';
         }
 
+        $keyword = Session::read('message_search_keyword');
+        $keywordCondition = '';
+        if (!empty($keyword)) {
+            $keyword = Database::escape_string($keyword);
+            $keywordCondition = " AND (title like '%$keyword%' OR content LIKE '%$keyword%') ";
+        }
+
         $sql = "SELECT COUNT(*) as number_messages
                 FROM $table_message
-                WHERE $condition_msg_status AND user_receiver_id=".api_get_user_id();
-        $sql_result = Database::query($sql);
-        $result = Database::fetch_array($sql_result);
+                WHERE $condition_msg_status AND
+                    user_receiver_id=".api_get_user_id()."
+                    $keywordCondition
+                ";
+        $result = Database::query($sql);
+        $result = Database::fetch_array($result);
+
         return $result['number_messages'];
     }
 
@@ -131,13 +146,24 @@ class MessageManager
             if (!in_array($direction, array('ASC', 'DESC')))
                 $direction = 'ASC';
         }
+
+        $keyword = Session::read('message_search_keyword');
+        $keywordCondition = '';
+        if (!empty($keyword)) {
+            $keyword = Database::escape_string($keyword);
+            $keywordCondition = " AND (title like '%$keyword%' OR content LIKE '%$keyword%') ";
+        }
+
         $table_message = Database::get_main_table(TABLE_MESSAGE);
 
         $sql = "SELECT id as col0, user_sender_id as col1, title as col2, send_date as col3, msg_status as col4
                 FROM $table_message
-                WHERE user_receiver_id=".api_get_user_id()." AND msg_status IN (0,1)
+                WHERE
+                  user_receiver_id=".api_get_user_id()." AND
+                  msg_status IN (0,1)
+                  $keywordCondition
                 ORDER BY col$column $direction
-                LIMIT $from,$number_of_items";
+                LIMIT $from, $number_of_items";
 
         $sql_result = Database::query($sql);
         $i = 0;
@@ -193,8 +219,8 @@ class MessageManager
         $receiver_user_id,
         $subject,
         $content,
-        $file_attachments = array(),
-        $file_comments = array(),
+        array $file_attachments = [],
+        array $file_comments = [],
         $group_id = 0,
         $parent_id = 0,
         $edit_message_id = 0,
@@ -241,7 +267,7 @@ class MessageManager
                 format_file_size(api_get_setting('message_max_upload_filesize'))
             );
 
-            Display::addFlash(Display::return_message($warning , 'warning'));
+            Display::addFlash(Display::return_message($warning, 'warning'));
 
             return false;
         }
@@ -249,7 +275,7 @@ class MessageManager
         $inbox_last_id = null;
 
         //Just in case we replace the and \n and \n\r while saving in the DB
-        $content = str_replace(array("\n", "\n\r"), '<br />', $content);
+        //$content = str_replace(array("\n", "\n\r"), '<br />', $content);
 
         $now = api_get_utc_datetime();
         if (!empty($receiver_user_id) || !empty($group_id)) {
@@ -290,7 +316,7 @@ class MessageManager
                     if ($file_attach['error'] == 0) {
                         self::save_message_attachment_file(
                             $file_attach,
-                            $file_comments[$i],
+                            isset($file_comments[$i]) ? $file_comments[$i] : null,
                             $inbox_last_id,
                             null,
                             $receiver_user_id,
@@ -336,6 +362,12 @@ class MessageManager
             // Load user settings.
             $notification = new Notification();
             $sender_info = api_get_user_info($user_sender_id);
+            
+            // add file attachment additional attributes
+            foreach ($file_attachments as $index => $file_attach) {
+                $file_attachments[$index]['path'] = $file_attach['tmp_name'];
+                $file_attachments[$index]['filename'] = $file_attach['name'];
+            }
 
             if (empty($group_id)) {
                 $type = Notification::NOTIFICATION_TYPE_MESSAGE;
@@ -347,7 +379,8 @@ class MessageManager
                     array($receiver_user_id),
                     $subject,
                     $content,
-                    $sender_info
+                    $sender_info,
+                    $file_attachments
                 );
             } else {
                 $usergroup = new UserGroup();
@@ -362,7 +395,7 @@ class MessageManager
 
                 $new_user_list = array();
                 foreach ($user_list as $user_data) {
-                    $new_user_list[] = $user_data['user_id'];
+                    $new_user_list[] = $user_data['id'];
                 }
                 $group_info = array(
                     'group_info' => $group_info,
@@ -405,8 +438,8 @@ class MessageManager
             $receiver_user_id,
             $subject,
             $message,
-            null,
-            null,
+            [],
+            [],
             null,
             null,
             null,
@@ -645,8 +678,9 @@ class MessageManager
             $path_message_attach = $path_user_info['dir'].'message_attachments/';
             if (is_file($path_message_attach.$path)) {
                 if (rename($path_message_attach.$path, $path_message_attach.$new_path)) {
-                    $sql_upd = "UPDATE $table_message_attach set path='$new_path' WHERE id ='$attach_id'";
-                    Database::query($sql_upd);
+                    $sql = "UPDATE $table_message_attach set path='$new_path'
+                            WHERE id ='$attach_id'";
+                    Database::query($sql);
                 }
             }
         }
@@ -799,7 +833,10 @@ class MessageManager
         }
 
         $sql = "SELECT * FROM $table_message
-                WHERE parent_id='$parent_id' AND msg_status <> ".MESSAGE_STATUS_OUTBOX." $condition_group_id
+                WHERE
+                    parent_id='$parent_id' AND
+                    msg_status <> ".MESSAGE_STATUS_OUTBOX."
+                    $condition_group_id
                 ORDER BY send_date DESC $condition_limit ";
         $rs = Database::query($sql);
         $data = array();
@@ -858,12 +895,21 @@ class MessageManager
         }
         $table_message = Database::get_main_table(TABLE_MESSAGE);
         $request = api_is_xml_http_request();
+
+        $keyword = Session::read('message_sent_search_keyword');
+        $keywordCondition = '';
+        if (!empty($keyword)) {
+            $keyword = Database::escape_string($keyword);
+            $keywordCondition = " AND (title like '%$keyword%' OR content LIKE '%$keyword%') ";
+        }
+
         $sql = "SELECT
                     id as col0, user_sender_id as col1, title as col2, send_date as col3, user_receiver_id as col4, msg_status as col5
                 FROM $table_message
                 WHERE
                     user_sender_id=".api_get_user_id()." AND
                     msg_status=".MESSAGE_STATUS_OUTBOX."
+                    $keywordCondition
                 ORDER BY col$column $direction
                 LIMIT $from, $number_of_items";
         $sql_result = Database::query($sql);
@@ -914,10 +960,22 @@ class MessageManager
     public static function get_number_of_messages_sent()
     {
         $table_message = Database::get_main_table(TABLE_MESSAGE);
+
+        $keyword = Session::read('message_sent_search_keyword');
+        $keywordCondition = '';
+        if (!empty($keyword)) {
+            $keyword = Database::escape_string($keyword);
+            $keywordCondition = " AND (title like '%$keyword%' OR content LIKE '%$keyword%') ";
+        }
+
         $sql = "SELECT COUNT(*) as number_messages FROM $table_message
-                WHERE msg_status=".MESSAGE_STATUS_OUTBOX." AND user_sender_id=".api_get_user_id();
-        $sql_result = Database::query($sql);
-        $result = Database::fetch_array($sql_result);
+                WHERE
+                  msg_status=".MESSAGE_STATUS_OUTBOX." AND
+                  user_sender_id=".api_get_user_id()."
+                  $keywordCondition
+                ";
+        $result = Database::query($sql);
+        $result = Database::fetch_array($result);
 
         return $result['number_messages'];
     }
@@ -1516,12 +1574,14 @@ class MessageManager
 
     //@todo this functions should be in the message class
 
-    public static function inbox_display()
+    public static function inbox_display($keyword = '')
     {
         $success = get_lang('SelectedMessagesDeleted');
         $success_read = get_lang('SelectedMessagesRead');
         $success_unread = get_lang('SelectedMessagesUnRead');
         $html = '';
+
+        Session::write('message_search_keyword', $keyword);
 
         if (isset($_REQUEST['action'])) {
             switch ($_REQUEST['action']) {
@@ -1583,18 +1643,25 @@ class MessageManager
             )
         );
         $html .= $table->return_table();
+
+        Session::erase('message_search_keyword');
+
         return $html;
     }
 
     /**
-     * @return string
+     * @param string $keyword
+     * @return null|string
      */
-    static function outbox_display()
+    public static function outbox_display($keyword = '')
     {
         $social_link = false;
         if (isset($_REQUEST['f']) && $_REQUEST['f'] == 'social') {
             $social_link = 'f=social';
         }
+
+        Session::write('message_sent_search_keyword', $keyword);
+
         $success = get_lang('SelectedMessagesDeleted').'&nbsp</b><br /><a href="outbox.php?'.$social_link.'">'.get_lang('BackToOutbox').'</a>';
 
         $html = null;
@@ -1637,6 +1704,8 @@ class MessageManager
 
         $table->set_form_actions(array('delete' => get_lang('DeleteSelectedMessages')));
         $html .= $table->return_table();
+
+        Session::erase('message_sent_search_keyword');
 
         return $html;
     }
@@ -1748,5 +1817,20 @@ class MessageManager
         }
 
         return false;
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return FormValidator
+     */
+    public static function getSearchForm($url)
+    {
+        $form = new FormValidator('search', 'post', $url, null, [], FormValidator::LAYOUT_INLINE);
+
+        $form->addElement('text', 'keyword');
+        $form->addButtonSearch(get_lang('Search'));
+
+        return $form;
     }
 }

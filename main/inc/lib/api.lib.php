@@ -8,6 +8,8 @@
  * @package chamilo.library
  */
 
+use ChamiloSession as Session;
+
 /**
  * Constants declaration
  */
@@ -17,8 +19,6 @@ define('REQUIRED_PHP_VERSION', '5.4');
 define('REQUIRED_MIN_MEMORY_LIMIT', '128');
 define('REQUIRED_MIN_UPLOAD_MAX_FILESIZE', '10');
 define('REQUIRED_MIN_POST_MAX_SIZE', '10');
-
-use ChamiloSession as Session;
 
 // USER STATUS CONSTANTS
 /** global status of a user: student */
@@ -1296,6 +1296,9 @@ function api_get_navigator() {
     } elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') !== false) {
         $navigator = 'Chrome';
         list (, $version) = explode('Chrome', $_SERVER['HTTP_USER_AGENT']);
+    } elseif (stripos($_SERVER['HTTP_USER_AGENT'], 'safari') !== false) {
+        $navigator = 'Safari';
+        list (, $version) = explode('Version/', $_SERVER['HTTP_USER_AGENT']);
     } elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Gecko') !== false) {
         $navigator = 'Mozilla';
         list (, $version) = explode('; rv:', $_SERVER['HTTP_USER_AGENT']);
@@ -1307,9 +1310,6 @@ function api_get_navigator() {
         list (, $version) = explode('Konqueror', $_SERVER['HTTP_USER_AGENT']);
     } elseif (stripos($_SERVER['HTTP_USER_AGENT'], 'applewebkit') !== false) {
         $navigator = 'AppleWebKit';
-        list (, $version) = explode('Version/', $_SERVER['HTTP_USER_AGENT']);
-    } elseif (stripos($_SERVER['HTTP_USER_AGENT'], 'safari') !== false) {
-        $navigator = 'Safari';
         list (, $version) = explode('Version/', $_SERVER['HTTP_USER_AGENT']);
     }
     $version = str_replace('/', '', $version);
@@ -1429,7 +1429,8 @@ function _api_format_user($user, $add_password = false)
         'creator_id',
         'registration_date',
         'hr_dept_id',
-        'expiration_date'
+        'expiration_date',
+        'last_login'
     );
 
     foreach ($attributes as $attribute) {
@@ -1446,32 +1447,8 @@ function _api_format_user($user, $add_password = false)
     $user_id = intval($user['user_id']);
     // Maintain the user_id index for backwards compatibility
     $result['user_id'] = $result['id'] = $user_id;
-    $saveUserLastLogin = api_get_configuration_value('save_user_last_login');
-
-    if ($saveUserLastLogin) {
-        $last_login = $user['last_login'];
-    } else {
-
-        if (!isset($user['lastLogin']) && !isset($user['last_login'])) {
-            $timestamp = Tracking::get_last_connection_date($result['user_id'], false, true);
-            // Convert the timestamp back into a datetime
-            // NOTE: this timestamp has ALREADY been converted to the local timezone in the get_last_connection_date function
-            $last_login = date('Y-m-d H:i:s', $timestamp);
-        } else {
-            if (isset($user['lastLogin'])) {
-                $last_login = $user['lastLogin'];
-            } else {
-                $last_login = $user['last_login'];
-            }
-        }
-    }
-
-    $result['last_login'] = $last_login;
-    // Kept for historical reasons
-    $result['lastLogin'] = $last_login;
 
     // Getting user avatar.
-
     $originalFile = UserManager::getUserPicture($user_id, USER_IMAGE_SIZE_ORIGINAL, $result);
     $smallFile = UserManager::getUserPicture($user_id, USER_IMAGE_SIZE_SMALL, $result);
 
@@ -1479,7 +1456,6 @@ function _api_format_user($user, $add_password = false)
     $avatarString = explode('?', $originalFile);
     $result['avatar_no_query'] = reset($avatarString);
     $result['avatar_small'] = $smallFile;
-    //$result['avatar_sys_path'] = api_get_path(SYS_CODE_PATH).'img/unknown.jpg';
 
     if (isset($user['user_is_online'])) {
         $result['user_is_online'] = $user['user_is_online'] == true ? 1 : 0;
@@ -1653,7 +1629,7 @@ function api_get_course_int_id($code = null)
             return false;
         }
     }
-    return isset($_SESSION['_real_cid']) ? intval($_SESSION['_real_cid']) : 0;
+    return Session::read('_real_cid', 0);
 }
 
 /**
@@ -1880,17 +1856,14 @@ function api_format_course_array($course_data)
     $_course['language'] = $course_data['course_language'];
     $_course['extLink']['url'] = $course_data['department_url'];
     $_course['extLink']['name'] = $course_data['department_name'];
-
     $_course['categoryCode'] = $course_data['faCode'];
     $_course['categoryName'] = $course_data['faName'];
-
     $_course['visibility'] = $course_data['visibility'];
     $_course['subscribe_allowed'] = $course_data['subscribe'];
     $_course['subscribe'] = $course_data['subscribe'];
     $_course['unsubscribe'] = $course_data['unsubscribe'];
-
     $_course['course_language'] = $course_data['course_language'];
-    $_course['activate_legal'] = isset($course_data['activate_legal']) ? $course_data['activate_legal'] : false;;
+    $_course['activate_legal'] = isset($course_data['activate_legal']) ? $course_data['activate_legal'] : false;
     $_course['legal'] = $course_data['legal'];
     $_course['show_score'] = $course_data['show_score']; //used in the work tool
     $_course['department_name'] = $course_data['department_name'];
@@ -1908,14 +1881,14 @@ function api_format_course_array($course_data)
     if (file_exists(api_get_path(SYS_COURSE_PATH).$course_data['directory'].'/course-pic85x85.png')) {
         $url_image = api_get_path(WEB_COURSE_PATH).$course_data['directory'].'/course-pic85x85.png';
     } else {
-        $url_image = Display::return_icon('course.png', null, null, ICON_SIZE_BIG, null, true);
+        $url_image = Display::return_icon('course.png', null, null, ICON_SIZE_BIG, null, true, false);
     }
     $_course['course_image'] = $url_image;
 
     if (file_exists(api_get_path(SYS_COURSE_PATH).$course_data['directory'].'/course-pic.png')) {
         $url_image = api_get_path(WEB_COURSE_PATH).$course_data['directory'].'/course-pic.png';
     } else {
-        $url_image = Display::return_icon('session_default.png',null,null,null,null,true);
+        $url_image = Display::returnIconPath('session_default.png');
     }
     $_course['course_image_large'] = $url_image;
 
@@ -4127,13 +4100,15 @@ function api_get_track_item_property_history($tool, $ref)
 
 /**
  * Gets item property data from tool of a course id
- * @param int       course id
- * @param string    tool name, linked to 'rubrique' of the course tool_list (Warning: language sensitive !!)
- * @param int       id of the item itself, linked to key of every tool ('id', ...), "*" = all items of the tool
+ * @param int $course_id
+ * @param string $tool   tool name, linked to 'rubrique' of the course tool_list (Warning: language sensitive !!)
+ * @param int $ref id of the item itself, linked to key of every tool ('id', ...), "*" = all items of the tool
  * @param int $session_id
+ * @param int $groupId
+ *
  * @return array Array with all fields from c_item_property, empty array if not found or false if course could not be found
  */
-function api_get_item_property_info($course_id, $tool, $ref, $session_id = 0)
+function api_get_item_property_info($course_id, $tool, $ref, $session_id = 0, $groupId = 0)
 {
     $courseInfo = api_get_course_info_by_id($course_id);
 
@@ -4161,6 +4136,11 @@ function api_get_item_property_info($course_id, $tool, $ref, $session_id = 0)
                 ref = $ref AND
                 $sessionCondition ";
 
+    if (!empty($groupId)) {
+        $groupId = intval($groupId);
+        $sql .= " AND to_group_id = $groupId ";
+    }
+
     $rs  = Database::query($sql);
     $row = array();
     if (Database::num_rows($rs) > 0) {
@@ -4178,7 +4158,8 @@ function api_get_item_property_info($course_id, $tool, $ref, $session_id = 0)
  * @return string
  */
 
-function api_get_languages_combo($name = 'language') {
+function api_get_languages_combo($name = 'language')
+{
     $ret = '';
     $platformLanguage = api_get_setting('platformLanguage');
 
@@ -4199,7 +4180,7 @@ function api_get_languages_combo($name = 'language') {
     $languages  = $language_list['name'];
     $folder     = $language_list['folder'];
 
-    $ret .= '<select name="' . $name . '" id="language_chosen">';
+    $ret .= '<select name="' . $name . '" id="language_chosen" class="selectpicker show-tick form-control">';
     foreach ($languages as $key => $value) {
         if ($folder[$key] == $default) {
             $selected = ' selected="selected"';
@@ -4394,11 +4375,13 @@ function api_get_language_info($language_id) {
  * The returned name depends on the platform, course or user -wide settings.
  * @return string   The visual theme's name, it is the name of a folder inside .../chamilo/main/css/
  */
-function api_get_visual_theme() {
+function api_get_visual_theme()
+{
     static $visual_theme;
     if (!isset($visual_theme)) {
 
         $platform_theme = api_get_setting('stylesheets');
+
         // Platform's theme.
         $visual_theme = $platform_theme;
 
@@ -4415,14 +4398,15 @@ function api_get_visual_theme() {
         }
 
         $course_id = api_get_course_id();
+
         if (!empty($course_id) && $course_id != -1) {
             if (api_get_setting('allow_course_theme') == 'true') {
                 $course_theme = api_get_course_setting('course_theme');
 
                 if (!empty($course_theme) && $course_theme != -1) {
                     if (!empty($course_theme)) {
-                        $visual_theme = $course_theme;
                         // Course's theme.
+                        $visual_theme = $course_theme;
                     }
                 }
 
@@ -4432,8 +4416,8 @@ function api_get_visual_theme() {
                     // These variables come from the file lp_controller.php.
                     if (!$lp_theme_config) {
                         if (!empty($lp_theme_css)) {
-                            $visual_theme = $lp_theme_css;
                             // LP's theme.
+                            $visual_theme = $lp_theme_css;
                         }
                     }
                 }
@@ -4487,7 +4471,6 @@ function api_get_themes() {
     return array($list_dir, $list_name);
 }
 
-
 /**
  * Find the largest sort value in a given user_course_category
  * This function is used when we are moving a course to a different category
@@ -4499,7 +4482,6 @@ function api_get_themes() {
 function api_max_sort_value($user_course_category, $user_id)
 {
     $tbl_course_user = Database::get_main_table(TABLE_MAIN_COURSE_USER);
-
     $sql = "SELECT max(sort) as max_sort FROM $tbl_course_user
             WHERE
                 user_id='".intval($user_id)."' AND
@@ -5275,13 +5257,9 @@ function api_get_access_urls($from = 0, $to = 1000000, $order = 'url', $directio
  */
 function api_get_access_url($id, $returnDefault = true)
 {
-    global $_configuration;
     $id = intval($id);
     // Calling the Database:: library dont work this is handmade.
-    //$table_access_url = Database::get_main_table(TABLE_MAIN_ACCESS_URL);
-    $table = 'access_url';
-    $database = $_configuration['main_database'];
-    $table_access_url = "" . $database . "." . $table . "";
+    $table_access_url = Database::get_main_table(TABLE_MAIN_ACCESS_URL);
     $sql = "SELECT url, description, active, created_by, tms
             FROM $table_access_url WHERE id = '$id' ";
     $res = Database::query($sql);
@@ -5304,6 +5282,7 @@ function api_get_access_url($id, $returnDefault = true)
             }
         }
     }
+
     return $result;
 }
 
@@ -6462,7 +6441,7 @@ function api_get_css($file, $media = 'screen') {
  */
 function api_get_jquery_js()
 {
-    return api_get_asset('jquery/jquery.min.js');
+    return api_get_asset('jquery/dist/jquery.min.js');
 }
 
 /**
@@ -6471,7 +6450,7 @@ function api_get_jquery_js()
  */
 function api_get_jquery_web_path()
 {
-    return api_get_path(WEB_PATH).'web/assets/jquery/jquery.min.js';
+    return api_get_path(WEB_PATH).'web/assets/jquery/dist/jquery.min.js';
 }
 
 /**
@@ -6542,9 +6521,19 @@ function api_get_jquery_libraries_js($libraries) {
 
     //Document multiple upload funcionality
     if (in_array('jquery-upload', $libraries)) {
-        $js .= api_get_js('jquery-upload/jquery.fileupload.js');
-        $js .= api_get_js('jquery-upload/jquery.fileupload-ui.js');
-        $js .= api_get_css($js_path.'jquery-upload/jquery.fileupload-ui.css');
+
+        $js .= api_get_asset('blueimp-load-image/js/load-image.all.min.js');
+        $js .= api_get_asset('blueimp-canvas-to-blob/js/canvas-to-blob.min.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.iframe-transport.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.fileupload.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.fileupload-process.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.fileupload-image.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.fileupload-audio.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.fileupload-video.js');
+        $js .= api_get_asset('jquery-file-upload/js/jquery.fileupload-validate.js');
+
+        $js .= api_get_css(api_get_path(WEB_PATH).'web/assets/jquery-file-upload/css/jquery.fileupload.css');
+        $js .= api_get_css(api_get_path(WEB_PATH).'web/assets/jquery-file-upload/css/jquery.fileupload-ui.css');
     }
 
     // jquery datepicker
@@ -6799,7 +6788,7 @@ function api_get_real_ip(){
     $ip = trim($_SERVER['REMOTE_ADDR']);
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         if (preg_match('/,/', $_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            list($ip1, $ip2) = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            @list($ip1, $ip2) = @explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
         } else {
             $ip1 = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
@@ -6882,12 +6871,13 @@ function api_is_global_chat_enabled()
  * @param int $group_id
  * @param array $courseInfo
  */
-function api_set_default_visibility($item_id, $tool_id, $group_id = 0, $courseInfo = array(), $sessionId = null)
+function api_set_default_visibility($item_id, $tool_id, $group_id = 0, $courseInfo = array(), $sessionId = 0, $userId = 0)
 {
     $courseInfo = empty($courseInfo) ? api_get_course_info() : $courseInfo;
     $courseId = $courseInfo['real_id'];
     $courseCode = $courseInfo['code'];
     $sessionId = empty($sessionId) ? api_get_session_id() : $sessionId;
+    $userId = empty($userId) ? api_get_user_id() : $userId;
 
     $original_tool_id = $tool_id;
 
@@ -6936,7 +6926,7 @@ function api_set_default_visibility($item_id, $tool_id, $group_id = 0, $courseIn
             $original_tool_id,
             $item_id,
             $visibility,
-            api_get_user_id(),
+            $userId,
             $group_id,
             null,
             null,
@@ -7858,8 +7848,8 @@ function api_create_protected_dir($name, $parentDirectory)
  * @param string    sender e-mail
  * @param array     extra headers in form $headers = array($name => $value) to allow parsing
  * @param array     data file (path and filename)
- * @param array     data to attach a file (optional)
  * @param bool      True for attaching a embedded file inside content html (optional)
+ * @param array     Additional parameters
  * @return          returns true if mail was sent
  * @see             class.phpmailer.php
  */
@@ -7889,7 +7879,11 @@ function api_mail_html(
         $mail->SMTPAuth = 1;
         $mail->Username = $platform_email['SMTP_USER'];
         $mail->Password = $platform_email['SMTP_PASS'];
+        if (isset($platform_email['SMTP_SECURE'])) {
+            $mail->SMTPSecure = $platform_email['SMTP_SECURE'];
+        }
     }
+    $mail->SMTPDebug = isset($platform_email['SMTP_DEBUG'])?$platform_email['SMTP_DEBUG']:0;
 
     // 5 = low, 1 = high
     $mail->Priority = 3;
@@ -7963,18 +7957,35 @@ function api_mail_html(
             }
         }
     }
-    $message = str_replace(array("\n\r", "\n", "\r"), '<br />', $message);
 
     $mailView = new Template(null, false, false, false, false, false, false);
     $mailView->assign('content', $message);
-    $link = $additionalParameters['link'];
-    $mailView->assign('link', $link);
+
+    if (isset($additionalParameters['link'])) {
+        $mailView->assign('link', $additionalParameters['link']);
+    }
+
     $layout = $mailView->get_template('mail/mail.tpl');
     $mail->Body = $mailView->fetch($layout);
 
     // Attachment ...
     if (!empty($data_file)) {
-        $mail->AddAttachment($data_file['path'], $data_file['filename']);
+        $o = 0;
+        foreach ($data_file as $file_attach) {
+            if (!empty($file_attach['path']) && !empty($file_attach['filename'])) {
+                $mail->AddAttachment($file_attach['path'], $file_attach['filename']);
+            }
+            $o++;
+        }
+    } elseif (is_array($_FILES)) {
+        $data_file = $_FILES;
+        $o = 0;
+        foreach ($data_file as $file_attach) {
+            if (!empty($file_attach['tmp_name']) && !empty($file_attach['name'])) {
+                $mail->AddAttachment($file_attach['tmp_name'], $file_attach['name']);
+            }
+            $o++;
+        }
     }
 
     // Only valid addresses are accepted.

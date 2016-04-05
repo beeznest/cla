@@ -49,10 +49,14 @@ if (!empty($_REQUEST['operator']) && in_array($op, array('or', 'and'))) {
     $op = $_REQUEST['operator'];
 }
 
-$query = stripslashes(htmlspecialchars_decode($_REQUEST['query'], ENT_QUOTES));
+$query = null;
+
+if (isset($_REQUEST['query'])) {
+    $query = stripslashes(htmlspecialchars_decode($_REQUEST['query'], ENT_QUOTES));
+}
 
 $mode = 'default';
-if (in_array($_GET['mode'], array('gallery', 'default'))) {
+if (isset($_GET['mode']) && in_array($_GET['mode'], array('gallery', 'default'))) {
     $mode = $_GET['mode'];
 }
 
@@ -111,12 +115,17 @@ if (count($term_array)) {
     }
 }
 
-list($count, $results) = chamilo_query_query(
-    api_convert_encoding($query, 'UTF-8', $charset),
-    0,
-    1000,
-    $fixed_queries
-);
+if ($query) {
+    list($count, $results) = chamilo_query_query(
+        api_convert_encoding($query, 'UTF-8', $charset),
+        0,
+        1000,
+        $fixed_queries
+    );
+} else {
+    $count = 0;
+    $results = [];
+}
 
 // Prepare blocks to show.
 $blocks = array();
@@ -125,7 +134,7 @@ if ($count > 0) {
     foreach ($results as $result) {
         // Fill the result array.
         if (empty($result['thumbnail'])) {
-            $result['thumbnail'] = '../img/no_document_thumb.jpg';
+            $result['thumbnail'] = Display::returnIconPath('no_document_thumb.jpg');
         }
 
         if (!empty($result['url'])) {
@@ -138,12 +147,12 @@ if ($count > 0) {
 
         if ($mode == 'gallery') {
             $title = $a_prefix.str_replace('_',' ',$result['title']). $a_sufix;
-            $blocks[] = array(
+            $blocks[] = array(1 => 
                 $a_prefix .'<img src="'.$result['thumbnail'].'" />'. $a_sufix .'<br />'.$title.'<br />'.$result['author'],
             );
         } else {
             $title = '<div style="text-align:left;">'. $a_prefix . $result['title']. $a_sufix .(!empty($result['author']) ? ' '.$result['author'] : '').'<div>';
-            $blocks[] = array($title);
+            $blocks[] = array(1 => $title);
         }
     }
 }
@@ -181,11 +190,14 @@ if (count($blocks) > 0) {
 
     $search_link = '<a href="%ssearch/index.php?mode=%s&action=search&query=%s%s">';
 
+    $iconGallery = (($mode == 'gallery') ? 'ButtonGallOn' : 'ButtonGallOff').'.png';
+    $iconDefault = (($mode == 'default') ? 'ButtonListOn' : 'ButtonListOff').'.png';
+
     $mode_selector = '<div id="mode-selector">';
     $mode_selector .= sprintf($search_link, api_get_path(WEB_CODE_PATH), 'gallery', $_REQUEST['query'], $get_params);
-    $mode_selector .= '<img src="../img/'. (($mode=='gallery')?'ButtonGallOn':'ButtonGallOff') .'.png" /></a>';
+    $mode_selector .= Display::return_icon($iconGallery).'</a>';
     $mode_selector .= sprintf($search_link, api_get_path(WEB_CODE_PATH), 'default', $_REQUEST['query'], $get_params);
-    $mode_selector .= '<img src="../img/'.(($mode=='default')?'ButtonListOn':'ButtonListOff').'.png" /></a>';
+    $mode_selector .= Display::return_icon($iconDefault).'</a>';
     $mode_selector .= '</div>';
 
     echo '<div id="search-results-container">';

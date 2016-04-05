@@ -319,6 +319,12 @@ foreach ($configurationFiles as $file) {
 // if we use the non-javascript version (with the go button) we receive a post
 $user_language = '';
 $browser_language = '';
+
+// see #8149
+if (!empty($_SESSION['user_language_choice'])) {
+    $user_language = $_SESSION['user_language_choice'];
+}
+
 if (!empty($_GET['language'])) {
     $user_language = $_GET['language'];
 }
@@ -453,6 +459,10 @@ if (!empty($valid_languages)) {
         }
     }
 
+    // If language is set via browser ignore the priority
+    if (isset($_GET['language'])) {
+        $language_interface = $user_language;
+    }
 }
 
 // Sometimes the variable $language_interface is changed
@@ -487,6 +497,7 @@ if (!empty($parent_path)) {
     include $langpath.'english/trad4all.inc.php';
     // prepare string for current language
     $langfile = $langpath.$language_interface.'/trad4all.inc.php';
+
     if (file_exists($langfile)) {
         include $langfile;
     }
@@ -544,15 +555,11 @@ if (!isset($_SESSION['login_as']) && isset($_user)) {
         $sql = "UPDATE $tbl_track_login SET logout_date = '$now'
                 WHERE login_id='$i_id_last_connection'";
         Database::query($sql);
-        // Saves the last login in the user table see BT#7297
-        if (isset($_configuration['save_user_last_login']) &&
-            $_configuration['save_user_last_login']
-        ) {
-            $tableUser = Database::get_main_table(TABLE_MAIN_USER);
-            $sql = "UPDATE $tableUser SET last_login = '$now'
-                    WHERE user_id = ".$_user["user_id"];
-            Database::query($sql);
-        }
+
+        $tableUser = Database::get_main_table(TABLE_MAIN_USER);
+        $sql = "UPDATE $tableUser SET last_login = '$now'
+                WHERE user_id = ".$_user["user_id"];
+        Database::query($sql);
     }
 }
 

@@ -10,8 +10,6 @@ build:
             my.chamilodev.net: '127.0.0.1'
     dependencies:
         before:
-            - composer global require "fxp/composer-asset-plugin:1.0.0"
-            - composer install -n
             - composer -v update
 filter:
     excluded_paths:
@@ -21,6 +19,8 @@ filter:
         - app/cache/*
         - app/logs/*
         - web/*
+        - vendor/*
+        - main/admin/db.php
 checks:
     php:
         code_rating: true

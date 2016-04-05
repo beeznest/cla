@@ -62,6 +62,37 @@ a.thumbnail:hover{
   margin-left: 20px;
   text-align: left;
 }
+.gallery .img-gallery{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 5px;
+}
+.gallery .photo{
+    display: block;
+    padding-bottom: 100%;
+    overflow: hidden;
+    
+}
+.gallery .frame{
+    background-color: #eeeeee;
+    display: block;
+    width: 100%;
+}
+.gallery .canvas-one{
+    margin-bottom: 30px;
+}
+.gallery .canvas-two{
+    margin-right: 30px;
+    flex-shrink: 1;
+    -webkit-flex-shrink: 1;
+    -ms-flex-negative:1 ;
+    display: block;
+    position: relative;
+    
+}
 /*------------------------*/
 .cursor-pointer {
     cursor: pointer;
@@ -280,8 +311,7 @@ ul#navigation .report a {
     margin-top: 5px;
 }
 .file_upload input{
-    position: relative;
-    border: none;
+    position: absolute;
 }
 #results .jqgrid_whitespace .date-time{
     font-size: 12px;
@@ -295,14 +325,14 @@ ul#navigation .report a {
     position: relative;
     width: 100%;
     height:600px;
-  }
-  .impress-title{
+}
+.impress-title{
     position: absolute;
     top:40%;
     left: 0%;
     text-align: center;
     width: 100%;
-  }
+}
 .impress-title h1{
     font-size: 35px;
 }
@@ -477,6 +507,15 @@ ul#navigation .report a {
 #exercise-description.panel-default{
     border: 1px solid #DDD;
 }
+#exercise-description .panel-heading a span{
+    margin-left: 25px;
+}
+#exercise-description .panel-heading a{
+    background: url("../../main/img/icons/22/arrow-up-collapse.png") no-repeat left center;
+}
+#exercise-description .panel-heading a.collapsed{
+    background: url("../../main/img/icons/22/arrow-down-collapse.png") no-repeat left center;
+}
 /*****************************************************
  *              AGENDA                               *
  *****************************************************/
@@ -522,172 +561,34 @@ ul#navigation .report a {
 #simple-dialog-form .control-label{
     padding-top: 0;
 }
-/* ---------------------------------------------------
-    styles for the agenda (day, week, month view)
------------------------------------------------------*/
-#agenda_list {
-    width: 100%;
-    margin: 0 auto;
-    border: 1px solid #fff;
-    border-collapse: collapse;
+.agenda_day {
+    float:left;
+    color: #666666;
+    line-height: 16px;
+    overflow: hidden;
+    margin-bottom:5px;
 }
-/*The caption of the calendar (displays the month and the << and >> links*/
-#agenda_list .title {
-    background-color: #dcdcdc;
-    font-weight: bold;
-    font-size: 12px;
-    color: #666;
-    text-align: left;
-    padding: 2px 10px;
-    text-align: center;
-    border: 1px solid #bbb;
+.agenda-title{
+    font-size: 20px;
 }
-#agenda_list .title a:link, #agenda_list #title a:visited {
-    background-color: #dcdcdc;
-    font-weight: bold;
-    font-size: 11px;
-    color: #666;
-    padding: 2px 10px;
-    text-align: center;
+.days_today{
+    background-color: #E8E8E8;
 }
-#agenda_list .title a:hover {
-    background-color: #dcdcdc;
-    font-weight: bold;
-    font-size: 11px;
-    color: #f3840d;
-    padding: 2px 10px;
-    text-align: center;
-}
-/* The cells with the name of the days of the weeks (mon->sun)*/
-#agenda_list .weekdays, .data_table .weekdays {
-    background-color: #dcdcdc;
-    text-align: center;
-    font-weight: bold;
-    border: 1px solid #264269;
-    border-collapse: collapse;
-}
-/* The cells for the days (1->31) */
-#agenda_list .days_week {
-    height: 40px;
-    width: 12%;
-    text-align: left;
-    vertical-align: top;
-    border: 1px solid #ccc;
-    border-collapse: collapse;
-    background-color: #fff;
-}
-#agenda_list .days_week_selected {
-    height: 40px;
-    width: 12%;
-    text-align: left;
-    vertical-align: top;
-    border: 1px solid #ccc;
-    border-collapse: collapse;
-    background-color: #f5f5f5;
-}
-
-#agenda_list .days_weekend {
-    height: 40px;
-    width: 12%;
-    text-align: left;
-    vertical-align: top;
-    border: 1px solid #ccc;
-    border-collapse: collapse;
-    background-color: #e6e6e6;
-}
-#agenda_list .days_today {
-    height: 40px;
-    width: 12%;
-    text-align: left;
-    vertical-align: top;
-    border: 1px solid #ccc;
-    border-collapse: collapse;
-    background-color: #FFFFC0;
+.days_today .agenda_day {
+    float:left;
+    width:100%;
+    color: #000;
+    line-height: 16px;
+    overflow: hidden;
+    margin-bottom:5px;
 }
 
 #agenda_list th {
-    background-color:#E5EDF9;
-    border:1px solid gray;
-    padding-right:12px;
+    background-color: #F2F2F2;
 }
 
-/* text in the cells: display of agenda items (visible)*/
-#agenda_list .data {
-    background-color: #eee;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: bold;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-}
-#agenda_list .datanotbold {
-    background-color: #eee;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: normal;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-}
-#agenda_list .text {
-    background-color: #fff;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: normal;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-}
-/*text in the cells: display of agenda items (invisible)*/
-#agenda_list .data_hidden {
-    background-color: #eee;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: bold;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-    color: #999999;
-}
-#agenda_list .datanotbold_hidden {
-    background-color: #eee;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: normal;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-    color: #999999;
-}
-#agenda_list .text_hidden {
-    background-color: #fff;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: normal;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-    color: #999999;
-}
-/*text in the cells: display of agenda items (highlighted)*/
-#agenda_list .datanow {
-    background-color: #FFCC00;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: bold;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-}
-#agenda_list .datanotboldnow {
-    background-color: #FFCC00;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: normal;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
-}
-#agenda_list .textnow {
-    background-color: #fff;
-    text-align: left;
-    padding: 2px 10px;
-    font-weight: normal;
-    border: 0px solid #dcdcdc;
-    border-collapse: collapse;
+#agenda_list .days_week {
+    height: 100px;
 }
 /* ---------------------------------------------------
     styles for the mini agenda
@@ -759,47 +660,11 @@ a.personal_agenda:hover, a.personal_agenda:hover {
 
 .rounded_div_agenda {
     background: none repeat scroll 0 0 #FFFFFF;
-    -webkit-border-radius: 6px;
-    -opera-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
-    -webkit-box-shadow: 0 2px 5px #C8C8C8;
-    -opera-box-shadow: 0 2px 5px #C8C8C8;
-    -moz-box-shadow: 0 2px 5px #C8C8C8;
-    box-shadow: 0 2px 5px #C8C8C8;
     float: left;
     height: auto;
-    margin: 2px 4px 15px;
+    margin: 2px 4px 5px;
     padding: 8px;
-    width: 75%;
-}
-
-.agenda_day {
-    float:left;
-    width:100%;
-    background-color: #F8F9FF;
-    color: #666666;
-    line-height: 16px;
-    overflow: hidden;
-    margin-bottom:5px;
-}
-.days_today .agenda_day {
-    float:left;
-
-    width:100%;
-    background-color: #FAD163;
-    color: #666666;
-    line-height: 16px;
-    overflow: hidden;
-    margin-bottom:5px;
-}
-
-#agenda_list th {
-    background-color: #F2F2F2;
-}
-
-#agenda_list .days_week {
-    height: 100px;
+    width: 100%;
 }
 
 /* -------------- DOCUMENT --------------*/
@@ -1135,7 +1000,7 @@ div.attendance-calendar-add div.row div.formw,div.attendance-calendar-edit div.r
 }
 .tableFloatingHeaderOriginal{
     font-size: 12px;
-    height: 60px;
+    height: 64px;
 }
 /**********************************************
  *  MESSAGE TOOL                           *
@@ -1610,7 +1475,13 @@ div.admin_section h4 {
 
 
 /* Groups boxes */
-
+.toolbar-groups{
+    margin-bottom: 30px;
+}
+#group_edit .form-group label span{
+    display: block;
+    font-size: 12px;
+}
 .group_invitation_grid_container { width:100%;}
 .group_invitation_grid_item {
     border:1px dotted #CCCCCC;
@@ -1865,13 +1736,20 @@ div.admin_section h4 {
   box-shadow: 0px 1px 1px rgba(0,0,0,0.05);
   margin-bottom: 35px;
 }
-
+.question_row_score{
+    margin-bottom: 20px;
+    display: block;
+}
 .question_item {
     height:50px;
     padding:5px;
     margin:10px 0px 10px 0px;
 }
-
+.question-return{
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
 .option_item {
     width:150px;
     padding:3px;
@@ -2165,7 +2043,6 @@ div.admin_section h4 {
     float: left;
 }
 
-
 .ribbon .rib-success, .ribbon .ribbon-total-success{
     background-color: #768E00;
     background-image: -ms-linear-gradient(top, #9CB80A, #768E00);
@@ -2228,11 +2105,6 @@ div.admin_section h4 {
 .ribbon .rib::before {left: 0;}
 .ribbon .rib::after {right: 0;}
 
-
-.ribbon .success {
-
-}
-
 .ribbon .error {
     color: red;
 }
@@ -2251,28 +2123,30 @@ div.admin_section h4 {
 .exercise_save_now_button, .exercise_button{
     /* padding:5px; */
 }
-
-.time_container_warning {
-    background-color:#FFD700;
-    border:1px solid #B8860B;
-}
-
 /* Exercise clock*/
 .count_down {
     padding: 3px;
-    font-size:22px;
+    font-size:20px;
     font-weight:bold;
-    color:#222;
-    padding: 12px;
+    color:#2E75A3;
+    padding: 5px;
     text-align: center;
-    width:200px;
+    margin-bottom: 10px;
+    background: url(../../main/img/clock-exercise.png) no-repeat center center #FFF;
+    border: 1px solid #DDD;
+    border-radius: 5px;
 }
-
+.count_down.navbar-fixed-top{
+    border-radius: 0px;
+}
+.time_container_warning {
+    background: url(../../main/img/clock-exercise.png) no-repeat center center #FFD700;
+    border:1px solid #B8860B;
+}
 .red_alert {
     color:red;
     font-weight: bold;
 }
-
 #question_feedback {
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
@@ -2287,7 +2161,6 @@ div.admin_section h4 {
     margin-top:5px;
     padding:5px;
 }
-
 .userportal-order-courses-link {
     background-color: #F9F9F9;
     border-radius: 10px 10px 10px 10px;
@@ -2472,16 +2345,20 @@ form .formw .freeze {
   text-align: left;
   width: 100%;
 }
-
 .data_table_no_border td {
     line-height: normal;
     padding: 6px;
     text-align: left;
     vertical-align: middle;
 }
-
 .data_table tr.row_odd {
     background-color: #F9F9F9;
+}
+.attendance-users-table .data_table tr.row_odd {
+    height: 64px;
+}
+.attendance-users-table .data_table tr.row_even {
+    height: 60px;
 }
 .data_table tr.row_odd:hover, .data_table tr.row_even:hover {
     background-color: #E5EDF9;
@@ -2489,15 +2366,22 @@ form .formw .freeze {
 .data_table tr.row_even {
     background-color: #fff;
 }
-
+.attendance-calendar-table .data_table tr.row_odd {
+    height: 64px;
+}
+.attendance-calendar-table .data_table tr.row_even {
+    height: 60px;
+}
 .data_table_no_border td .highlight{
     font-weight: bold;
 }
-
 .data_table_pagination {
   width:100%;
   margin-top: 5px;
   margin-bottom: 5px;
+}
+.table{
+    font-size: 12px;
 }
 .table-well{
   background:#ffffff;
@@ -4819,6 +4703,9 @@ div#chat-remote-video video {
 #children .parent .big-icon .sequence-deleted{
   font-size: 12px;
 }
+.form-search{
+    padding-bottom: 50px;
+}
 /* INSTALL CHAMILO */
 #page-install .logo{
   text-align: center;
@@ -4864,6 +4751,10 @@ div#chat-remote-video video {
 }
 #page-install .page-header{
   margin: 20px 0px 20px;
+}
+.page-header h2{
+    font-size: 22px;
+    margin-top: 25px;
 }
 #page-install .normal-message{
   padding: 20px;
@@ -5121,7 +5012,7 @@ div#chat-remote-video video {
     width: 450px !important;
 }
 .ui-accordion .ui-accordion-content-active{
-
+    overflow: visible;
 }
 .ui-jqgrid-view .ui-widget-content a{
   color:#666666;
@@ -5861,9 +5752,16 @@ a.sessionView {
     padding-right: 15px;
     visibility: visible;
   }
+  .items-course{
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+  }
 }
 /* Landscape phones and down */
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+  
   #learning_path_breadcrumb_zone {
   }
   #learning_path_main{
@@ -5938,6 +5836,7 @@ a.sessionView {
   #show_graph{
    text-align: center;
   }
+  
 }
 @media (min-width : 480px) and (max-width: 767px) {
   #touch-button{
@@ -5945,6 +5844,9 @@ a.sessionView {
   }
   .sidebar-scorm{
     width: 100%;
+  }
+  .items-course{
+    padding: 15px;
   }
   #control-bottom.well{
     padding: 10px;
@@ -5979,8 +5881,41 @@ a.sessionView {
     footer #footer_right{
         text-align: center;
     }
+    .items-course{
+        padding: 5px;
+        min-height: 300px;
+    }
+    .col-xs-6{
+        width: 100%;
+    }
+    .gallery .canvas-two{
+        width: 100%;
+    }
 }
 
 .elfinder-cwd-filename {
     color: black !important;
+}
+
+
+#dropzone {
+    position: relative;
+    overflow: hidden;
+    direction: ltr;
+    cursor: pointer;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+    line-height: 50px;
+    background-color: #D4E6F0;
+    border: 2px dashed #bbbbbb;
+    font-size: 120%;
+    margin-bottom: 0;
 }

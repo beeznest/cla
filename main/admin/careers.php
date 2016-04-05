@@ -1,6 +1,8 @@
 <?php
 /* For licensing terms, see /license.txt */
 
+use ChamiloSession as Session;
+
 /**
  *  @package chamilo.admin
  */
@@ -31,11 +33,11 @@ $check = Security::check_token('request');
 $token = Security::get_token();
 
 if ($action == 'add') {
-    $interbreadcrumb[]=array('url' => 'careers.php','name' => get_lang('Careers'));
+    $interbreadcrumb[] = array('url' => 'careers.php', 'name' => get_lang('Careers'));
     $tool_name = get_lang('Add');
 } elseif ($action == 'edit') {
-    $interbreadcrumb[]=array('url' => 'careers.php','name' => get_lang('Careers'));
-    $interbreadcrumb[]=array('url' => '#','name' => get_lang('Edit'));
+    $interbreadcrumb[] = array('url' => 'careers.php', 'name' => get_lang('Careers'));
+    $interbreadcrumb[] = array('url' => '#', 'name' => get_lang('Edit'));
     $tool_name = get_lang('Edit');
 } else {
     $tool_name = get_lang('Careers');
@@ -104,7 +106,7 @@ switch ($action) {
         if (api_get_session_id() != 0 && !api_is_allowed_to_session_edit(false, true)) {
             api_not_allowed();
         }
-        $_SESSION['notebook_view'] = 'creation_date';
+        Session::write('notebook_view', 'creation_date');
 
         $url  = api_get_self().'?action='.Security::remove_XSS($_GET['action']);
         $form = $career->return_form($url, 'add');
@@ -122,7 +124,7 @@ switch ($action) {
         } else {
             echo '<div class="actions">';
             echo '<a href="'.api_get_self().'">'.
-                Display::return_icon('back.png',get_lang('Back'),'',ICON_SIZE_MEDIUM).'</a>';
+                Display::return_icon('back.png', get_lang('Back'), '', ICON_SIZE_MEDIUM).'</a>';
             echo '</div>';
             $form->addElement('hidden', 'sec_token');
             $form->setConstants(array('sec_token' => $token));
@@ -144,9 +146,15 @@ switch ($action) {
                 if ($res) {
                     Display::display_confirmation_message(get_lang('CareerUpdated'));
                     if ($values['status'] && !$old_status) {
-                        Display::display_confirmation_message(sprintf(get_lang('CareerXUnarchived'), $values['name']), false);
+                        Display::display_confirmation_message(
+                            sprintf(get_lang('CareerXUnarchived'), $values['name']),
+                            false
+                        );
                     } elseif (!$values['status'] && $old_status) {
-                        Display::display_confirmation_message(sprintf(get_lang('CareerXArchived'), $values['name']), false);
+                        Display::display_confirmation_message(
+                            sprintf(get_lang('CareerXArchived'), $values['name']),
+                            false
+                        );
                     }
                 }
             }

@@ -299,7 +299,7 @@ if (!empty($userList)) {
         );
 
         $courseUserLink = Display::url(
-            Display::return_icon('course.gif', get_lang('BlockCoursesForThisUser')),
+            Display::return_icon('course.png', get_lang('BlockCoursesForThisUser')),
             api_get_path(WEB_CODE_PATH).'session/session_course_user.php?id_user='.$user['user_id'].'&id_session='.$sessionId
         );
 
@@ -329,13 +329,14 @@ if (!empty($userList)) {
         }
 
         $editUrl = null;
+        /*
         if (isset($sessionInfo['duration']) && !empty($sessionInfo['duration'])) {
             $editUrl = api_get_path(WEB_CODE_PATH) . 'session/session_user_edit.php?session_id=' . $sessionId . '&user_id=' . $userId;
             $editUrl = Display::url(
                 Display::return_icon('agenda.png', get_lang('SessionDurationEdit')),
                 $editUrl
             );
-        }
+        }*/
 
         $table->setCellContents($row, 0, $userLink);
         $link = $reportingLink.$courseUserLink.$removeLink.$addUserToUrlLink.$editUrl;

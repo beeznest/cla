@@ -131,6 +131,7 @@ class Database
     public function connect($params = array(), $sysPath = '', $entityRootPath = '')
     {
         $config = self::getDoctrineConfig($entityRootPath);
+        $config->setAutoGenerateProxyClasses(true);
 
         $config->setEntityNamespaces(
             array(
@@ -329,8 +330,9 @@ class Database
             try {
                 $result = $connection->executeQuery($query);
             } catch (Exception $e) {
-                 error_log($e->getMessage());
+                error_log($e->getMessage());
                 api_not_allowed(false, get_lang('GeneralError'));
+
                 exit;
             }
         }
@@ -639,9 +641,8 @@ class Database
      */
     public static function getDoctrineConfig($path)
     {
-        $isDevMode = true;
-        $isSimpleMode = false;
-        $proxyDir = null;
+        $isDevMode = false;
+        $isSimpleMode = false; // related to annotations @Entity
         $cache = null;
         $path = !empty($path) ? $path : api_get_path(SYS_PATH);
 
@@ -651,11 +652,7 @@ class Database
             $path.'src/Chamilo/CourseBundle/Entity'
         );
 
-        /*$doctrineCache = api_get_path(SYS_ARCHIVE_PATH).'doctrine/';
-
-        if (!is_dir($doctrineCache)) {
-            mkdir($doctrineCache, api_get_permissions_for_new_directories(), true);
-        }*/
+        $proxyDir = $path.'app/cache/';
 
         return \Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(
             $paths,
