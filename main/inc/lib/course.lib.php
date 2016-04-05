@@ -4659,6 +4659,16 @@ class CourseManager
             $point_info = self::get_course_ranking($course_info['real_id'], 0);
             $my_course['extra_info']['rating_html'] = Display::return_rating_system('star_' . $course_info['real_id'],
                 $ajax_url . '&course_id=' . $course_info['real_id'], $point_info);
+            
+            $plugin = BuyCoursesPlugin::create();
+            $includeServices = $plugin->get('include_services') === 'true';
+            $serviceNode = null;
+            if ($includeServices) {
+                $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_COURSE, $course_info['real_id']);
+            }
+            
+            $my_course['extra_info']['services'] = $serviceNode ? $serviceNode : false;
+            $my_course['extra_info']['services_enable'] = $includeServices ? true : false;
 
             $hotCourses[] = $my_course;
         }

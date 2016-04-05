@@ -84,8 +84,8 @@
 
                             <div class="information-item">
                                 <h3 class="title-session">
-                                    <a href="{{ _p.web ~ 'session/' ~ session.id ~ '/about/' }}" title="{{ session.name }}">
-                                        {{ session.name }}
+                                    <a href="{{ _p.web ~ 'session/' ~ session.id ~ '/about/' }}" title="{{ session.name }} " class="{{ session.services ? 'serviceCheckFont' : '' }}">
+                                        {{ session.name }} {{ session.services ? '<em class="fa fa-diamond"></em>' : '' }}
                                     </a>
                                 </h3>
                                 <ul class="list-unstyled">
@@ -113,6 +113,11 @@
                                         <p>
                                             <a class="btn btn-info btn-block btn-sm" role="button" data-toggle="popover" id="session-{{ session.id }}-sequences">{{ 'SeeSequences'|get_lang }}</a>
                                         </p>
+                                        {% if session.services_enable %}
+                                            <p>
+                                                <a class="btn btn-warning btn-block btn-sm" role="button" data-toggle="popover" id="session-{{ session.id }}-services">{{ 'SeeServices'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                                            </p>
+                                        {% endif %}
                                         <p class="buttom-subscribed">
                                             {% if session.is_subscribed %}
                                                 {{ already_subscribed_label }}
@@ -169,6 +174,30 @@
                                                 {% endfor %}
                                             {% else %}
                                                 content = "{{ 'NoDependencies'|get_lang }}";
+                                            {% endif %}
+
+                                            return content;
+                                        }
+                                    });
+                                </script>
+                                <script>
+                                    $('#session-{{ session.id }}-services').popover({
+                                        placement: 'bottom',
+                                        html: true,
+                                        trigger: 'click',
+                                        content: function () {
+                                            var content = '';
+
+                                            {% if session.services %}
+                                                content += '<ul>';
+                                                {% for service in session.services %}
+                                                    content += '<li>';
+                                                    content += '{{ service.service.name }}';
+                                                    content += '</li>';
+                                                {% endfor %}
+                                                content += '</ul>';
+                                            {% else %}
+                                                content = "{{ 'NoServices'|get_plugin_lang('BuyCoursesPlugin') }}";
                                             {% endif %}
 
                                             return content;

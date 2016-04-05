@@ -1,5 +1,23 @@
+{% if wizard %}
+    <div class="page-header">
+        <div class="wizard text-center">
+            <a><span class="badge">1</span> {{ "Register" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+            <a class="current"><span class="badge">2</span> {{ "Payment" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+            <a><span class="badge badge-inverse">3</span> {{ "RegisterSubscriptors" | get_plugin_lang('BuyCoursesPlugin') }}</a>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#breadcrumb-bar").remove();
+        });
+    </script>
+{% endif %}
 <div class="alert alert-info">
-    {{ 'PayPalPaymentOKPleaseConfirm'|get_plugin_lang('BuyCoursesPlugin') }}
+    {% if buying_service %}
+        {{ 'ServicePayPalPaymentOKPleaseConfirm'|get_plugin_lang('BuyCoursesPlugin') }}
+    {% else %}
+        {{ 'PayPalPaymentOKPleaseConfirm'|get_plugin_lang('BuyCoursesPlugin') }}
+    {% endif %}
 </div>
 <div class="row">
     <div class="col-sm-6 col-md-5">
@@ -55,6 +73,22 @@
                             {% endfor %}
                         {% endfor %}
                     </dl>
+                </div>
+            </div>
+        {% elseif buying_service %}
+            <h3 class="page-header">{{ service.service.name }}</h3>
+            <div class="row">
+                <div class="col-sm-12 col-md-5">
+                    <p>
+                        <img alt="{{ service.service.name }}" class="img-responsive" style="margin: auto;" src="{{ _p.web }}plugin/buycourses/uploads/services/images/{{ service.service.image }}">
+                    </p>
+                    <p class="lead text-right">{{ service.currency == 'BRL' ? 'R$' : service.currency }} {{ service.price }}</p>
+                </div>
+                <div class="col-sm-12 col-md-7">
+                    <p><b>{{ 'StartDate'|get_plugin_lang('BuyCoursesPlugin') }}</b></p>
+                        <li>{{ service.date_start | format_date() }}</li>
+                    <p><b>{{ 'EndDate'|get_plugin_lang('BuyCoursesPlugin') }}</b></p>
+                        <li>{{ service.date_end | format_date() }}</li>
                 </div>
             </div>
         {% endif %}

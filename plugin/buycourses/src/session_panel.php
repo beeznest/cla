@@ -13,14 +13,19 @@ require_once '../../../main/inc/global.inc.php';
 
 $plugin = BuyCoursesPlugin::create();
 $includeSessions = $plugin->get('include_sessions') === 'true';
+$includeServices = $plugin->get('include_services') === 'true';
 
 $userInfo = api_get_user_info();
+
+if (!$userInfo) {
+    api_not_allowed();
+}
 
 $productTypes = $plugin->getProductTypes();
 $saleStatuses = $plugin->getSaleStatuses();
 $paymentTypes = $plugin->getPaymentTypes();
 
-$sales = $plugin->getSaleListByUserId($userInfo['id']);
+$sales = $plugin->getSaleListByUserId($userInfo['user_id']);
 
 $saleList = [];
 
@@ -39,23 +44,17 @@ foreach ($sales as $sale) {
     }
 }
 
-$toolbar = Display::toolbarButton(
-    $plugin->get_lang('CourseListOnSale'),
-    'course_catalog.php',
-    'search-plus',
-    'primary',
-    ['title' => $plugin->get_lang('CourseListOnSale')]
-);
+$interbreadcrumb[] = ['url' => '../index.php', 'name' => $plugin->get_lang('UserPanel')];
 
 $templateName = get_lang('TabsDashboard');
 $tpl = new Template($templateName);
 $tpl->assign('showing_courses', true);
 $tpl->assign('sessions_are_included', $includeSessions);
+$tpl->assign('services_are_included', $includeServices);
 $tpl->assign('sale_list', $saleList);
 
 $content = $tpl->fetch('buycourses/view/session_panel.tpl');
 
-$tpl->assign('actions', $toolbar);
 $tpl->assign('header', $templateName);
 $tpl->assign('content', $content);
 $tpl->display_one_col_template();

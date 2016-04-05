@@ -209,6 +209,117 @@ $saleTable->addForeignKeyConstraint(
     ['onDelete' => 'CASCADE']
 );
 
+
+$servicesTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICES);
+$servicesTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$servicesTable->addColumn('name', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('description', \Doctrine\DBAL\Types\Type::TEXT);
+$servicesTable->addColumn(
+    'price',
+    \Doctrine\DBAL\Types\Type::DECIMAL,
+    ['scale' => 2]
+);
+$servicesTable->addColumn('duration_days', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('renewable', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('applies_to', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('max_subscribers', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('owner_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('visibility', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesTable->addColumn('video_url', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('image', \Doctrine\DBAL\Types\Type::STRING);
+$servicesTable->addColumn('service_information', \Doctrine\DBAL\Types\Type::TEXT);
+$servicesTable->setPrimaryKey(['id']);
+
+$servicesNodeTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICES_NODE);
+$servicesNodeTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$servicesNodeTable->addColumn(
+        'service_id',
+        \Doctrine\DBAL\Types\Type::INTEGER,
+        ['unsigned' => true]
+);
+$servicesNodeTable->addColumn('reference', \Doctrine\DBAL\Types\Type::STRING);
+$servicesNodeTable->addColumn('currency_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn(
+    'price',
+    \Doctrine\DBAL\Types\Type::DECIMAL,
+    ['scale' => 2]
+);
+$servicesNodeTable->addColumn('node_type', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('node_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('buyer_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('buy_date', \Doctrine\DBAL\Types\Type::DATETIME);
+$servicesNodeTable->addColumn(
+        'date_start',
+        \Doctrine\DBAL\Types\Type::DATETIME,
+        ['notnull' => false]
+);
+$servicesNodeTable->addColumn(
+        'date_end',
+        \Doctrine\DBAL\Types\Type::DATETIME
+);
+$servicesNodeTable->addColumn('status', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('payment_type', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('recurring_payment', \Doctrine\DBAL\Types\Type::INTEGER);
+$servicesNodeTable->addColumn('recurring_profile_id', \Doctrine\DBAL\Types\Type::STRING);
+$servicesNodeTable->setPrimaryKey(['id']);
+$servicesNodeTable->addForeignKeyConstraint(
+    $servicesTable,
+    ['service_id'],
+    ['id'],
+    ['onDelete' => 'CASCADE']
+);
+
+$purchaseUserTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_PURCHASE_USER);
+$purchaseUserTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$purchaseUserTable->addColumn(
+        'service_sale_id',
+        \Doctrine\DBAL\Types\Type::INTEGER,
+        ['unsigned' => true]
+);
+$purchaseUserTable->addColumn('type', \Doctrine\DBAL\Types\Type::INTEGER);
+$purchaseUserTable->addColumn('type_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$purchaseUserTable->addColumn('subscriber_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$purchaseUserTable->setPrimaryKey(['id']);
+$purchaseUserTable->addForeignKeyConstraint(
+    $servicesNodeTable,
+    ['service_sale_id'],
+    ['id'],
+    ['onDelete' => 'CASCADE']
+);
+
+$serviceCourseSessionTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICE_COURSE_SESSION);
+$serviceCourseSessionTable->addColumn(
+    'id',
+    \Doctrine\DBAL\Types\Type::INTEGER,
+    ['autoincrement' => true, 'unsigned' => true]
+);
+$serviceCourseSessionTable->addColumn(
+        'service_id',
+        \Doctrine\DBAL\Types\Type::INTEGER,
+        ['unsigned' => true]
+);
+$serviceCourseSessionTable->addColumn('type', \Doctrine\DBAL\Types\Type::INTEGER);
+$serviceCourseSessionTable->addColumn('type_id', \Doctrine\DBAL\Types\Type::INTEGER);
+$serviceCourseSessionTable->setPrimaryKey(['id']);
+$serviceCourseSessionTable->addForeignKeyConstraint(
+    $servicesTable,
+    ['service_id'],
+    ['id'],
+    ['onDelete' => 'CASCADE']
+);
+
 $queries = $pluginSchema->toSql($platform);
 
 foreach ($queries as $query) {

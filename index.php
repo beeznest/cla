@@ -155,7 +155,17 @@ if ($useCookieValidation === 'true') {
 // When loading a chamilo page do not include the hot courses and news
 
 if (!isset($_REQUEST['include'])) {
-    $controller->tpl->assign('hot_sessions', $hotSessions);
+    if (api_get_setting('show_hot_courses') == 'true') {
+        $hot_courses = $controller->return_hot_courses();
+    }
+    $plugin = BuyCoursesPlugin::create();
+    $servicesOnly = $plugin->get('show_services_only') === 'true';
+    
+    if ($servicesOnly) {
+        $hotServices = $plugin->getServiceSale(null, null, null, null, null, true);
+        $controller->tpl->assign('show_services_only', true);
+        $controller->tpl->assign('hot_services', $hotServices);
+    }
     $announcements_block = $controller->return_announcements();
 }
 

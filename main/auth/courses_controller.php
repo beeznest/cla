@@ -42,8 +42,7 @@ class CoursesController
         $data['user_courses'] = $this->model->get_courses_of_user($user_id);
         $data['user_course_categories'] = $this->model->get_user_course_categories();
         $data['courses_in_category'] = $this->model->get_courses_in_category();
-        $data['all_user_categories'] = $this->model->get_user_course_categories(
-        );
+        $data['all_user_categories'] = $this->model->get_user_course_categories();
         $data['action'] = $action;
         $data['message'] = $message;
 
@@ -790,6 +789,13 @@ class CoursesController
                 $hasRequirements = true;
                 break;
             }
+            
+            $plugin = BuyCoursesPlugin::create();
+            $includeServices = $plugin->get('include_services') === 'true';
+            $serviceNode = null;
+            if ($includeServices) {
+                $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_SESSION, $session->getId());
+            }
 
             $sessionsBlock = array(
                 'id' => $session->getId(),
@@ -808,8 +814,8 @@ class CoursesController
                 ),
                 'show_description' => $session->getShowDescription(),
                 'tags' => $sessionCourseTags,
-                'description'=> $session->getDescription(),
-                'category_name'=> $session->getCategory()
+                'services' => $serviceNode ? $serviceNode : false,
+                'services_enable' => $includeServices ? true : false
             );
 
             $sessionsBlock = array_merge($sessionsBlock, $sequences);

@@ -1703,6 +1703,15 @@ class SocialManager extends UserManager
         $template->assign('user', $userInfo);
         $template->assign('social_avatar_block', $socialAvatarBlock);
         $template->assign('profile_edition_link', $profileEditionLink);
+        
+        $plugin = BuyCoursesPlugin::create();
+        $includeServices = $plugin->get('include_services') === 'true';
+        $serviceNode = null;
+        if ($includeServices) {
+            $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_USER, $userInfo['user_id']);
+            $template->assign('user_services', $serviceNode ? $serviceNode : false);
+        }
+        
         //Added the link to export the vCard to the Template
         
         //If not friend $show_full_profile is False and the user can't see Email Address and Vcard Download Link

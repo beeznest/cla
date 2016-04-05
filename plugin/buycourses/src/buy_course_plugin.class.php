@@ -19,16 +19,35 @@ class BuyCoursesPlugin extends Plugin
     const TABLE_TRANSFER = 'plugin_buycourses_transfer';
     const TABLE_COMMISSION = 'plugin_buycourses_commission';
     const TABLE_PAYPAL_PAYOUTS = 'plugin_buycourses_paypal_payouts';
+    const TABLE_SERVICES = 'plugin_buycourses_services';
+    const TABLE_SERVICES_NODE = 'plugin_buycourses_service_rel_node';
+    const TABLE_PURCHASE_USER = 'plugin_buycourses_purchase_rel_user';
+    const TABLE_SERVICE_COURSE_SESSION = 'plugin_buycourses_service_rel_course_session';
     const PRODUCT_TYPE_COURSE = 1;
     const PRODUCT_TYPE_SESSION = 2;
     const PAYMENT_TYPE_PAYPAL = 1;
     const PAYMENT_TYPE_TRANSFER = 2;
-    const PAYOUT_STATUS_CANCELED = 2;
+    const PAYOUT_STATUS_CANCELLED = 2;
     const PAYOUT_STATUS_PENDING = 0;
     const PAYOUT_STATUS_COMPLETED = 1;
-    const SALE_STATUS_CANCELED = -1;
+    const SALE_STATUS_CANCELLED = -1;
     const SALE_STATUS_PENDING = 0;
     const SALE_STATUS_COMPLETED = 1;
+    const SERVICE_STATUS_PENDING = 0;
+    const SERVICE_STATUS_COMPLETED = 1;
+    const SERVICE_STATUS_CANCELLED = -1;
+    const SERVICE_TYPE_USER = 1;
+    const SERVICE_TYPE_COURSE = 2;
+    const SERVICE_TYPE_SESSION = 3;
+    const SERVICE_TYPE_SUBSCRIPTION_PACKAGE = 4;
+    const SERVICE_RECURRING_PAYMENT_ENABLED = 1;
+    const SERVICE_RECURRING_PAYMENT_DISABLED = 0;
+    const PAYPAL_RECURRING_PAYMENT_CANCEL = 'Cancel';
+    const PAYPAL_RECURRING_PAYMENT_SUSPEND = 'Suspend';
+    const PAYPAL_RECURRING_PAYMENT_REACTIVATE = 'Reactivate';
+    const PAYPAL_AUTOBILLING_ENABLED = 'NoAutoBill';
+    const PAYPAL_AUTOBILLING_DISABLED = 'AddToNextBilling';
+    
 
     /**
      *
@@ -50,14 +69,17 @@ class BuyCoursesPlugin extends Plugin
                 Alex Aragón - BeezNest (Design icons and css styles) <br/>
                 Imanol Losada - BeezNest (introduction of sessions purchase) <br/>
                 Angel Fernando Quiroz Campos - BeezNest (cleanup and new reports) <br/>
-                José Loguercio Silva - BeezNest (pay teachers and commissions)
+                José Loguercio Silva - BeezNest (Payouts, Recurring Payments and Buy Services)
             ",
             array(
                 'show_main_menu_tab' => 'boolean',
                 'include_sessions' => 'boolean',
+                'include_services' => 'boolean',
+                'show_services_only' => 'boolean',
                 'paypal_enable' => 'boolean',
                 'transfer_enable' => 'boolean',
                 'commissions_enable' => 'boolean',
+                'disable_paypal_payment_confirmation' => 'boolean',
                 'unregistered_users_enable' => 'boolean'
             )
         );
@@ -76,7 +98,11 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_SALE,
             self::TABLE_CURRENCY,
             self::TABLE_COMMISSION,
-            self::TABLE_PAYPAL_PAYOUTS
+            self::TABLE_PAYPAL_PAYOUTS,
+            self::TABLE_PURCHASE_USER,
+            self::TABLE_SERVICES,
+            self::TABLE_SERVICES_NODE,
+            self::TABLE_SERVICE_COURSE_SESSION
         );
         $em = Database::getManager();
         $cn = $em->getConnection();
@@ -103,7 +129,11 @@ class BuyCoursesPlugin extends Plugin
             self::TABLE_SALE,
             self::TABLE_CURRENCY,
             self::TABLE_COMMISSION,
-            self::TABLE_PAYPAL_PAYOUTS
+            self::TABLE_PAYPAL_PAYOUTS,
+            self::TABLE_PURCHASE_USER,
+            self::TABLE_SERVICES_NODE,
+            self::TABLE_SERVICE_COURSE_SESSION,
+            self::TABLE_SERVICES
         );
 
         foreach ($tablesToBeDeleted as $tableToBeDeleted) {
@@ -832,6 +862,23 @@ class BuyCoursesPlugin extends Plugin
             ['id = ?' => intval($saleId)]
         );
     }
+    
+    /**
+     * Update the service sale status
+     * @param int $serviceSaleId The service sale ID
+     * @param int $newStatus The new status
+     * @return boolean
+     */
+    private function updateServiceSaleStatus($serviceSaleId, $newStatus = self::SERVICE_STATUS_PENDING)
+    {
+        $serviceSaleTable = Database::get_main_table(self::TABLE_SERVICES_NODE);
+
+        return Database::update(
+            $serviceSaleTable,
+            ['status' => intval($newStatus)],
+            ['id = ?' => intval($serviceSaleId)]
+        );
+    }
 
     /**
      * Complete sale process. Update sale status to completed
@@ -879,7 +926,7 @@ class BuyCoursesPlugin extends Plugin
      */
     public function cancelSale($saleId)
     {
-        $this->updateSaleStatus($saleId, self::SALE_STATUS_CANCELED);
+        $this->updateSaleStatus($saleId, self::SALE_STATUS_CANCELLED);
     }
 
     /**
@@ -927,9 +974,22 @@ class BuyCoursesPlugin extends Plugin
     public function getSaleStatuses()
     {
         return [
-            self::SALE_STATUS_CANCELED => $this->get_lang('SaleStatusCanceled'),
+            self::SALE_STATUS_CANCELLED => $this->get_lang('SaleStatusCancelled'),
             self::SALE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
             self::SALE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
+        ];
+    }
+    
+    /**
+     * Get the statuses for sales
+     * @return array
+     */
+    public function getServiceSaleStatuses()
+    {
+        return [
+            self::SERVICE_STATUS_CANCELLED => $this->get_lang('SaleStatusCancelled'),
+            self::SERVICE_STATUS_PENDING => $this->get_lang('SaleStatusPending'),
+            self::SERVICE_STATUS_COMPLETED => $this->get_lang('SaleStatusCompleted')
         ];
     }
     
@@ -940,9 +1000,23 @@ class BuyCoursesPlugin extends Plugin
     public function getPayoutStatuses()
     {
         return [
-            self::PAYOUT_STATUS_CANCELED => $this->get_lang('PayoutStatusCanceled'),
+            self::PAYOUT_STATUS_CANCELLED => $this->get_lang('PayoutStatusCancelled'),
             self::PAYOUT_STATUS_PENDING => $this->get_lang('PayoutStatusPending'),
             self::PAYOUT_STATUS_COMPLETED => $this->get_lang('PayoutStatusCompleted')
+        ];
+    }
+    
+    /**
+     * Get the list of service types
+     * @return array
+     */
+    public function getServiceTypes()
+    {
+        return [
+            self::SERVICE_TYPE_USER => get_lang('User'),
+            self::SERVICE_TYPE_COURSE => get_lang('Course'),
+            self::SERVICE_TYPE_SESSION => get_lang('Session'),
+            self::SERVICE_TYPE_SUBSCRIPTION_PACKAGE => $this->get_lang('SubscriptionPackage')
         ];
     }
 
@@ -1487,9 +1561,10 @@ class BuyCoursesPlugin extends Plugin
     /**
      * Verify if the beneficiary have a paypal account
      * @param int $userId
+     * @param boolean $returnAccount True if you want to return the paypal account
      * @return true if the user have a paypal account, false if not
      */
-    public function verifyPaypalAccountByBeneficiary($userId)
+    public function verifyPaypalAccountByBeneficiary($userId, $returnAccount = false)
     {
         $extraFieldTable = Database::get_main_table(TABLE_EXTRA_FIELD);
         $extraFieldValues = Database::get_main_table(TABLE_EXTRA_FIELD_VALUES);
@@ -1524,6 +1599,10 @@ class BuyCoursesPlugin extends Plugin
         
         if ($paypalAccount['value'] === '') {
             return false;
+        }
+        
+        if ($returnAccount) {
+            return $paypalAccount['value'];
         }
         
         return true;
@@ -1605,5 +1684,652 @@ class BuyCoursesPlugin extends Plugin
             ['commission' => intval($params['commission'])]
         );
     }
+    
+    /**
+     * Register addicional service
+     * @param array params $service
+     * @return database response
+     */
+    public function storeService($service)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        
+        $return = Database::insert(
+            $servicesTable,
+            [
+                'name' => Security::remove_XSS($service['name']),
+                'description' => Security::remove_XSS($service['description']),
+                'price' => $service['price'],
+                'duration_days' => intval($service['duration_days']),
+                'renewable' => intval($service['renewable']),
+                'applies_to' => intval($service['applies_to']),
+                'max_subscribers' => intval($service['max_subscribers']),
+                'owner_id' => intval($service['owner_id']),
+                'visibility' => intval($service['visibility']),
+                'image' => 'simg.png',
+                'video_url' => $service['video_url'],
+                'service_information' => $service['service_information']
+            ]
+        );
+        
+        if ($return) {
+            $img = str_replace('data:image/png;base64,', '', $service['cropResult']);
+            $img = str_replace(' ', '+', $img);
+            $data = base64_decode($img);
+            $file = api_get_path(SYS_PLUGIN_PATH).'buycourses/uploads/services/images/simg-'.$return.'.png';
+            file_put_contents($file, $data);
+            
+            Database::update(
+                $servicesTable,
+                ['image' => 'simg-'.$return.'.png'],
+                ['id = ?' => intval($return)]
+            );
+            return $return;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * update a service
+     * @param array $service
+     * @param integer $id
+     * @return database response
+     */
+    public function updateService($service, $id)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        
+        if (!empty($service['cropResult'])) {
+            $img = str_replace('data:image/png;base64,', '', $service['cropResult']);
+            $img = str_replace(' ', '+', $img);
+            $data = base64_decode($img);
+            $file = api_get_path(SYS_PLUGIN_PATH).'buycourses/uploads/services/images/simg-'.$id.'.png';
+            file_put_contents($file, $data);
+        }
+        
+        return Database::update(
+            $servicesTable,
+            [
+                'name' => Security::remove_XSS($service['name']),
+                'description' => Security::remove_XSS($service['description']),
+                'price' => $service['price'],
+                'duration_days' => intval($service['duration_days']),
+                'renewable' => intval($service['renewable']),
+                'applies_to' => intval($service['applies_to']),
+                'max_subscribers' => intval($service['max_subscribers']),
+                'owner_id' => intval($service['owner_id']),
+                'visibility' => intval($service['visibility']),
+                'image' => 'simg-'.$id.'.png',
+                'video_url' => $service['video_url'],
+                'service_information' => $service['service_information']
+            ],
+            ['id = ?' => intval($id)]
+        );
+    }
+    
+    /**
+     * Remove a service
+     * @param int $id The transfer account ID
+     * @return int Rows affected. Otherwise return false
+     */
+    public function deleteService($id)
+    {
+        return Database::delete(
+            Database::get_main_table(self::TABLE_SERVICES),
+            ['id = ?' => intval($id)]
+        );
+    }
+    
+    /**
+     * List adicional services
+     * @param integer $id service id
+     * @return array
+     */
+    public function getServices($id = null)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        $userTable = Database::get_main_table(TABLE_MAIN_USER);
+        
+        $conditions = null;
+        $showData = "all";
+        
+        if ($id) {
+            $conditions = ['WHERE' => ['s.id = ?' => $id]];
+            $showData = "first";
+        }
+        
+        $innerJoins = "INNER JOIN $userTable u ON s.owner_id = u.id";
+        $currency = $this->getSelectedCurrency();
+        $isoCode = $currency['iso_code'];
+        $return = Database::select(
+            "s.*, '$isoCode' as currency, u.firstname, u.lastname",
+            "$servicesTable s $innerJoins",
+            $conditions,
+            $showData
+        );
+        
+        $services = [];
+        
+        if ($id) {
+            $services['id'] = $return['id'];
+            $services['name'] = $return['name'];
+            $services['description'] = $return['description'];
+            $services['price'] = $return['price'];
+            $services['currency'] = $return['currency'];
+            $services['duration_days'] = $return['duration_days'];
+            $services['renewable'] = $return['renewable'];
+            $services['applies_to'] = $return['applies_to'];
+            $services['max_subscribers'] = $return['max_subscribers'];
+            $services['owner_id'] = $return['owner_id'];
+            $services['owner_name'] = api_get_person_name($return['firstname'], $return['lastname']);
+            $services['visibility'] = $return['visibility'];
+            $services['enrolled'] = "NO";
+            $services['image'] = $return['image'];
+            $services['video_url'] = $return['video_url'];
+            $services['service_information'] = $return['service_information'];
+            
+            return $services;
+        }
+        
+        foreach ($return as $index => $service) {
+            $services[$index]['id'] = $service['id'];
+            $services[$index]['name'] = $service['name'];
+            $services[$index]['description'] = $service['description'];
+            $services[$index]['price'] = $service['price'];
+            $services[$index]['currency'] = $service['currency'];
+            $services[$index]['duration_days'] = $service['duration_days'];
+            $services[$index]['renewable'] = $service['renewable'];
+            $services[$index]['applies_to'] = $service['applies_to'];
+            $services[$index]['max_subscribers'] = $service['max_subscribers'];
+            $services[$index]['owner_id'] = $service['owner_id'];
+            $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
+            $services[$index]['visibility'] = $service['visibility'];
+            $services[$index]['enrolled'] = "NO";
+            $services[$index]['image'] = $service['image'];
+            $services[$index]['video_url'] = $service['video_url'];
+            $services[$index]['service_information'] = $service['service_information'];
+        }
+                
+        return $services;
+    }
+    
+    /**
+     * Lists current service details
+     * @param string $name Optional. The name filter
+     * @param int $min Optional. The minimum price filter
+     * @param int $max Optional. The maximum price filter
+     * @param int $appliesTo Optional.
+     * @param int $renewable Optional.
+     * @return array
+     */
+    public function getCatalogServiceList($name = null, $min = 0, $max = 0, $appliesTo = '', $renewable = '')
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        $userTable = Database::get_main_table(TABLE_MAIN_USER);
+        
+        $whereConditions = [
+            's.id <> ? ' => 0
+        ];
+        
+        if (!empty($name)) {
+            $whereConditions['AND s.name LIKE %?%'] = $name;
+        }
+
+        if (!empty($min)) {
+            $whereConditions['AND s.price >= ?'] = $min;
+        }
+
+        if (!empty($max)) {
+            $whereConditions['AND s.price <= ?'] = $max;
+        }
+       
+        if (!$appliesTo == '') {
+            $whereConditions['AND s.applies_to = ?'] = $appliesTo;
+        }
+        
+        if (!$renewable == '') {
+            $whereConditions['AND s.renewable = ?'] = $renewable;
+        }
+        
+        $innerJoins = "INNER JOIN $userTable u ON s.owner_id = u.id";
+        $currency = $this->getSelectedCurrency();
+        $isoCode = $currency['iso_code'];
+        $return = Database::select(
+            "s.*, '$isoCode' as currency, u.firstname, u.lastname",
+            "$servicesTable s $innerJoins",
+            ['WHERE' => $whereConditions]
+        );
+        
+        $services = [];
+        
+        foreach ($return as $index => $service) {
+            $services[$index]['id'] = $service['id'];
+            $services[$index]['name'] = $service['name'];
+            $services[$index]['description'] = $service['description'];
+            $services[$index]['price'] = $service['price'];
+            $services[$index]['currency'] = $service['currency'];
+            $services[$index]['duration_days'] = $service['duration_days'];
+            $services[$index]['renewable'] = $service['renewable'];
+            $services[$index]['applies_to'] = $service['applies_to'];
+            $services[$index]['max_subscribers'] = $service['max_subscribers'];
+            $services[$index]['owner_id'] = $service['owner_id'];
+            $services[$index]['owner_name'] = api_get_person_name($service['firstname'], $service['lastname']);
+            $services[$index]['visibility'] = $service['visibility'];
+            $services[$index]['enrolled'] = "NO";
+            $services[$index]['image'] = api_get_path(WEB_PLUGIN_PATH).'buycourses/uploads/services/images/'.$service['image'];
+            $services[$index]['video_url'] = $service['video_url'];
+            $services[$index]['service_information'] = $service['service_information'];
+        }
+                
+        return $services;
+        
+    }
+    
+    /**
+     * Register a Service sale
+     * @param int $serviceId The service ID
+     * @param int $paymentType The payment type
+     * @param int $infoSelect The ID for Service Type
+     * @return boolean
+     */
+    public function registerServiceSale($serviceId, $paymentType, $infoSelect)
+    {
+        if (!in_array($paymentType, [self::PAYMENT_TYPE_PAYPAL, self::PAYMENT_TYPE_TRANSFER])) {
+            return false;
+        }
+        
+        $userId = api_get_user_id();
+
+        $service = $this->getServices($serviceId);
+
+        if (empty($service)) {
+            return false;
+        }
+        
+        if ($service['applies_to'] == self::SERVICE_TYPE_SUBSCRIPTION_PACKAGE) {
+            $usergroup = new UserGroup();
+            $usergroup->setGroupType($usergroup::SOCIAL_CLASS);
+            $values['name'] = $infoSelect;
+            $values['group_type'] = UserGroup::SOCIAL_CLASS;
+            $values['relation_type'] = GROUP_USER_PERMISSION_ADMIN;
+            $values['visibility'] = GROUP_PERMISSION_CLOSED;
+            $infoSelect = $groupId = $usergroup->save($values);
+            
+            if (!api_is_platform_admin()) {
+                $success = Database::update(
+                    Database::get_main_table(TABLE_MAIN_USER),
+                    ['status' => DRH],
+                    ['user_id = ?' => intval($userId)]
+                );
+
+                // this hack the user session to change the status to DRH without relogin
+                if ($success) {
+                    $_SESSION['_user']['status'] = DRH;
+                }
+            }
+        }
+        
+        $currency = $this->getSelectedCurrency();
+
+        $values = [
+            'service_id' => $serviceId,
+            'reference' => $this->generateReference(
+                $userId,
+                $service['applies_to'],
+                $infoSelect
+            ),
+            'currency_id' => $currency['id'],
+            'price' => $service['price'],
+            'node_type' => $service['applies_to'],
+            'node_id' => intval($infoSelect),
+            'buyer_id' => $userId,
+            'buy_date' => api_get_utc_datetime(),
+            'date_start' => api_get_utc_datetime(),
+            'date_end' => date_format(date_add(date_create(api_get_utc_datetime()), date_interval_create_from_date_string($service['duration_days'].' days')), 'Y-m-d H:i:s'),
+            'status' => self::SERVICE_STATUS_PENDING,
+            'payment_type' => intval($paymentType),
+            'recurring_payment' => self::SERVICE_RECURRING_PAYMENT_DISABLED,
+            'recurring_profile_id' => 'None'
+        ];
+        
+        $returnedServiceSaleId = Database::insert(self::TABLE_SERVICES_NODE, $values);
+        
+    if ($service['applies_to'] == self::SERVICE_TYPE_SUBSCRIPTION_PACKAGE) {
+        $fakeUsers = [
+            'service_sale_id' => $returnedServiceSaleId,
+            'type' => 0,
+            'type_id' => 0,
+            'subscriber_id' => 0
+        ];
+        
+        for ($i = 1; $i <= intval($service['max_subscribers']); $i++) {
+            Database::insert(self::TABLE_PURCHASE_USER, $fakeUsers);
+        }
+    }
+
+        return $returnedServiceSaleId;
+    }
+    
+    /**
+     * List services sales
+     * @param integer $id service id
+     * @param integer $buyerId buyer id
+     * @param integer $status status
+     * @param integer $nodeType The node Type ( User = 1 , Course = 2 , Session = 3 )
+     * @param integer $nodeId the nodeId
+     * @param boolean $hot enable hot services
+     * @return array
+     */
+    public function getServiceSale($id = null, $buyerId = null, $status = null, $nodeType = null, $nodeId = null, $hot = false)
+    {
+        $servicesTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES);
+        $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
+        
+        $conditions = null;
+        $showData = "all";
+        $groupBy = "";
+        
+        if ($id) {
+            $conditions = ['WHERE' => ['ss.id = ?' => $id]];
+            $showData = "first";
+        }
+        
+        if ($buyerId) {
+            $conditions = ['WHERE' => ['ss.buyer_id = ?' => $buyerId], 'ORDER' => 'id ASC'];
+        }
+        
+        if (is_numeric($status)) {
+            $conditions = ['WHERE' => ['ss.status = ?' => $status], 'ORDER' => 'id ASC'];
+        }
+        
+        if ($id && $buyerId) {
+            $conditions = ['WHERE' => ['ss.id = ? AND ss.buyer_id = ?' => [$id, $buyerId]], 'ORDER' => 'id ASC'];
+        }
+        
+        if ($nodeType && $nodeId) {
+            $conditions = ['WHERE' => ['ss.node_type = ? AND ss.node_id = ?' => [$nodeType, $nodeId]], 'ORDER' => 'id ASC'];
+        }
+        
+        if ($hot) {
+            $hot = "count(ss.service_id) as hot, ";
+            $conditions = ['ORDER' => 'hot DESC', 'LIMIT' => '6'];
+            $groupBy = "GROUP BY ss.service_id";
+        }
+        
+        $innerJoins = "INNER JOIN $servicesTable s ON ss.service_id = s.id $groupBy";
+        $currency = $this->getSelectedCurrency();
+        $isoCode = $currency['iso_code'];
+        $return = Database::select(
+            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.renewable, s.applies_to, s.owner_id, s.visibility, s.image, $hot '$isoCode' as currency",
+            "$servicesSaleTable ss $innerJoins",
+            $conditions,
+            $showData
+        );
+        
+        $buyer = api_get_user_info();
+        $servicesSale = [];
+        
+        if ($id) {
+            
+            $owner = api_get_user_info($return['owner_id']);
+            $buyer = api_get_user_info($return['buyer_id']);
+            
+            $servicesSale['id'] = $return['id'];
+            $servicesSale['service']['id'] = $return['service_id'];
+            $servicesSale['service']['name'] = $return['name'];
+            $servicesSale['service']['description'] = $return['description'];
+            $servicesSale['service']['price'] = $return['service_price'];
+            $servicesSale['service']['duration_days'] = $return['duration_days'];
+            $servicesSale['service']['renewable'] = $return['renewable'];
+            $servicesSale['service']['applies_to'] = $return['applies_to'];
+            $servicesSale['service']['owner']['id'] = $return['owner_id'];
+            $servicesSale['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
+            $servicesSale['service']['visibility'] = $return['visibility'];
+            $servicesSale['service']['image'] = $return['image'];
+            $servicesSale['reference'] = $return['reference'];
+            $servicesSale['currency_id'] = $return['currency_id'];
+            $servicesSale['currency'] = $return['currency'];
+            $servicesSale['price'] = $return['price'];
+            $servicesSale['node_type'] = $return['node_type'];
+            $servicesSale['node_id'] = $return['node_id'];
+            $servicesSale['buyer']['id'] = $buyer['user_id'];
+            $servicesSale['buyer']['name'] = api_get_person_name($buyer['firstname'], $buyer['lastname']);
+            $servicesSale['buy_date'] = $return['buy_date'];
+            $servicesSale['date_start'] = $return['date_start'];
+            $servicesSale['date_end'] = $return['date_end'];
+            $servicesSale['status'] = $return['status'];
+            $servicesSale['payment_type'] = $return['payment_type'];
+            $servicesSale['recurring_payment'] = $return['recurring_payment'];
+            $servicesSale['recurring_profile_id'] = $return['recurring_profile_id'];
+            
+            return $servicesSale;
+        }
+        
+        
+        foreach ($return as $index => $service) {
+            
+            $owner = api_get_user_info($service['owner_id']);
+            $buyer = api_get_user_info($service['buyer_id']);
+            
+            $servicesSale[$index]['id'] = $service['id'];
+            $servicesSale[$index]['service']['id'] = $service['service_id'];
+            $servicesSale[$index]['service']['name'] = $service['name'];
+            $servicesSale[$index]['service']['description'] = $service['description'];
+            $servicesSale[$index]['service']['price'] = $service['service_price'];
+            $servicesSale[$index]['service']['duration_days'] = $service['duration_days'];
+            $servicesSale[$index]['service']['renewable'] = $service['renewable'];
+            $servicesSale[$index]['service']['applies_to'] = $service['applies_to'];
+            $servicesSale[$index]['service']['owner']['id'] = $service['owner_id'];
+            $servicesSale[$index]['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
+            $servicesSale[$index]['service']['visibility'] = $service['visibility'];
+            $servicesSale[$index]['service']['image'] = $service['image'];
+            $servicesSale[$index]['reference'] = $service['reference'];
+            $servicesSale[$index]['currency_id'] = $service['currency_id'];
+            $servicesSale[$index]['currency'] = $service['currency'];
+            $servicesSale[$index]['price'] = $service['price'];
+            $servicesSale[$index]['node_type'] = $service['node_type'];
+            $servicesSale[$index]['node_id'] = $service['node_id'];
+            $servicesSale[$index]['buyer']['id'] = $service['buyer_id'];
+            $servicesSale[$index]['buyer']['name'] = api_get_person_name($buyer['firstname'], $buyer['lastname']);
+            $servicesSale[$index]['buy_date'] = $service['buy_date'];
+            $servicesSale[$index]['date_start'] = $service['date_start'];
+            $servicesSale[$index]['date_end'] = $service['date_end'];
+            $servicesSale[$index]['status'] = $service['status'];
+            $servicesSale[$index]['payment_type'] = $service['payment_type'];
+            $servicesSale[$index]['recurring_payment'] = $service['recurring_payment'];
+            $servicesSale[$index]['recurring_profile_id'] = $service['recurring_profile_id'];
+        }
+
+        return $servicesSale;
+    }
+    
+    /**
+     * Update service sale status to cancelled
+     * @param int $serviceSaleId The sale ID
+     */
+    public function cancelServiceSale($serviceSaleId)
+    {
+        $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_CANCELLED);
+    }
+    
+    /**
+     * Complete service sale process. Update service sale status to completed
+     * @param int $serviceSaleId The service sale ID
+     * @return boolean
+     */
+    public function completeServiceSale($serviceSaleId)
+    {
+        $serviceSale = $this->getServiceSale($serviceSaleId);
+
+        if ($serviceSale['status'] == self::SERVICE_STATUS_COMPLETED) {
+            return true;
+        }
+
+        $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
+
+        return true;
+    }
+    
+    /**
+     * Set the Recurring Profile ID
+     * @param string recurring profile Id
+     * @return Mixed
+     */
+    public function updateRecurringProfileId($serviceSaleId, $recurringProfileId)
+    {
+        $servicesSaleTable = Database::get_main_table(BuyCoursesPlugin::TABLE_SERVICES_NODE);
+
+        return Database::update(
+            $servicesSaleTable,
+            ['recurring_profile_id' => $recurringProfileId],
+            ['id = ?' => intval($serviceSaleId)]
+        );
+    }
+    
+    /**
+     * Check if a node got an activated service
+     * @param int $nodeType The node Type ( User = 1 , Course = 2 , Session = 3 )
+     * @param int $nodeId The node IDz
+     * @return Mixed Array if true, false if not
+     */
+    public function CheckServiceSubscribed($nodeType, $nodeId)
+    {
+        
+        $checked = $this->getServiceSale(null, null, null, $nodeType, $nodeId);
+        
+        if ($checked) {
+            
+            foreach ($checked as $service) {
+                
+            }
+
+            return $checked; 
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Enable Recurring Payment in a Service
+     * @param int $serviceSaleId the service Sale Id
+     * @param int $recurringPaymentStatus The recurring Payment Status ID
+     * @return boolean true, false
+     */
+    public function updateRecurringPayments($serviceSaleId, $recurringPaymentStatus)
+    {
+        
+        $serviceSaleTable = Database::get_main_table(self::TABLE_SERVICES_NODE);
+
+        return Database::update(
+            $serviceSaleTable,
+            ['recurring_payment' => intval($recurringPaymentStatus)],
+            ['id = ?' => intval($serviceSaleId)]
+        );
+    }
+    
+    /**
+     * get Subscribers Users by Service Sale Id
+     * @param int $serviceSaleId the service Sale Id
+     * @return boolean true, false
+     */
+    public function getSubscriberUsers($serviceSaleId)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        $return = Database::select(
+            "*",
+            "$purchaseUserTable",
+            ['WHERE' => ['service_sale_id = ?' => $serviceSaleId]]
+        );
+        
+        $users = [];
+        
+        foreach ($return as $index => $subscriber) {
+            if (intval($subscriber['subscriber_id']) !== 0) {
+                $users[$index] = api_get_user_info(intval($subscriber['subscriber_id']));
+                if ($subscriber['type'] == 1) {
+                    $users[$index]['Type'] = intval($subscriber['type']);
+                    $users[$index]['Course'] = api_get_course_info_by_id(intval($subscriber['type_id']));
+                } elseif ($subscriber['type'] == 2) {
+                    $users[$index]['Type'] = intval($subscriber['type']);
+                    $users[$index]['Session'] = api_get_session_info(intval($subscriber['type_id']));
+                }
+            } else {
+                $users[$index] = false;
+            }
+        }
+        
+        return $users;
+    }
+    
+    /**
+     * get Subscribers Users by Service Sale Id
+     * @param int $id the correlative id
+     * @return boolean true, false
+     */
+    public function getSubscriberUserByCorrelativeId($id)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        $return = Database::select(
+            "*",
+            "$purchaseUserTable",
+            ['WHERE' => ['id = ?' => $id]]
+        );
+        
+        $users = [];
+        
+        foreach ($return as $index => $subscriber) {
+            if (intval($subscriber['subscriber_id']) !== 0) {
+                $users[$index] = api_get_user_info(intval($subscriber['subscriber_id']));
+            } else {
+                $users[$index] = false;
+            }
+        }
+        
+        return $users;
+    }
+    
+    /**
+     * Update a subscribe user
+     * @param int $id the correlative id
+     * @param int $userId the user Id
+     * @param int $type the node type
+     * @param int $typeId the node typeId
+     * @return boolean true, false
+     */
+    public function updateSubscriberUser($id, $userId, $type, $typeId)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        return Database::update(
+            $purchaseUserTable,
+            ['type' => intval($type), 'type_id' => intval($typeId), 'subscriber_id' => intval($userId)],
+            ['id = ?' => intval($id)]
+        );
+    }
+    
+    /**
+     * Unsubscribe user
+     * @param int $id the correlative id
+     * @param int $userId the user Id
+     * @return boolean true, false
+     */
+    public function UnsubscribeUser($id)
+    {
+        
+        $purchaseUserTable = Database::get_main_table(self::TABLE_PURCHASE_USER);
+
+        return Database::update(
+            $purchaseUserTable,
+            ['type' => 0, 'type_id' => 0, 'subscriber_id' => 0],
+            ['id = ?' => intval($id)]
+        );
+    }
+    
 
 }

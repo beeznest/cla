@@ -16,6 +16,7 @@ $plugin = BuyCoursesPlugin::create();
 
 $paypalEnable = $plugin->get('paypal_enable');
 $commissionsEnable = $plugin->get('commissions_enable');
+$includeServices = $plugin->get('include_services');
 
 if (isset($_GET['order'])) {
     $sale = $plugin->getSale($_GET['order']);
@@ -53,7 +54,7 @@ if (isset($_GET['order'])) {
             );
 
             $urlToRedirect .= http_build_query([
-                'status' => BuyCoursesPlugin::SALE_STATUS_CANCELED,
+                'status' => BuyCoursesPlugin::SALE_STATUS_CANCELLED,
                 'sale' => $sale['id']
             ]);
             break;
@@ -170,13 +171,15 @@ if ($commissionsEnable == "true") {
 $template->assign('form', $form->returnForm());
 $template->assign('selected_sale', $selectedSale);
 $template->assign('selected_status', $selectedStatus);
+$template->assign('showing_courses_sessions', true);
+$template->assign('services_are_included', $includeServices);
 $template->assign('sale_list', $saleList);
-$template->assign('sale_status_canceled', BuyCoursesPlugin::SALE_STATUS_CANCELED);
+$template->assign('sale_status_cancelled', BuyCoursesPlugin::SALE_STATUS_CANCELLED);
 $template->assign('sale_status_pending', BuyCoursesPlugin::SALE_STATUS_PENDING);
 $template->assign('sale_status_completed', BuyCoursesPlugin::SALE_STATUS_COMPLETED);
 
 $content = $template->fetch('buycourses/view/sales_report.tpl');
 
-$template->assign('header', $templateName);
+
 $template->assign('content', $content);
 $template->display_one_col_template();

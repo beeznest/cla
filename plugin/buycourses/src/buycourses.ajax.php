@@ -10,7 +10,7 @@ $cidReset = true;
 
 require_once '../../../main/inc/global.inc.php';
 
-api_protect_admin_script(true);
+api_protect_admin_script(true, true);
 
 $plugin = BuyCoursesPlugin::create();
 
@@ -91,7 +91,7 @@ switch ($action) {
 
         $completedPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED);
         $pendingPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_PENDING);
-        $canceledPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_CANCELED);
+        $cancelledPayouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_CANCELLED);
         $currency = $plugin->getSelectedCurrency();
 
         foreach ($completedPayouts as $completed) {
@@ -105,10 +105,10 @@ switch ($action) {
             $stats['pending_total_amount'] += $pending['commission'];
             $stats['pending_total_amount'] = number_format($stats['pending_total_amount'], 2);
         }
-
-        foreach ($canceledPayouts as $canceled) {
-            $stats['canceled_count'] = count($canceledPayouts);
-            $stats['canceled_total_amount'] += $canceled['commission'];
+        
+        foreach ($cancelledPayouts as $cancelled) {
+            $stats['canceled_count'] = count($cancelledPayouts);
+            $stats['canceled_total_amount'] += $cancelled['commission'];
             $stats['canceled_total_amount'] = number_format($stats['canceled_total_amount'], 2);
         }
 
@@ -118,7 +118,7 @@ switch ($action) {
             . '<ul>'
                 . '<li>'. get_plugin_lang("PayoutsTotalCompleted", "BuyCoursesPlugin") .' <b>'. $stats['completed_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['completed_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
                 . '<li>'. get_plugin_lang("PayoutsTotalPending", "BuyCoursesPlugin") .' <b>'. $stats['pending_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['pending_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
-                . '<li>'. get_plugin_lang("PayoutsTotalCanceled", "BuyCoursesPlugin") .' <b>'. $stats['canceled_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['canceled_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
+                . '<li>'. get_plugin_lang("PayoutsTotalCancelled", "BuyCoursesPlugin") .' <b>'. $stats['canceled_count'] .'</b> - '. get_plugin_lang("TotalAmount", "BuyCoursesPlugin") .' <b>'. $stats['canceled_total_amount'] .' '. $currency['iso_code'] . '</b></li>'
             . '</ul>'
         . '</p>';
         $html .= '</div>';
@@ -166,8 +166,9 @@ switch ($action) {
                 . '<li>'. get_plugin_lang("TotalPayout", "BuyCoursesPlugin") .' <b>'. $isoCode .' '. $totalPayout .'</b></li>'
             . '</ul>'
         . '</p>';
-        $html .= '<p>'. get_plugin_lang("CautionThisProcessCantBeCanceled", "BuyCoursesPlugin") .'</p>';
-        $html .= '<br /><br />';
+
+        $html .= '<p>'. get_plugin_lang("CautionThisProcessCantBeCancelled", "BuyCoursesPlugin") .'</p>';
+        $html .= '</br></br>';
         $html .= '<div id="spinner" class="text-center"></div>';
 
         echo $html;
@@ -225,18 +226,83 @@ switch ($action) {
         }
 
         break;
-
-        case 'cancelPayout':
+        
+    case 'cancelPayout':
         if (api_is_anonymous()) {
             break;
         }
 
         // $payoutId only gets used in setStatusPayout(), where it is filtered
         $payoutId = isset($_POST['id']) ? $_POST['id'] : '';
-        $plugin->setStatusPayouts($payoutId, BuyCoursesPlugin::PAYOUT_STATUS_CANCELED);
-
+        $plugin->setStatusPayouts($payoutId, BuyCoursesPlugin::PAYOUT_STATUS_CANCELLED);
+        
         echo '';
 
+        break;
+    case 'subscribe_user':
+        
+        if (api_is_anonymous()) {
+            break;
+        }
+        
+        $subscribeSlot = isset($_POST['subscribe_slot']) ? intval($_POST['subscribe_slot']) : null;
+        $email = isset($_POST['email']) ? $_POST['email'] : null;
+        $type = isset($_POST['type']) ? intval($_POST['type']): null;
+        $typeId = isset($_POST['typeId']) ? intval($_POST['typeId']): null;
+        
+        if ($subscribeSlot && $email) {
+            $userExist = api_get_user_info_from_email($email);
+            if ($userExist) {
+                $userId = $userExist['user_id'];                
+            } else {
+                $userId = UserManager::createUserByEmail($email);
+            }
+            
+            $userInfo = api_get_user_info($userId);
+            UserManager::subscribeUsersToUser(api_get_user_id(), [$userId], USER_RELATION_TYPE_RRHH);
+            $result = $plugin->updateSubscriberUser($subscribeSlot, $userId, $type, $typeId);
+            
+            if ($result) {
+                Display::addFlash(Display::return_message($userInfo['email'] . ': ' . get_lang('AddedToCourse'), 'success'));
+            } else {
+                Display::addFlash(Display::return_message(get_lang('CannotSubscribeUser'), 'error'));
+            }
+        } else {
+            Display::addFlash(Display::return_message('Error: '.get_lang('ThisFieldIsRequired'), 'error'));
+        }
+        break;
+    case 'unsubscribe_user';
+        
+        if (api_is_anonymous()) {
+            break;
+        }
+        
+        $subscribeSlot = isset($_POST['subscribe_slot']) ? intval($_POST['subscribe_slot']) : null;
+        $type = isset($_POST['type']) ? intval($_POST['type']): null;
+        $typeId = isset($_POST['typeId']) ? intval($_POST['typeId']): null;
+        $groupId = isset($_POST['groupId']) ? intval($_POST['groupId']): null;
+        $userId = isset($_POST['userId']) ? intval($_POST['userId']): null;
+        
+        if ($type == 1) {
+            $courseInfo = api_get_course_info_by_id($typeId);
+            $courseCode = $courseInfo['code'];
+            CourseManager::unsubscribe_user($userId, $courseCode);
+            
+        } else if ($type == 2) {
+            $sessionId = $typeId;
+            SessionManager::unsubscribe_user_from_session($sessionId, $userId);
+        }
+        
+        $usergroup = new UserGroup();
+        $usergroup->delete_user_rel_group($userId, $groupId);
+        UserManager::unsubscribeUsersToUser(api_get_user_id(), [$userId], USER_RELATION_TYPE_RRHH);
+        $result = $plugin->UnsubscribeUser($subscribeSlot);
+        
+        if ($result) {
+            Display::addFlash(Display::return_message(get_lang('UserUnsubscribed'), 'success'));
+        } else {
+            Display::addFlash(Display::return_message(get_lang('CannotUnsubscribeUser'), 'error'));
+        }
         break;
 }
 exit;

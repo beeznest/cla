@@ -42,6 +42,27 @@
                 </div>
             </div>
         </div>
+        <!-- Block service list -->
+        {% if user_services_block %}
+            <div class="current-services">
+                <div class="panel-group" id="blockServiceList" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingOne">
+                            <h4 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#blockServiceList" href="#serviceList" aria-expanded="true" aria-controls="serviceList">
+                                    {{ 'UserServices'|get_plugin_lang('BuyCoursesPlugin') }}
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="serviceList" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                            <div class="panel-body">
+                                {{ user_services_block }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         {{ social_skill_block }}
         {{ social_group_info_block }}
         <!-- Block course list -->

@@ -13,10 +13,15 @@ require_once '../../../main/inc/global.inc.php';
 
 $plugin = BuyCoursesPlugin::create();
 $includeSessions = $plugin->get('include_sessions') === 'true';
+$includeServices = $plugin->get('include_services') === 'true';
 
 $userInfo = api_get_user_info();
 
-$payouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED, false, $userInfo['id']);
+if (!$userInfo) {
+    api_not_allowed();
+}
+
+$payouts = $plugin->getPayouts(BuyCoursesPlugin::PAYOUT_STATUS_COMPLETED, false, $userInfo['user_id']);
 
 $payoutList = [];
 
@@ -34,24 +39,17 @@ foreach ($payouts as $payout) {
         'status' => $payout['status']
     ];
 }
-
-$toolbar = Display::toolbarButton(
-    $plugin->get_lang('CourseListOnSale'),
-    'course_catalog.php',
-    'search-plus',
-    'primary',
-    ['title' => $plugin->get_lang('CourseListOnSale')]
-);
+$interbreadcrumb[] = ['url' => '../index.php', 'name' => $plugin->get_lang('UserPanel')];
 
 $templateName = get_lang('TabsDashboard');
 $tpl = new Template($templateName);
 $tpl->assign('showing_courses', true);
 $tpl->assign('sessions_are_included', $includeSessions);
+$tpl->assign('services_are_included', $includeServices);
 $tpl->assign('payout_list', $payoutList);
 
 $content = $tpl->fetch('buycourses/view/payout_panel.tpl');
 
-$tpl->assign('actions', $toolbar);
 $tpl->assign('header', $templateName);
 $tpl->assign('content', $content);
 $tpl->display_one_col_template();

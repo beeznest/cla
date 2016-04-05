@@ -70,6 +70,7 @@ function CallShortcutExpressCheckout($paymentAmount, $currencyCodeType, $payment
     $nvpstr = "&PAYMENTREQUEST_0_AMT=" . $paymentAmount;
     $nvpstr .= "&PAYMENTREQUEST_0_ITEMAMT=" . $paymentAmount;
     $nvpstr .= "&PAYMENTREQUEST_0_PAYMENTACTION=" . $paymentType;
+    $nvpstr .= "&PAYMENTREQUEST_0_SHIPTOSTREET=CCREJECT-REFUSED";
     $nvpstr .= "&RETURNURL=" . $returnURL;
     $nvpstr .= "&CANCELURL=" . $cancelURL;
     $nvpstr .= "&PAYMENTREQUEST_0_CURRENCYCODE=" . $currencyCodeType;
@@ -133,6 +134,31 @@ function CallMarkExpressCheckout($paymentAmount, $currencyCodeType, $paymentType
 
     $_SESSION["currencyCodeType"] = $currencyCodeType;
     $_SESSION["PaymentType"] = $paymentType;
+
+    /**
+     * Make the API call to PayPal
+     * If the API call succeded, then redirect the buyer to PayPal to begin to authorize payment.
+     * If an error occured, show the resulting errors
+     */
+    $resArray = hash_call("SetExpressCheckout", $nvpstr);
+    $ack = strtoupper($resArray["ACK"]);
+    if ($ack == "SUCCESS" || $ack == "SUCCESSWITHWARNING") {
+        $token = urldecode($resArray["TOKEN"]);
+        $_SESSION['TOKEN'] = $token;
+    }
+
+    return $resArray;
+}
+
+/**
+ * Purpose: 	Do a minimal Express Checkout to obtain a TOKEN.
+ * Inputs:
+ *		extraParameters:  	All the extra parameters you want to define
+ */
+function MinimalExpressCheckout($extraParameters)
+{
+    // Construct the parameter string that describes the SetExpressCheckout API call in the shortcut implementation
+    $nvpstr = $extraParameters;
 
     /**
      * Make the API call to PayPal
@@ -293,12 +319,10 @@ function DirectPayment($paymentType, $paymentAmount, $creditCardType, $creditCar
 /**
  * Purpose: 	This function makes a MassPay API call
  * Inputs:
- *		Beneficiarie:		Array that contains the Beneficiearie paypal account and the payout amount
- *		Currency Code:  	The currency Iso code
- * Returns:
- *		The NVP Collection object of the MassPay Call Response.
+ * @param   Beneficiarie:		Array that contains the Beneficiearie paypal account and the payout amount
+ * @param	Currency Code:  	The currency Iso code
+ * @return: The NVP Collection object of the MassPay Call Response.
  */
-
 function MassPayment(array $beneficiaries, $currencyCode) {
 
     $nvpstr = "&RECEIVERTYPE=EmailAddress";
@@ -313,6 +337,98 @@ function MassPayment(array $beneficiaries, $currencyCode) {
     }
 
     $resArray = hash_call("MassPay", $nvpstr);
+
+    return $resArray;
+}
+
+/**
+ * Purpose: 	This function create a recurring payment profile
+ * Inputs:
+ * @param   SubscriberName:    Full name of the person receiving the product or service paid for by the recurring payment. If not present, the name in the buyer's PayPal account is used.
+ * @param   ProfileStartDate: The date when billing for this profile begins. (note : The profile may take up to 24 hours for activation).
+ * @param   ProfileReference:  The merchant's own unique reference or invoice number.
+ * @param   ProfileDescription: The profile Descrtiption
+ * @param   BillingPeriod: Unit for billing during this subscription period. It is one of the following values: Day, Week, SemiMonth, Month, Year) For SemiMonth, billing is done on the 1st and 15th of each month.
+ * @param   BillingFrequency: Number of billing periods that make up one billing cycle. (The combination of billing frequency and billing period must be less than or equal to one year).
+ * @param   Amount: Billing amount for each billing cycle during this payment period. This amount does not include shipping and tax amounts.
+ * @param   CurrencyCode: Currency code (default is USD).
+ * @param   CustomerPaypalAccount:   Email address of customer. 
+ * @param   ExtraParams:    Extra Info params.
+      
+ * @return: The NVP Collection object of the CreateRecurringPaymentsProfile Call Response.
+ *
+ * 
+ * @author Jose Loguercio Silva <jose.loguercio@beeznest.com>
+ */
+function CreateRecurringPaymentsProfile($subscriberName, $profileStartDate, $reference, $desc, $billingPeriod, $billingFrequency, $atm, $currencyCode, $paypalAccount, $extra) {
+    
+    $token = urlencode($_SESSION['TOKEN']);
+    $payerID = urlencode($_SESSION['payer_id']);
+    
+    $nvpstr = "&TOKEN=$token";
+    $nvpstr .= "&SUBSCRIBERNAME=$subscriberName";
+    $nvpstr .= "&PROFILESTARTDATE=$profileStartDate";
+    $nvpstr .= "&PROFILEREFERENCE=$reference";
+    $nvpstr .= "&DESC=$desc";
+    $nvpstr .= "&BILLINGPERIOD=$billingPeriod";
+    $nvpstr .= "&BILLINGFREQUENCY=$billingFrequency";
+    $nvpstr .= "&MAXFAILEDPAYMENTS=3";
+    $nvpstr .= "&AMT=$atm";
+    $nvpstr .= "&CURRENCYCODE=$currencyCode";
+    $nvpstr .= "&AUTOBILLOUTAMT=NoAutoBill";
+    $nvpstr .= "&EMAIL=$paypalAccount";
+    $nvpstr .= "&PAYERID=$payerID";
+    $nvpstr .= $extra;
+    
+    $resArray = hash_call("CreateRecurringPaymentsProfile", $nvpstr);
+
+    return $resArray;
+}
+
+/**
+ * Purpose: 	This function manage a recurring payment profile Status
+ * Inputs:
+ * @param   ProfileID: The recurring Profile ID.
+ * @param   StatusAction: The status for the current profile ( Cancel, Suspend, Reactivate ).
+ * @return: The NVP Collection object of the ManageRecurringPaymentsProfileStatus Call Response.
+ */
+function ManageRecurringPaymentsProfileStatus($profileId, $statusAction) {
+    
+    $nvpstr = "&PROFILEID=$profileId";
+    $nvpstr .= "&ACTION=$statusAction";
+    
+    $resArray = hash_call("ManageRecurringPaymentsProfileStatus", $nvpstr);
+
+    return $resArray;
+}
+
+/**
+ * Purpose: 	This function update a recurring payment profile (just for now only to enable / disable Autobilling
+ * Inputs:
+ * @param   ProfileID: The recurring Profile ID.
+ * @param   AutoBillingOption: The option for Auto Billing ( NoAutoBill, AddToNextBilling ).
+ * @return: The NVP Collection object of the UpdateRecurringPaymentsProfile Call Response.
+ */
+function UpdateRecurringPaymentsProfile($profileId, $autoBillingOption) {
+    
+    $nvpstr = "&PROFILEID=$profileId";
+    $nvpstr .= "&AUTOBILLOUTAMT=$autoBillingOption";
+    
+    $resArray = hash_call("UpdateRecurringPaymentsProfile", $nvpstr);
+
+    return $resArray;
+}
+
+/**
+ * Purpose: 	Create an Individial Billing Agreement
+ * @return: The NVP Collection object of the CreateBillingAgreement Call Response.
+ */
+function CreateBillingAgreement()
+{
+    $token = urlencode($_SESSION['TOKEN']);
+    $nvpstr = "&TOKEN=$token";
+
+    $resArray = hash_call("CreateBillingAgreement", $nvpstr);
 
     return $resArray;
 }
