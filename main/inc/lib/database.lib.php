@@ -469,6 +469,7 @@ class Database
      * @example array('where'=> array('course_code LIKE "?%"'))
      * @example array('where'=> array('type = ? AND category = ?' => array('setting', 'Plugins'))
      * @example array('where'=> array('name = "Julio" AND lastname = "montoya"'))
+     * @example array('order'=> 'id ASC')
      */
     public static function select($columns, $table_name, $conditions = array(), $type_result = 'all', $option = 'ASSOC')
     {

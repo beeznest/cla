@@ -118,9 +118,22 @@ if ($query != '' || ($query_vars['search_type']=='1' && count($query_vars)>2) ) 
             } else {
                 $user_icon = Display::return_icon('teacher.png', get_lang('Teacher'), null, ICON_SIZE_TINY);
             }
-
+            
+            $plugin = BuyCoursesPlugin::create();
+            $includeServices = $plugin->get('include_services') === 'true';
+            $serviceNode = null;
+            $class = '';
+            $icon = '';
+            if ($includeServices) {
+                $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_USER, $user_info['user_id']);
+                if ($serviceNode) {
+                    $class = 'serviceCheckFont';
+                    $icon = '<em class="fa fa-diamond"></em>';
+                }
+            }
+            
             $tag = isset($user['tag']) ? ' <br /><br />'.$user['tag'] : null;
-            $user_info['complete_name'] = Display::url($user_info['complete_name'], $url);
+            $user_info['complete_name'] = Display::url($user_info['complete_name'].' '.$icon, $url, ['class' => $class]);
             $invitations = $user['tag'].$send_inv.$send_msg;
 
             $results .= '<div class="col-md-3">

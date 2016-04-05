@@ -12,6 +12,7 @@ require_once '../../../main/inc/global.inc.php';
 
 $plugin = BuyCoursesPlugin::create();
 $includeSessions = $plugin->get('include_sessions') === 'true';
+$includeServices = $plugin->get('include_services') === 'true';
 
 if (!$includeSessions) {
     api_not_allowed(true);
@@ -59,6 +60,11 @@ if (api_is_platform_admin()) {
         'url' => 'paymentsetup.php',
         'name' => $plugin->get_lang('PaymentsConfiguration')
     ];
+} else {
+    $interbreadcrumb[] = [
+        'url' => '../index.php',
+        'name' => $plugin->get_lang('UserPanel')
+    ];
 }
 
 $templateName = $plugin->get_lang('CourseListOnSale');
@@ -66,6 +72,7 @@ $templateName = $plugin->get_lang('CourseListOnSale');
 $template = new Template($templateName);
 $template->assign('search_filter_form', $form->returnForm());
 $template->assign('sessions_are_included', $includeSessions);
+$template->assign('services_are_included', $includeServices);
 $template->assign('showing_sessions', true);
 $template->assign('sessions', $sessionList);
 

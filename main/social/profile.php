@@ -683,11 +683,29 @@ if ($show_full_profile) {
     }
 }
 
+//Block Services
+$user_services = null;
+$plugin = BuyCoursesPlugin::create();
+$includeServices = $plugin->get('include_services') === 'true';
+if ($includeServices) {
+    $serviceNode = $plugin->CheckServiceSubscribed(BuyCoursesPlugin::SERVICE_TYPE_USER, $user_info['user_id']);
+    if ($serviceNode) {
+        $user_services = "<ul>";
+        foreach ($serviceNode as $service) {
+            $user_services .= '<li>'.$service['service']['name'].'</li>';
+        }
+        $user_services .= "</ul>";
+    }
+}
+
+
+
 $tpl = new Template(get_lang('Social'));
 // Block Avatar Social
 SocialManager::setSocialUserBlock($tpl, $user_id, 'shared_profile', 0, $show_full_profile);
 
 $tpl->assign('social_friend_block', $friend_html);
+$tpl->assign('user_services_block', $user_services);
 $tpl->assign('social_menu_block', $social_menu_block);
 $tpl->assign('social_wall_block', $social_wall_block);
 $tpl->assign('social_post_wall_block', $social_post_wall_block);

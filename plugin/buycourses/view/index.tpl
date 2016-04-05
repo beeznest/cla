@@ -21,20 +21,20 @@
 {% endif %}
 
 <div class="row">
-    <div class="col-md-3">
-        <div class="thumbnail">
-            <a href="src/course_catalog.php">
-                <img src="resources/img/128/buycourses.png">
-            </a>
-            <div class="caption">
-                <p class="text-center">
-                    <a class="btn btn-default btn-sm" href="src/course_catalog.php">{{ 'BuyCourses'|get_plugin_lang('BuyCoursesPlugin') }}</a>
-                </p>
-            </div>
-        </div>
-    </div>
 
     {% if _u.is_admin %}
+        <div class="col-md-3">
+            <div class="thumbnail">
+                <a href="src/course_catalog.php">
+                    <img src="resources/img/128/buycourses.png">
+                </a>
+                <div class="caption">
+                    <p class="text-center">
+                        <a class="btn btn-default btn-sm" href="src/course_catalog.php">{{ 'BuyCourses'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
         <div class="col-md-3">
             <div class="thumbnail">
                 <a href="src/configuration.php">
@@ -67,6 +67,47 @@
                 <div class="caption">
                     <p class="text-center">
                         <a class="btn btn-default btn-sm" href="src/sales_report.php"> {{ 'SalesReport'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-md-3">
+            <div class="thumbnail">
+                {% if show_services_only %}
+                    <a href="src/service_catalog.php">
+                {% else %}
+                    <a href="src/course_catalog.php">
+                {% endif %}
+                    <img src="resources/img/128/buycourses.png">
+                </a>
+                <div class="caption">
+                    <p class="text-center">
+                        {% if show_services_only %}
+                            <a class="btn btn-default btn-sm" href="src/service_catalog.php">{{ 'BuyCourses'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                        {% else %}
+                            <a class="btn btn-default btn-sm" href="src/course_catalog.php">{{ 'BuyCourses'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="thumbnail">
+                {% if show_services_only %}
+                    <a href="src/service_panel.php">
+                {% else %}
+                    <a href="src/course_panel.php">
+                {% endif %}    
+                    <img src="resources/img/128/report.png">
+                </a>
+                <div class="caption">
+                    <p class="text-center">
+                        {% if show_services_only %}
+                            <a class="btn btn-default btn-sm" href="src/service_panel.php">{{ 'TabsDashboard'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                        {% else %}
+                            <a class="btn btn-default btn-sm" href="src/course_panel.php">{{ 'TabsDashboard'|get_plugin_lang('BuyCoursesPlugin') }}</a>
+                        {% endif %}                        
                     </p>
                 </div>
             </div>

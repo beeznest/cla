@@ -13,7 +13,15 @@
             {{ "CourseCatalog"|get_lang }}
         </a>
     {% else %}
-        {{ "PleaseAllowUsALittleTimeToSubscribeYouToOneOfOurCourses"|get_lang }}
+        {% if show_services_only %}
+            {{ "GoAheadAndBrowseOurStoreCatalogOnceBuyYouCanAccessToServicesPanelToManage" | get_plugin_lang('BuyCoursesPlugin') }}
+            
+            <a class="btn btn-primary btn-large" href="{{ service_catalog_url }}">
+                {{ "ServiceCatalog" | get_plugin_lang('BuyCoursesPlugin')  }}
+            </a>
+        {% else %}
+            {{ "PleaseAllowUsALittleTimeToSubscribeYouToOneOfOurCourses"|get_lang }}
+        {% endif %}
     {% endif %}
 
 {% endif %}

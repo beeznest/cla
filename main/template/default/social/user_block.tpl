@@ -14,8 +14,8 @@
                         {{ social_avatar_block }}
                         
                         <ul class="list-user-data">
-                            <li class="item">
-                                {{ user.complete_name }}
+                            <li class="item {{ user_services ? 'serviceCheckFont' : '' }}">
+                                {{ user.complete_name }} {{ user_services ? '<em class="fa fa-diamond"></em>' : '' }}
                             </li>
                             {% if vcard_user_link  %}
                                 <li class="item">
