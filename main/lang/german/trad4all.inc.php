@@ -2,7 +2,7 @@
 /*
 for more information: see languages.txt in the lang folder.
 */
-$OpenBadgesBannerText = "Sie können Badges für die Kompetenzen erstellen, die die User erlernen. Diese werden im Userprofil angezeigt und dienen als Anzeige und Anerkennung des Fortschritts. Für mehr Informationen gehen Sie bitte auf <a href=\"http://http://openbadges.org/\">http://http://openbadges.org/</a>.";
+$OpenBadgesBannerText = "Sie können Badges für die Kompetenzen erstellen, die die User erlernen. Diese werden im Userprofil angezeigt und dienen als Anzeige und Anerkennung des Fortschritts. Für mehr Informationen gehen Sie bitte auf <a href=\"http://openbadges.org/\">http://openbadges.org/</a>.";
 $OpenBadgesIntroduction = "Sie können jetzt Badges für die Fähigkeiten erstellen, die die User im Verlauf Ihrer Kurse auf dem virtuellen Campus erwerben.";
 $DesignANewBadgeComment = "Entwerfe ein neues Badge, lade es aus dem Designtool herunter und lade es auf die Plattform hoch.";
 $TheBadgesWillBeSentToThatBackpack = "Die Badges werden in den Rucksack gesendet.";
@@ -5135,7 +5135,7 @@ $ViewUsersWithTask = "Erhaltene Ausarbeitungen";
 $ReminderMessage = "Erinnerung senden";
 $DateSent = "Absendedatum";
 $ViewUsersWithoutTask = "Fehlende Ausarbeitungen anzeigen";
-$SuggestionOnlyToEnableSubLanguageFeature = "Vorschlag erfolgt nur, wenn das Untersprachenfeature aktiviert wurde";
+$SuggestionOnlyToEnableSubLanguageFeatureOrUpgradeProcess = "Vorschlag erfolgt nur, wenn das Untersprachenfeature aktiviert wurde";
 $ThematicAdvance = "Thematischer Aufbau";
 $EditProfile = "Profil bearbeiten";
 $TabsDashboard = "Kontroll-Anzeige";

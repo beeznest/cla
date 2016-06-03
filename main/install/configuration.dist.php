@@ -99,11 +99,12 @@ $_configuration[1]['hosting_limit_disk_space'] = 0;
 // Should always be lower than the hosting_limit_courses.
 // If set, defining a course as "hidden" will free room for
 // new courses (up to the hosting_limit_courses, if any value is set there).
-// hosting_limit_enabled_courses is the maximum number of courses that are *not* hidden.
+// hosting_limit_active_courses is the maximum number of courses that are *not* hidden.
 $_configuration[1]['hosting_limit_active_courses'] = 0;
 // Email to warn if limit was reached.
 //$_configuration[1]['hosting_contact_mail'] = 'example@example.org';
 // Portal size limit in MB (set to 1024 for 1GB, 5120 for 5GB, etc).
+// Check main/cron/hosting_total_size_limit.php for how to use this limit.
 $_configuration['hosting_total_size_limit'] = 0;
 
 /**
@@ -223,6 +224,7 @@ $_configuration['system_stable'] = NEW_VERSION_STABLE;
 // 1 = Default. Works as it is now (default is to link to the special session page)
 // 0 = No link (not clickable)
 // 2 = Link to the course if there is only one course
+// 3 = Session link will make course list foldable
 //$_configuration['courses_list_session_title_link'] = 1;
 // Fix embedded videos inside lps, adding an optional popup
 //$_configuration['lp_fix_embed_content'] = false;
@@ -232,9 +234,16 @@ $_configuration['system_stable'] = NEW_VERSION_STABLE;
 //$_configuration['session_hide_tab_list'] = array();
 // Show invisible exercise in LP list
 //$_configuration['show_invisible_exercise_in_lp_list'] = false;
-//Allow send a push notification when an email are sent
+// Allow send a push notification when an email are sent
 //$_configuration['messaging_allow_send_push_notification'] = 'true';
-//Project number in the Google Developer Console
+// Project number in the Google Developer Console
 //$_configuration['messaging_gdc_project_number'] = '';
-//Api Key in the Google Developer Console
+// Api Key in the Google Developer Console
 //$_configuration['messaging_gdc_api_key'] = '';
+// Text to speech google app id
+//$_configuration['translate_app_google_key'] = '';
+// Reference to the packager system or provider through which
+// Chamilo is installed/downloaded. Packagers can change this
+// to reflect their packaging method. The default value is 'chamilo'. This will
+// be reflected on the https://version.chamilo.org/stats page in the future.
+//$_configuration['packager'] = 'chamilo';

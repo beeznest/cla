@@ -364,8 +364,11 @@ if (isset($_POST['title'])) {
     }
 }
 
+$redirectTo = null;
+
 switch ($action) {
     case 'add_item':
+
         if (!$is_allowed_to_edit) {
             api_not_allowed(true);
         }
@@ -1094,10 +1097,12 @@ switch ($action) {
         if (!$lp_found) {
             error_log('New LP - No learnpath given for content', 0);
             require 'lp_list.php';
-        }
-        else {
+        } else {
+            if ($debug > 0) error_log('New LP - save_last()', 0);
             $_SESSION['oLP']->save_last();
+            if ($debug > 0) error_log('New LP - set_current_item()', 0);
             $_SESSION['oLP']->set_current_item($_GET['item_id']);
+            if ($debug > 0) error_log('New LP - start_current_item()', 0);
             $_SESSION['oLP']->start_current_item();
             require 'lp_content.php';
         }
@@ -1385,6 +1390,28 @@ switch ($action) {
             'lp_id' => $_SESSION['oLP']->lp_id
         ]));
         break;
+    case 'add_final_item':
+        if (!$lp_found) {
+            Display::addFlash(
+                Display::return_message(get_lang('NoLPFound'), 'error')
+            );
+            break;
+        }
+
+        $_SESSION['refresh'] = 1;
+
+        if (!isset($_POST['submit']) || empty($post_title)) {
+            break;
+        }
+
+        $_SESSION['oLP']->getFinalItemForm();
+
+        $redirectTo = api_get_self() . '?' . http_build_query([
+            'action' => 'add_item',
+            'type' => 'step',
+            'lp_id' => intval($_SESSION['oLP']->lp_id)
+        ]);
+        break;
     default:
         if ($debug > 0) error_log('New LP - default action triggered', 0);
         require 'lp_list.php';
@@ -1394,4 +1421,8 @@ switch ($action) {
 if (!empty($_SESSION['oLP'])) {
     $_SESSION['lpobject'] = serialize($_SESSION['oLP']);
     if ($debug > 0) error_log('New LP - lpobject is serialized in session', 0);
+}
+
+if (!empty($redirectTo)) {
+    header("Location: $redirectTo");
 }

@@ -25,25 +25,33 @@ $learnPath = $_SESSION['oLP'];
 $htmlHeadXtra[] = '<script>'.
 
 $learnPath->get_js_dropdown_array() .
+"
+    function load_cbo(id) {
+        if (!id) {
+            return false;
+        }
 
-'function load_cbo(id){' ."\n" .
-  'if (!id) {return false;}'.
-  'var cbo = document.getElementById(\'previous\');' .
-  'for(var i = cbo.length - 1; i > 0; i--) {' .
-    'cbo.options[i] = null;' .
-  '}' ."\n" .
-  'var k=0;' .
-  'for(var i = 1; i <= child_name[id].length; i++){' ."\n" .
-  '  cbo.options[i] = new Option(child_name[id][i-1], child_value[id][i-1]);' ."\n" .
-  '  k=i;' ."\n" .
-  '}' ."\n" .
-  //'if( typeof cbo != "undefined" ) {'."\n" .
-  'cbo.options[k].selected = true;'."\n" .
-   //'}'."\n" .
+        var cbo = document.getElementById('previous');
 
-   '$(\'#previous\').selectpicker(\'refresh\');' .
-'}
+        for(var i = cbo.length - 1; i > 0; i--) {
+            cbo.options[i] = null;
+        }
 
+        var k=0;
+
+        for(var i = 1; i <= child_name[id].length; i++){
+            var option = new Option(child_name[id][i - 1], child_value[id][i - 1]);
+            option.style.paddingLeft = '40px';
+
+            cbo.options[i] = option;
+            k = i;
+        }
+
+        cbo.options[k].selected = true;
+        $('#previous').selectpicker('refresh');
+    }
+" .
+'
 $(function() {
     if ($(\'#previous\')) {
         if(\'parent is\'+$(\'#idParent\').val()) {
@@ -267,7 +275,7 @@ if (isset($new_item_id) && is_numeric($new_item_id)) {
         case 'module':
             echo $learnPath->display_item_form($type, get_lang('EnterDataNewModule'));
             break;
-        case 'document':
+        case TOOL_DOCUMENT:
             if (isset($_GET['file']) && is_numeric($_GET['file'])) {
                 echo $learnPath->display_document_form('add', 0, $_GET['file']);
             } else {
@@ -277,20 +285,20 @@ if (isset($new_item_id) && is_numeric($new_item_id)) {
         case 'hotpotatoes':
             echo $learnPath->display_hotpotatoes_form('add', 0, $_GET['file']);
             break;
-        case 'quiz':
+        case TOOL_QUIZ:
             echo Display::display_warning_message(get_lang('ExerciseCantBeEditedAfterAddingToTheLP'));
             echo $learnPath->display_quiz_form('add', 0, $_GET['file']);
             break;
-        case 'forum':
+        case TOOL_FORUM:
             echo $learnPath->display_forum_form('add', 0, $_GET['forum_id']);
             break;
         case 'thread':
             echo $learnPath->display_thread_form('add', 0, $_GET['thread_id']);
             break;
-        case 'link':
+        case TOOL_LINK:
             echo $learnPath->display_link_form('add', 0, $_GET['file']);
             break;
-        case 'student_publication':
+        case TOOL_STUDENTPUBLICATION:
             $extra = isset($_GET['file']) ? $_GET['file'] : null;
             echo $learnPath->display_student_publication_form('add', 0, $extra);
             break;

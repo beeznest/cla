@@ -56,6 +56,7 @@
   <li><a href="#10.igbinary">IGBinary for faster courses backups and better sessions</a></li>
   <li><a href="#11.permissions-check">Removing files download permissions check</a></li>
   <li><a href="#12.MySQL-compression">MySQL/MariaDB compression</a></li>
+  <li><a href="#13.increasing-php-limits">Increasing PHP limits</a></li>
 </ol>
 
 <h2><a name="1.Using-XCache"></a>1. Using opcaches</h2>
@@ -341,7 +342,7 @@ ALTER TABLE user_rel_tag ADD INDEX idx_user_rel_tag_user (user_id);
 In Chamilo 1.10.0 (the first version of the serie), many indexes were forgotten, so you can boost your database by adding the following indexes:<br />
 <pre>
 alter table extra_field_values add index idx_extra_field_values (field_id, item_id);
-alter table usergroup_rel_user add index idx_usergroup_ru (group_id);
+alter table usergroup_rel_user add index idx_usergroup_ru (usergroup_id);
 alter table usergroup_rel_user add index idx_usergroup_ru_u (user_id);
 alter table c_student_publication add index idxstudpub_cid (c_id);
 alter table c_student_publication add index idxstudpub_uid (user_id);
@@ -350,10 +351,13 @@ alter table c_quiz_rel_question ADD INDEX idx_cqrq_qid (question_id);
 alter table c_quiz_rel_question ADD INDEX idx_cqrq_cid (c_id);
 alter table c_quiz_answer add index idx_qa_cidqid (c_id, question_id);
 </pre>
+In Chamilo 1.10.6, an additional query was confirmed to still have effect a considerable effect:
+<pre>
+alter table c_quiz_question_rel_category add index idx_qqrc_qid (question_id);
+</pre>
 <hr />
 <h2><a name="3.Indexes-caching"></a>3. Indexes caching</h2>
 One good reference: <a href="http://dev.mysql.com/doc/refman/5.1/en/multiple-key-caches.html">MySQL documentation on multiple key caches</a><br />
-
 <hr />
 
 <h2><a name="4.Sessions-directories"></a>4. Sessions directories</h2>
@@ -406,9 +410,9 @@ Header append Vary User-Agent env=!dont-vary
 </pre>
 <hr />
 Don't have time or resources to optimize your Chamilo installation yourself? Hire an <a href="http://www.chamilo.org/en/providers">official Chamilo provider</a> and get it sorted out professionally by specialists.
-    <a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" style="margin: 1em; float: right;" height="31" width="88" /></a>
+    <a href="http://validator.w3.org/check?uri=referer"><img src="//www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" style="margin: 1em; float: right;" height="31" width="88" /></a>
 	<a href="http://jigsaw.w3.org/css-validator/">
-		<img src="http://jigsaw.w3.org/css-validator/images/vcss-blue" style="margin: 1em; float: right;" alt="Valid CSS" />
+		<img src="//jigsaw.w3.org/css-validator/images/vcss-blue" style="margin: 1em; float: right;" alt="Valid CSS" />
 	</a>
 <hr />
 
@@ -554,23 +558,23 @@ This is easy, doesn't require a server reload and you should see the results pre
     you should avoid using this technique.
 </p>
 <p>
-You can also mitigate the risk by disabling permissions check only 
+You can also mitigate the risk by disabling permissions check only
 for some static resource like css,js and fonts files.
 <br/>
-For that is required to load header module  
+For that is required to load header module
 in apache (check with a2enmod in your favorite root terminal)<br />
 add theses line after RewriteBase /courses/:
 <pre>
 &lt;IfModule mod_headers.c&gt;
     # all file name ended with these  extensions names will bypass the permission check   (and also served by the browser cache at  the next request)
     &lt;FilesMatch &quot;\.(gif|jpg|jpeg|png|js|pdf|ico|icon|css|swf|avi|mp3|ogg|wav|ttf|otf|eot|woff)$&quot;&gt;
-        Header unset Cache-Control  
-        Header set Cache-Control &quot;public, max-age=29030400&quot; 
-        RequestHeader unset Cookie      
+        Header unset Cache-Control
+        Header set Cache-Control &quot;public, max-age=29030400&quot;
+        RequestHeader unset Cookie
         Header unset ETag
     &lt;/FilesMatch&gt;
 &lt;/IfModule&gt;
-# also adjust files here 
+# also adjust files here
 RewriteRule (\.(html|gif|jpg|jpeg|png|js|pdf|ico|icon|css|swf|avi|mp3|ogg|wav|ttf|otf|eot|woff))$ - [L]
 </pre>
 </p>
@@ -598,16 +602,45 @@ In 1.10.0, we have added the possibility to enable this compression very
 This should have an immediate effect on the load average on your server.
 </p>
 <hr />
+<h2><a name="13.increasing-php-limits"></a>Increasing PHP limits</h2>
+<p>
+    As your use of Chamilo increases and you get above the thousands of users,
+    you're likely to hit a few milestones set by PHP to avoid hacks.
+    One of them is PHP5.4's Suhosin extension limit post_max_vars, which was
+    extended into PHP5.5 and above through the max_input_vars limit. This limit
+    is usually set to 1000. What does it mean?<br />
+    It means that, when you manipulate any list greater than 1000 items, PHP will
+    automatically remove anything sent above the first 1000 registers (usually
+    a little bit less because it needs to add the other input fields of the page).
+    For example, if subscribing 5 new users to a course where you already have
+    1000 users subscribed, you will remain at 1000, although the 1000 will not
+    necessarily be the 1000 that were there in the first place (they are sent
+    in order of the elements inside the form, so probably alphabetically,
+    depending on the page).<br /><br />
+    Increasing this limit to a higher level (say 10,000 instead of 1000) should
+    be relatively safe, considering your application is normally not open to
+    the public (and so also open to the evil kind of users). So, in your
+    php.ini, this limit should now look like this:<br />
+    <pre>
+    max_input_vars = 10000
+    </pre><br /><br />
+    A number of other limits might also become an issue in the long run, like
+    memory_limit, post_max_size, etc. We have given reasonnable recommendations
+    in the installation process for these values, but remember that if you
+    have a larger portal than anyone else, you probably need to give it more
+    care than anyone else.
+</p>
+<hr />
 <h2>Authors</h2>
 <ul>
 <li>Yannick Warnier, Zend Certified PHP Engineer, BeezNest Belgium SPRL, <a href="mailto:ywarnier@beeznest.net">ywarnier@beeznest.net</a></li>
 </ul>
 <hr />
 Don't have time or resources to optimize your Chamilo installation
-    yourself? Hire an <a href="http://www.chamilo.org/en/providers">official Chamilo provider</a> and get it sorted out professionally by specialists.
-    <a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" style="margin: 1em; float: right;" height="31" width="88" /></a>
+    yourself? Hire an <a href="//www.chamilo.org/en/providers">official Chamilo provider</a> and get it sorted out professionally by specialists.<br />
+    <a href="http://validator.w3.org/check?uri=referer"><img src="//www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" style="margin: 1em; float: right;" height="31" width="88" /></a>
 	<a href="http://jigsaw.w3.org/css-validator/">
-		<img src="http://jigsaw.w3.org/css-validator/images/vcss-blue" style="margin: 1em; float: right;" alt="Valid CSS" />
+		<img src="//jigsaw.w3.org/css-validator/images/vcss-blue" style="margin: 1em; float: right;" alt="Valid CSS" />
 	</a>
 </div>
 </body>

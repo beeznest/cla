@@ -1255,9 +1255,7 @@ class SessionManager
             $result = Database::query($sql);
             $session = Database::fetch_assoc($result);
 
-            //We are not using this becaouse the range its to small and no other date match the condition of this function
-            //$clicks = Tracking::get_total_clicks($info['user_id'], $courseId, $sessionId, $info['login_course_date'], $info['logout_course_date']);
-            #building array to display
+            // building array to display
             $return[] = array(
                 'user_id' => $info['user_id'],
                 'logindate' => $info['login_course_date'],
@@ -1443,6 +1441,8 @@ class SessionManager
 
                 if (!empty($sessionCategoryId)) {
                     $values['session_category_id'] = $sessionCategoryId;
+                } else {
+                    $values['session_category_id'] = null;
                 }
 
                 Database::update($tbl_session, $values, array(
@@ -1476,6 +1476,7 @@ class SessionManager
         $tbl_session_rel_user = Database::get_main_table(TABLE_MAIN_SESSION_USER);
         $tbl_url_session = Database::get_main_table(TABLE_MAIN_ACCESS_URL_REL_SESSION);
         $tbl_item_properties = Database::get_course_table(TABLE_ITEM_PROPERTY);
+        $em = Database::getManager();
 
         $userId = api_get_user_id();
 
@@ -1488,10 +1489,16 @@ class SessionManager
         }
 
         if (SessionManager::allowed($id_checked) && !$from_ws) {
-            $sql = 'SELECT session_admin_id FROM ' . $tbl_session. '
-                    WHERE id IN (' . $id_checked.')';
-            $rs = Database::query($sql);
-            if (Database::result($rs, 0, 0) != $userId) {
+            $qb = $em
+                ->createQuery('
+                    SELECT s.sessionAdminId FROM ChamiloCoreBundle:Session s
+                    WHERE s.id = ?1
+                ')
+                ->setParameter(1, $id_checked);
+
+            $res = $qb->getSingleScalarResult();
+
+            if ($res != $userId && !api_is_platform_admin()) {
                 api_not_allowed(true);
             }
         }
@@ -3940,6 +3947,10 @@ class SessionManager
 
         if (empty($sessionInfo)) {
             return false;
+        }
+
+        if (api_is_platform_admin()) {
+            return true;
         }
 
         $userId = api_get_user_id();

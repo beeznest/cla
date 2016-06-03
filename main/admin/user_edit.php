@@ -209,19 +209,19 @@ $form->addElement('text', 'phone', get_lang('PhoneNumber'));
 $form->addElement('file', 'picture', get_lang('AddPicture'), array('id' => 'picture', 'class' => 'picture-form'));
 $allowed_picture_types = array ('jpg', 'jpeg', 'png', 'gif');
 
-$form->addHtml(''
-                . '<div class="form-group">'
-                    . '<label for="cropImage" id="labelCropImage" class="col-sm-2 control-label"></label>'
-                        . '<div class="col-sm-8">'
-                            . '<div id="cropImage" class="cropCanvas">'
-                                . '<img id="previewImage" >'
-                            . '</div>'
-                            . '<div>'
-                                . '<button class="btn btn-primary hidden" name="cropButton" id="cropButton"><em class="fa fa-crop"></em> '.get_lang('CropYourPicture').'</button>'
-                            . '</div>'
-                        . '</div>'
-                . '</div>'
-    . '');
+$form->addHtml('<div class="form-group">
+    <label for="cropImage" id="labelCropImage" class="col-sm-2 control-label"></label>
+    <div class="col-sm-8">
+        <div id="cropImage" class="cropCanvas">
+            <img id="previewImage" >
+        </div>
+        <div>
+        <button class="btn btn-primary hidden" name="cropButton" id="cropButton">
+        <em class="fa fa-crop"></em> '.get_lang('CropYourPicture').'</button>
+        </div>
+    </div>
+</div>');
+
 $form->addHidden('cropResult', '');
 
 $form->addRule(
@@ -345,6 +345,25 @@ if (!$user_data['platform_admin']) {
 	$form->addElement('radio', 'active', get_lang('ActiveAccount'), get_lang('Active'), 1);
 	$form->addElement('radio', 'active', '', get_lang('Inactive'), 0);
 }
+$studentBossList = UserManager::getStudentBossList($user_data['user_id']);
+
+$conditions = ['status' => STUDENT_BOSS];
+$studentBoss = UserManager::get_user_list($conditions);
+$studentBossToSelect = [];
+
+if ($studentBoss) {
+    foreach ($studentBoss as $bossId => $userData) {
+        $bossInfo = api_get_user_info($userData['user_id']);
+        $studentBossToSelect[$bossInfo['user_id']] =  $bossInfo['complete_name_with_username'];
+    }
+}
+
+if ($studentBossList) {
+    $studentBossList = array_column($studentBossList, 'boss_id');
+}
+
+$user_data['student_boss'] = array_values($studentBossList);
+$form->addElement('advmultiselect', 'student_boss', get_lang('StudentBoss'), $studentBossToSelect);
 
 // EXTRA FIELDS
 $extraField = new ExtraField('user');
@@ -402,7 +421,7 @@ if ($form->validate()) {
                 $_FILES['picture']['name'],
                 $_FILES['picture']['tmp_name'],
                 $user['cropResult']
-                    
+
             );
 		}
 
@@ -460,6 +479,10 @@ if ($form->validate()) {
             $send_mail,
             $reset_password
         );
+
+        if (isset($user['student_boss'])) {
+            UserManager::subscribeUserToBossList($user_id, $user['student_boss']);
+        }
 
 		if (api_get_setting('openid_authentication') == 'true' && !empty($user['openid'])) {
 			$up = UserManager::update_openid($user_id, $user['openid']);

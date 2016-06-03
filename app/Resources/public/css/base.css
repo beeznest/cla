@@ -2116,20 +2116,32 @@ div.admin_section h4 {
 .ribbon .success {
     color: green;
 }
-
 .exercise_save_now_button img {
     position: relative;
     top: 4px;
 }
-
 .exercise_save_now_button {
-    margin-top:10px;
+    padding-left: 25px;
 }
-.exercise_save_now_button, .exercise_button{
-    /* padding:5px; */
+.exercise_save_now_button .checkbox input[type="checkbox"]{
+    margin-left: -25px;
+}
+.question-check-test{
+    padding-left: 35px;
+    margin-bottom: 35px;
+}
+.question-check-test label{
+    font-weight: normal;
+}
+.question-check-test .checkbox input[type="checkbox"]{
+    margin-left: -25px;
+}
+.form-actions{
+  margin-top: 20px;
+  margin-bottom: 25px;
 }
 /* Exercise clock*/
-.count_down {
+.count_down{
     padding: 3px;
     font-size:20px;
     font-weight:bold;
@@ -2144,13 +2156,15 @@ div.admin_section h4 {
 .count_down.navbar-fixed-top{
     border-radius: 0px;
 }
-.time_container_warning {
+.time_warning_two {
     background: url(../../main/img/clock-exercise.png) no-repeat center center #FFD700;
-    border:1px solid #B8860B;
+    border:1px solid #FFCC00;
+    color: #C00;
 }
-.red_alert {
-    color:red;
-    font-weight: bold;
+.time_warning_one {
+    background: url(../../main/img/clock-exercise.png) no-repeat center center #FB3A35;
+    border:1px solid #FB3A35;
+    color: #FFF;
 }
 #question_feedback {
     -webkit-border-radius: 10px;
@@ -2968,6 +2982,9 @@ a:active{
 }
 tr.forum_category_header a {
     color: #fff;
+}
+.forum-description {
+    display: inline-block;
 }
 /* **** FORUM **** */
 .forum_header {
@@ -4142,6 +4159,9 @@ i.size-32.icon-new-work{
     display:block;
     width: 100%;
 }
+.actions #groups .bootstrap-select{
+    width: 300px;
+}
 ul.holder{
   list-style: none;
   margin: 0;
@@ -5226,7 +5246,7 @@ div#chat-remote-video video {
   border-radius: 5px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
-  min-height: 320px;
+  min-height: 330px;
   margin-bottom: 10px;
 }
 .items-course .items-course-info .title{
@@ -5902,6 +5922,15 @@ a.sessionView {
     color: black !important;
 }
 
+.skill-badge-img{
+    width: 150px;
+    overflow: hidden;
+}
+
+.text-light{
+    color: #00CCFF;
+}
+
 
 #dropzone {
     position: relative;
@@ -5991,3 +6020,4 @@ a.sessionView {
 .wizard .current:after {
     border-left-color: #0F6FAB;
 }
+
