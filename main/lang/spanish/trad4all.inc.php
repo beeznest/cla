@@ -7652,4 +7652,5 @@ $NewLogoUpdated = "Nuevo logo subido";
 $CurrentLogo = "Logo activo";
 $UpdateLogo = "Cambiar el logo";
 $FollowedStudentBosses = "Superiores de estudiante seguidos";
-?>
+$LoginSuccess = "Login exitoso";
+
