@@ -27,6 +27,7 @@ define('MAX_FORM_FIELD_LENGTH', 80);
 
 // Including necessary libraries.
 require_once '../inc/lib/api.lib.php';
+require_once '../inc/lib/text.lib.php';
 
 api_check_php_version('../inc/');
 
@@ -118,7 +119,9 @@ $update_from_version_8 = array(
     '1.9.8.1',
     '1.9.8.2',
     '1.9.10',
-    '1.9.10.2'
+    '1.9.10.2',
+    '1.9.10.4',
+    '1.9.10.6'
 );
 
 $my_old_version = '';
@@ -209,6 +212,9 @@ if ($installType == 'update' && in_array($my_old_version, $update_from_version_8
     }
 }
 
+
+$session_lifetime = 360000;
+
 if (!isset($_GET['running'])) {
     $dbHostForm = 'localhost';
     $dbUsernameForm = 'root';
@@ -246,7 +252,6 @@ if (!isset($_GET['running'])) {
     $allowSelfReg = 1;
     $allowSelfRegProf = 1;
     $encryptPassForm = 'sha1';
-    $session_lifetime = 360000;
     if (!empty($_GET['profile'])) {
         $installationProfile = api_htmlentities($_GET['profile'], ENT_QUOTES);
     }
@@ -710,7 +715,7 @@ if (@$_POST['step2']) {
             case '1.9.8.2':
             case '1.9.10':
             case '1.9.10.2':
-
+            case '1.9.10.4':
                 // Fix type "enum" before running the migration with Doctrine
                 Database::query("ALTER TABLE course_category MODIFY COLUMN auth_course_child VARCHAR(40) DEFAULT 'TRUE'");
                 Database::query("ALTER TABLE course_category MODIFY COLUMN auth_cat_child VARCHAR(40) DEFAULT 'TRUE'");

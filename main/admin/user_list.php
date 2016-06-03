@@ -288,7 +288,7 @@ function prepare_user_sql_query($is_count)
  * This function defines globals.
  * @param  int $userId
  *
- * @return bool    False on failure, redirection on success
+ * @return false|null    False on failure, redirection on success
  * @author Evie Embrechts
  * @author Yannick Warnier <yannick.warnier@dokeos.com>
 */
@@ -698,8 +698,8 @@ if (!empty($action)) {
 					$number_of_deleted_users = 0;
 					if (is_array($_POST['id'])) {
 						foreach ($_POST['id'] as $index => $user_id) {
-							if($user_id != $_user['user_id']) {
-								if(UserManager :: delete_user($user_id)) {
+							if ($user_id != $_user['user_id']) {
+								if (UserManager::delete_user($user_id)) {
 									$number_of_deleted_users++;
 								}
 							}

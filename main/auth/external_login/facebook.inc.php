@@ -18,14 +18,8 @@ require_once dirname(__FILE__) . '/facebook-php-sdk/autoload.php';
 use Facebook\FacebookSession;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookRequest;
-use Facebook\FacebookResponse;
 use Facebook\FacebookSDKException;
 use Facebook\FacebookRequestException;
-use Facebook\FacebookAuthorizationException;
-use Facebook\GraphObject;
-use Facebook\Entities\AccessToken;
-use Facebook\HttpClients\FacebookCurlHttpClient;
-use Facebook\HttpClients\FacebookHttpable;
 
 require_once dirname(__FILE__) . '/functions.inc.php';
 
@@ -48,10 +42,10 @@ function facebookConnect()
         // see if we have a session
         if (isset($session)) {
             // graph api request for user data
-            $request = new FacebookRequest($session, 'GET', '/me');
+            $request = new FacebookRequest($session, 'GET', '/me?fields=id,first_name,last_name,email,locale');
             $response = $request->execute();
             // get response
-            $graphObject = $response->getGraphObject();
+            $graphObject = $response->getGraphObject(Facebook\GraphUser::className());
             $username = changeToValidChamiloLogin($graphObject->getProperty('email'));
             $email = $graphObject->getProperty('email');
             $locale = $graphObject->getProperty('locale');

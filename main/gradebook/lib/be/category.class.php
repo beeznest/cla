@@ -77,7 +77,7 @@ class Category implements GradebookItem
     }
 
     /**
-     * @return float
+     * @return integer|null
      */
     public function get_certificate_min_score()
     {
@@ -97,7 +97,7 @@ class Category implements GradebookItem
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function get_parent_id()
     {
@@ -105,7 +105,7 @@ class Category implements GradebookItem
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function get_weight()
     {
@@ -121,7 +121,7 @@ class Category implements GradebookItem
     }
 
     /**
-     * @return mixed
+     * @return boolean
      */
     public function is_visible()
     {
@@ -244,7 +244,7 @@ class Category implements GradebookItem
     }
 
     /**
-     * @return null
+     * @return null|integer
      */
     public function get_grade_model_id()
     {
@@ -487,7 +487,7 @@ class Category implements GradebookItem
     }
 
     /**
-     * @param $result
+     * @param Doctrine\DBAL\Driver\Statement|null $result
      *
      * @return array
      */
@@ -863,7 +863,8 @@ class Category implements GradebookItem
 
     /**
      * Calculate the score of this category
-     * @param $stud_id student id (default: all students - then the average is returned)
+     * @param integer $stud_id student id (default: all students - then the average is returned)
+     * @param integer $session_id
      * @return    array (score sum, weight sum)
      *             or null if no scores available
      */
@@ -897,6 +898,8 @@ class Category implements GradebookItem
             if (!empty($cats)) {
                 /** @var Category $cat */
                 foreach ($cats as $cat) {
+                    $cat->set_session_id($session_id);
+                    $cat->set_course_code($course_code);
                     $cat->setStudentList($this->getStudentList());
                     $score = $cat->calc_score(
                         $stud_id,
@@ -1122,6 +1125,9 @@ class Category implements GradebookItem
      * @param int       student id
      * @param string    Course code
      * @param int       Session id
+     * @param integer $stud_id
+     * @param string $course_code
+     * @param integer $session_id
      */
     public function get_root_categories_for_student($stud_id, $course_code = null, $session_id = null)
     {
@@ -1202,6 +1208,9 @@ class Category implements GradebookItem
      * @param int user id (to return everything, use 'null' here)
      * @param string course code (optional)
      * @param int session id (optional)
+     * @param integer $user_id
+     * @param string $course_code
+     * @param integer $session_id
      */
     public function get_root_categories_for_teacher($user_id, $course_code = null, $session_id = null)
     {
@@ -1300,6 +1309,7 @@ class Category implements GradebookItem
 
     /**
      * Internal function used by get_target_categories()
+     * @param integer $level
      */
     private function add_target_subcategories($targets, $level, $catid)
     {
@@ -1399,6 +1409,8 @@ class Category implements GradebookItem
 
     /**
      * Internal function used by get_tree()
+     * @param integer $level
+     * @param null|integer $visible
      */
     private function add_subtree ($targets, $level, $catid, $visible)
     {
@@ -1416,6 +1428,7 @@ class Category implements GradebookItem
 
     /**
      * Generate an array of courses that a teacher hasn't created a category for.
+     * @param integer $user_id
      * @return array 2-dimensional array - every element contains 2 subelements (code, title)
      */
     public function get_not_created_course_categories ($user_id)
@@ -1450,6 +1463,7 @@ class Category implements GradebookItem
 
     /**
      * Generate an array of all courses that a teacher is admin of.
+     * @param integer $user_id
      * @return array 2-dimensional array - every element contains 2 subelements (code, title)
      */
     public function get_all_courses ($user_id)
@@ -1530,7 +1544,7 @@ class Category implements GradebookItem
     /**
      * Retrieve all categories inside a course independent category
      * that should be visible to a student.
-     * @param $cat_id parent category
+     * @param integer $cat_id parent category
      * @param $stud_id student id
      * @param $cats optional: if defined, the categories will be added to this array
      */
@@ -1851,7 +1865,7 @@ class Category implements GradebookItem
      * the platform administrator.
      * @param int locked 1 or unlocked 0
 
-     * @return bool
+     * @return boolean|null
      * */
     public function lock($locked)
     {
@@ -1893,6 +1907,7 @@ class Category implements GradebookItem
     }
 
     /**
+     * Generates a certificate for this user if everything matches
      * @param int $category_id
      * @param int $user_id
      * @return bool|string
@@ -1950,15 +1965,13 @@ class Category implements GradebookItem
         $userHasSkills = false;
 
         if ($skillToolEnabled) {
-            if (!$category->getGenerateCertificates()) {
-                $skill = new Skill();
-                $skill->add_skill_to_user(
-                    $user_id,
-                    $category_id,
-                    $courseId,
-                    $sessionId
-                );
-            }
+            $skill = new Skill();
+            $skill->add_skill_to_user(
+                $user_id,
+                $category_id,
+                $courseId,
+                $sessionId
+            );
 
             $objSkillRelUser = new SkillRelUser();
             $userSkills = $objSkillRelUser->get_user_skills($user_id, $courseId, $sessionId);
@@ -2269,7 +2282,7 @@ class Category implements GradebookItem
      * @param float $score The achieved score
      * @param int $userId The user id
      * @param int $categoryId The gradebook category
-     * @return int The insert id
+     * @return false|string The insert id
      */
     public static function registerCurrentScore($score, $userId, $categoryId)
     {
@@ -2299,5 +2312,4 @@ class Category implements GradebookItem
     {
         $this->studentList = $list;
     }
-
 }

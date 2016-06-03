@@ -178,10 +178,8 @@ function handle_forum_and_forumcategories($lp_id = null)
  */
 function show_add_forumcategory_form($inputvalues = array(), $lp_id)
 {
-    $gradebook = Security::remove_XSS($_GET['gradebook']);
-
     // Initialize the object.
-    $form = new FormValidator('forumcategory', 'post', 'index.php?gradebook='.$gradebook.'&'.api_get_cidreq());
+    $form = new FormValidator('forumcategory', 'post', 'index.php?' . api_get_cidreq());
     // hidden field if from learning path
 
     $form->addElement('hidden', 'lp_id', $lp_id);
@@ -231,8 +229,7 @@ function show_add_forumcategory_form($inputvalues = array(), $lp_id)
 function show_add_forum_form($inputvalues = array(), $lp_id)
 {
     $_course = api_get_course_info();
-    $gradebook = Security::remove_XSS($_GET['gradebook']);
-    $form = new FormValidator('forumcategory', 'post', 'index.php?gradebook='.$gradebook.'&'.api_get_cidreq());
+    $form = new FormValidator('forumcategory', 'post', 'index.php?' . api_get_cidreq());
 
     // The header for the form
     if (!empty($inputvalues)) {
@@ -593,6 +590,7 @@ function store_forumcategory($values, $courseInfo = array(), $showMessage = true
  */
 function store_forum($values, $courseInfo = array(), $returnId = false)
 {
+    $now = api_get_utc_datetime();
     $courseInfo = empty($courseInfo) ? api_get_course_info() : $courseInfo;
     $course_id = $courseInfo['real_id'];
     $session_id = api_get_session_id();
@@ -729,7 +727,9 @@ function store_forum($values, $courseInfo = array(), $returnId = false)
             'forum_group_public_private'=> isset($values['public_private_group_forum_group']['public_private_group_forum']) ? $values['public_private_group_forum_group']['public_private_group_forum'] : null,
             'forum_order'=> isset($new_max) ? $new_max : null,
             'session_id'=> $session_id,
-            'lp_id' => isset($values['lp_id']) ? intval($values['lp_id']) : 0
+            'lp_id' => isset($values['lp_id']) ? intval($values['lp_id']) : 0,
+            'locked' => 0,
+            'forum_id' => 0
         ];
         $last_id = Database::insert($table_forums, $params);
         if ($last_id > 0) {
@@ -875,32 +875,36 @@ function deleteForumCategoryThread($content, $id)
  */
 function delete_post($post_id)
 {
-    $table_posts = Database :: get_course_table(TABLE_FORUM_POST);
     $table_threads = Database :: get_course_table(TABLE_FORUM_THREAD);
     $post_id = intval($post_id);
     $course_id = api_get_course_int_id();
+    $em = Database::getManager();
 
-    // Get parent_post_id of deleted post.
-    $tab_post_info = get_post_information($post_id);
+    $post = $em
+        ->getRepository('ChamiloCourseBundle:CForumPost')
+        ->findOneBy(['cId' => $course_id, 'postId' => $post_id]);
 
-    if ($tab_post_info) {
-        $post_parent_id_of_deleted_post = intval($tab_post_info['post_parent_id']);
-        $thread_id_of_deleted_post = $tab_post_info['thread_id'];
-        $forum_if_of_deleted_post = $tab_post_info['forum_id'];
-        $sql = "UPDATE $table_posts
-                SET post_parent_id=$post_parent_id_of_deleted_post
+    if ($post) {
+        $em
+            ->createQuery('
+                UPDATE ChamiloCourseBundle:CForumPost p
+                SET p.postParentId = :parent_of_deleted_post
                 WHERE
-                    c_id = $course_id AND
-                    post_parent_id=$post_id AND
-                    thread_id=$thread_id_of_deleted_post AND
-                    forum_id=$forum_if_of_deleted_post";
+                    p.cId = :course AND
+                    p.postParentId = :post AND
+                    p.threadId = :thread_of_deleted_post AND
+                    p.forumId = :forum_of_deleted_post
+            ')
+            ->execute([
+                'parent_of_deleted_post' => $post->getPostParentId(),
+                'course' => $course_id,
+                'post' => $post->getPostId(),
+                'thread_of_deleted_post' => $post->getThreadId(),
+                'forum_of_deleted_post' => $post->getForumId()
+            ]);
 
-        Database::query($sql);
-
-        // Note: This has to be a recursive function that deletes all of the posts in this block.
-        $sql = "DELETE FROM $table_posts
-                WHERE c_id = $course_id AND post_id = ".intval($post_id)."";
-        Database::query($sql);
+        $em->remove($post);
+        $em->flush();
 
         // Delete attachment file about this post id.
         delete_attachment($post_id);
@@ -1044,7 +1048,7 @@ function return_lock_unlock_icon($content, $id, $current_lock_status, $additiona
  * an up and down icon except for the first (no up icon) and the last (no down icon)
  *          The key of this $list array is the id of the item.
  *
- * @return void HTML
+ * @return string HTML
  **/
 function return_up_down_icon($content, $id, $list)
 {
@@ -1867,7 +1871,7 @@ function getThreadInfo($threadId, $cId)
  *
  * @return array containing all the information about the posts of a given thread
  */
-function getPosts($threadId, $orderDirection = 'ASC', $recursive = false, $postId = 0, $depth = -1)
+function getPosts($threadId, $orderDirection = 'ASC', $recursive = false, $postId = null, $depth = -1)
 {
     $list = [];
 
@@ -2004,7 +2008,7 @@ function get_thread_information($thread_id)
  * This function retrieves forum thread users details
  * @param   int Thread ID
  * @param   string  Course DB name (optional)
- * @return  resource array Array of type ([user_id=>w,lastname=>x,firstname=>y,thread_id=>z],[])
+ * @return  Doctrine\DBAL\Driver\Statement|null array Array of type ([user_id=>w,lastname=>x,firstname=>y,thread_id=>z],[])
  * @author Christian Fasanando <christian.fasanando@dokeos.com>,
  * @todo     this function need to be improved
  * @version octubre 2008, dokeos 1.8
@@ -2059,7 +2063,7 @@ function get_thread_users_details($thread_id)
  * This function retrieves forum thread users qualify
  * @param   int Thread ID
  * @param   string  Course DB name (optional)
- * @return  array Array of type ([user_id=>w,lastname=>x,firstname=>y,thread_id=>z],[])
+ * @return  Doctrine\DBAL\Driver\Statement|null Array of type ([user_id=>w,lastname=>x,firstname=>y,thread_id=>z],[])
  * @author Jhon Hinojosa
  * @todo     this function need to be improved
  */
@@ -2126,7 +2130,7 @@ function get_thread_users_qualify($thread_id)
  * This function retrieves forum thread users not qualify
  * @param   int Thread ID
  * @param   string  Course DB name (optional)
- * @return  array Array of type ([user_id=>w,lastname=>x,firstname=>y,thread_id=>z],[])
+ * @return  Doctrine\DBAL\Driver\Statement|null Array of type ([user_id=>w,lastname=>x,firstname=>y,thread_id=>z],[])
  * @author   Jhon Hinojosa<jhon.hinojosa@dokeos.com>,
  * @version oct 2008, dokeos 1.8
  */
@@ -2498,7 +2502,7 @@ function store_thread($current_forum, $values, $courseInfo = array(), $showMessa
             'poster_name' => isset($values['poster_name']) ? $values['poster_name'] : '',
             'post_date' => $post_date,
             'post_notification' => isset($values['post_notification']) ? $values['post_notification'] : '',
-            'post_parent_id' => 0,
+            'post_parent_id' => null,
             'visible' => $visible,
         ];
         $last_post_id = Database::insert($table_posts, $params);
@@ -2773,6 +2777,7 @@ function show_add_post_form($current_forum, $forum_setting, $action = '', $id = 
         'post_text',
         get_lang('Text'),
         true,
+        false,
         api_is_allowed_to_edit(null, true) ? array(
             'ToolbarSet' => 'Forum',
             'Width' => '100%',
@@ -3150,6 +3155,10 @@ function getThreadScoreHistory($user_id, $thread_id, $opt)
  * @param integer contains the information the current user id
  * @param integer contains the information the current thread id
  * @param integer contains the information the current qualify
+ * @param string $option
+ * @param integer $course_id
+ * @param integer $user_id
+ * @param integer $thread_id
  * @return void
  * <code>$option=1 obtained the qualification of the current thread</code>
  * @author Isaac Flores <isaac.flores@dokeos.com>, U.N.A.S University
@@ -3267,6 +3276,7 @@ function store_reply($current_forum, $values)
                 'thread_id' => $values['thread_id'],
                 'forum_id' => $values['forum_id'],
                 'poster_id' => api_get_user_id(),
+                'post_id' => 0,
                 'post_date' => $post_date,
                 'post_notification' => isset($values['post_notification']) ? $values['post_notification'] : null,
                 'post_parent_id' => isset($values['post_parent_id']) ? $values['post_parent_id'] : null,
@@ -3377,7 +3387,7 @@ function show_edit_post_form(
     $form->addElement('hidden', 'thread_id', $current_thread['thread_id']);
     $form->addElement('hidden', 'id_attach', $id_attach);
 
-    if ($current_post['post_parent_id'] == 0) {
+    if (empty($current_post['post_parent_id'])) {
         $form->addElement('hidden', 'is_first_post_of_thread', '1');
     }
 
@@ -3479,7 +3489,7 @@ function show_edit_post_form(
 
     if ($forum_setting['allow_sticky'] &&
         api_is_allowed_to_edit(null, true) &&
-        $current_post['post_parent_id'] == 0
+        empty($current_post['post_parent_id'])
     ) {
         // The sticky checkbox only appears when it is the first post of a thread.
         $form->addElement('checkbox', 'thread_sticky', '', get_lang('StickyPost'));
@@ -3706,6 +3716,8 @@ function increase_thread_view($thread_id)
  *
  * @author Patrick Cool <patrick.cool@UGent.be>, Ghent University
  * @version february 2006, dokeos 1.8
+ * @param string $last_post_id
+ * @param string $post_date
  */
 function updateThreadInfo($thread_id, $last_post_id, $post_date)
 {
@@ -4009,6 +4021,8 @@ function send_notification_mails($thread_id, $reply_info)
  *
  * @param string  Content type (post, thread, forum, forum_category)
  * @param int     Item DB ID
+ * @param string $content
+ * @param integer $id
  * @return string language variable
  * @author Patrick Cool <patrick.cool@UGent.be>, Ghent University
  * @version february 2006, dokeos 1.8
@@ -4262,12 +4276,12 @@ function store_move_post($values)
         );
 
         // Moving the post to the newly created thread.
-        $sql = "UPDATE $table_posts SET thread_id='".intval($new_thread_id)."', post_parent_id='0'
+        $sql = "UPDATE $table_posts SET thread_id='".intval($new_thread_id)."', post_parent_id = NULL
                 WHERE c_id = $course_id AND post_id='".intval($values['post_id'])."'";
         Database::query($sql);
 
         // Resetting the parent_id of the thread to 0 for all those who had this moved post as parent.
-        $sql = "UPDATE $table_posts SET post_parent_id='0'
+        $sql = "UPDATE $table_posts SET post_parent_id = NULL
                 WHERE c_id = $course_id AND post_parent_id='".intval($values['post_id'])."'";
         Database::query($sql);
 
@@ -4326,12 +4340,12 @@ function store_move_post($values)
         Database::query($sql);
 
         // moving to the chosen thread
-        $sql = "UPDATE $table_posts SET thread_id='".intval($_POST['thread'])."', post_parent_id='0'
+        $sql = "UPDATE $table_posts SET thread_id='".intval($_POST['thread'])."', post_parent_id = NULL
                 WHERE c_id = $course_id AND post_id='".intval($values['post_id'])."'";
         Database::query($sql);
 
         // resetting the parent_id of the thread to 0 for all those who had this moved post as parent
-        $sql = "UPDATE $table_posts SET post_parent_id='0'
+        $sql = "UPDATE $table_posts SET post_parent_id = NULL
                 WHERE c_id = $course_id AND post_parent_id='".intval($values['post_id'])."'";
         Database::query($sql);
 
@@ -4486,6 +4500,7 @@ function forum_search()
 /**
  * Display the search results
  * @param string
+ * @param string $search_term
  * @return void display the results
  * @author Patrick Cool <patrick.cool@UGent.be>, Ghent University, Belgium
  * @version march 2008, dokeos 1.8.5
@@ -4615,7 +4630,7 @@ function search_link()
  * This function adds an attachment file into a forum
  * @param string $file_comment  a comment about file
  * @param int $last_id from forum_post table
- * @return int|bool
+ * @return false|null
  */
 function add_forum_attachment_file($file_comment, $last_id)
 {
@@ -4826,7 +4841,7 @@ function getAllAttachment($postId)
  * @param post id
  * @param int $id_attach
  * @param bool $display to show or not result message
- * @return void
+ * @return integer
  * @author Julio Montoya Dokeos
  * @version october 2014, chamilo 1.9.8
  */
@@ -5108,7 +5123,7 @@ function get_notifications($content, $id)
  * @param integer $forum_id the id of the forum
  * @param integer $thread_id the id of the thread
  * @param integer $post_id the id of the post
- * @return bool
+ * @return false|null
  *
  * @author Patrick Cool <patrick.cool@UGent.be>, Ghent University, Belgium
  * @version May 2008, dokeos 1.8.5

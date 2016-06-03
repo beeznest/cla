@@ -388,7 +388,7 @@ $ExerciseAutoLaunch = "Modo de lanzamiento automático de exámenes";
 $AllowFastExerciseEdition = "Activar modo de edición rápida de exámenes";
 $Username = "Nombre de usuario";
 $SignIn = "Ingresar";
-$YouAreReg = "Está registrado a";
+$YouAreReg = "Ha sido registrado a la plataforma";
 $ManageQuestionCategories = "Gestionar categorías globales de preguntas";
 $ManageCourseFields = "Gestor de campos de cursos";
 $ManageQuestionFields = "Gestor de campos de preguntas";
@@ -1621,7 +1621,7 @@ $ExtendedProfileTitle = "Perfil extendido";
 $ExtendedProfileComment = "Si se configura como 'Verdadero', un usuario puede rellenar los siguientes campos (opcionales): 'Mis competencias', 'Mis títulos', '¿Qué puedo enseñar?' y 'Mi área personal pública'";
 $Classes = "Clases";
 $UserUnsubscribed = "La inscripción del usuario ha sido anulada.";
-$CannotUnsubscribeUserFromCourse = "El usuario no puede anular su inscripci�n en el curso. Este usuario es un administrador del curso.";
+$CannotUnsubscribeUserFromCourse = "El usuario no puede anular su inscripción en el curso. Este usuario es un administrador del curso.";
 $InvalidStartDate = "Fecha de inicio no válida.";
 $InvalidEndDate = "Fecha de finalización no válida.";
 $DateFormatLabel = "(d/m/a h:m)";
@@ -2241,7 +2241,7 @@ $NumberOfSession = "Número de sesiones";
 $DeleteSelectedSessionCategory = "Eliminar solo las categorias seleccionadas sin sesiones";
 $DeleteSelectedFullSessionCategory = "Eliminar las categorias seleccionadas con las sesiones";
 $EditTopRegister = "Editar Aviso";
-$InsertTabs = "Insertar Tabs";
+$InsertTabs = "Insertar pestaña o enlace";
 $EditTabs = "Editar Tabs";
 $AnnEmpty = "Los anuncios han sido borrados";
 $AnnouncementModified = "El anuncio ha sido modificado";
@@ -3959,7 +3959,7 @@ $MailHasBeenSent = "Recibirá un correo electrónico recordándole su nombre de 
 $PersonalSettings = "Sus datos han sido registrados.";
 $Problem = "Para cualquier aclaración no dude en contactar con nosotros.";
 $Is = "es";
-$Address = "La dirección de";
+$Address = "El enlace para acceder a la plataforma";
 $FieldTypeFile = "Subida de archivo";
 $YourReg = "Su registro en";
 $UserFree = "El nombre de usuario que eligió ya existe. Use el botón de 'Atrás' de su navegador y elija uno diferente.";
@@ -5525,7 +5525,7 @@ $ReminderMessage = "Enviar un recordatorio";
 $DateSent = "Fecha de envío";
 $ViewUsersWithoutTask = "Ver estudiantes que no han enviado la tarea";
 $AsciiSvgTitle = "Activar AsciiSVG";
-$SuggestionOnlyToEnableSubLanguageFeature = "Solamente necesario si desea habilitar la funcionalidad de sub-idiomas";
+$SuggestionOnlyToEnableSubLanguageFeatureOrUpgradeProcess = "Solamente necesario si desea habilitar la funcionalidad de sub-idiomas o para el proceso de actualización de la versión";
 $ThematicAdvance = "Temporalización de la unidad didáctica";
 $EditProfile = "Editar perfil";
 $TabsDashboard = "Panel de control";
@@ -6250,7 +6250,7 @@ $TheLPAutoLaunchSettingIsONStudentsWillBeRedirectToAnSpecificLP = "La configurac
 $UniqueAnswerNoOption = "Respuesta única con no-se";
 $MultipleAnswerTrueFalse = "Respuestas múltiples v/f/no-se";
 $MultipleAnswerCombinationTrueFalse = "Combinación v/f/no-se";
-$DontKnow = "No se";
+$DontKnow = "No sé";
 $ExamNotAvailableAtThisTime = "Examen no disponible en este momento";
 $LoginOrEmailAddress = "Nombre de usuario o dirección e-mail";
 $EnableMathJaxTitle = "Activar MathJax";
@@ -6743,7 +6743,7 @@ $XQuestionsWithTotalScoreY = "%d preguntas, con un resultado máximo (todas preg
 $ThisIsAutomaticEmailNoReply = "Este es un mensaje automático. Por favor no le de respuesta (será ignorada).";
 $UploadedDocuments = "Documentos enviados";
 $QuestionLowerCase = "Pregunta minúsculas";
-$QuestionsLowerCase = "Preguntas minúsculas";
+$QuestionsLowerCase = "preguntas";
 $BackToTestList = "Regreso a lista de ejercicios";
 $CategoryDescription = "Descripción de categoría";
 $BackToCategoryList = "Regreso a la lista de categorías";
@@ -6918,7 +6918,7 @@ $SentAtX = "Enviado el: %s";
 $dateTimeFormatShort = "%d %b %Y a las %I:%M %p";
 $dateTimeFormatShortTimeFirst = "%I:%M %p, %d %b %Y";
 $LoginToVote = "Debe estar conectado para poder votar";
-$AddInMenu = "Agregar en el menu";
+$AddInMenu = "Insertar en el menú principal";
 $AllowUsersToChangeEmailWithNoPasswordTitle = "Permitir que los usuarios puedan cambiar su correo electrónico sin necesidad de solicitar la contraseña";
 $AllowUsersToChangeEmailWithNoPasswordComment = "Cuando se modifica la cuenta del usuario";
 $EnableHelpLinkTitle = "Habilitar el vínculo de ayuda";
@@ -7010,7 +7010,46 @@ $ResourceLockedByGradebook = "Esta opción no está disponible porque la activid
 $GradebookLockedAlert = "Esta evaluación ha sido bloqueada y no puede ser desbloqueada. Si necesita realmente desbloquearla, por favor contacte el administrador de la plataforma, explicando su razón (sino podría ser considerado como un intento de fraude).";
 $GradebookEnableLockingTitle = "Activar bloqueo de Evaluaciones por los profesores";
 $GradebookEnableLockingComment = "Una vez activada, esta opción permitirá a los profesores bloquear cualquier evaluación dentro de su curso. Esto prohibirá al profesor cualquier modificación posterior de los resultados de sus alumnos en los recursos usados para esta evaluación: exámenes, lecciones, tareas, etc. El único rol autorizado a desbloquear una evaluación es el administrador. El profesor estará informado de esta posibilidad al intentar desbloquear la evaluación. El bloqueo como el desbloqueo estarán guardados en el registro de actividades importantes del sistema.";
-$LdapDescriptionComment = "<div class='normal-message'> <br /><ul><li>LDAP authentication : <br />See I. below to configure LDAP <br />See II. below to activate LDAP authentication </li><br /><br /><li> Update user attributes, with LDAP data, after CAS authentication(see <a href='settings.php?category=CAS'>CAS configuration </a>) : <br />See I. below to configure LDAP <br />CAS manage user authentication, LDAP activation isn't required. </li><br /></ul></div><br /><h4>I. LDAP configuration</h4><h5>Edit file main/inc/conf/auth.conf.php </h5>-&gt; Edit values of array <code>&#36;extldap_config</code> <br /><br />Parameters are <br /><ul><li>base domain string (ex : 'base_dn' =&gt; 'DC=cblue,DC=be') </li><li>admin distinguished name (ex : 'admin_dn' =&gt;'CN=admin,dc=cblue,dc=be') </li><li>admin password (ex : 'admin_password' =&gt; '123456') </li><li>ldap host (ex : 'host' =&gt; array('1.2.3.4', '2.3.4.5', '3.4.5.6')) </li><li>filter (ex : 'filter' =&gt; '') </li><li>port (ex : 'port' =&gt; 389) </li><li>protocol version (2 or 3) (ex : 'protocol_version' =&gt; 3) </li><li>user_search (ex : 'user_search' =&gt; 'sAMAccountName=%username%') </li><li>encoding (ex : 'encoding' =&gt; 'UTF-8') </li><li>update_userinfo (ex : 'update_userinfo' =&gt; true) </li></ul>-&gt; To update correspondences between user and LDAP attributes, edit array <code>&#36;extldap_user_correspondance</code> <br />Array values are &lt;chamilo_field&gt; =&gt; &gt;ldap_field&gt; <br />Array structure is explained in file main/auth/external_login/ldap.conf.php<br /><br /><br /><h4>II. Activate LDAP authentication </h4><h5>Edit file main/inc/conf/configuration.php </h5>-&gt; Uncomment lines <br />&#36;extAuthSource[&quot;extldap&quot;][&quot;login&quot;] =&#36;_configuration['root_sys'].&quot;main/auth/external_login/login.ldap.php&quot;;<br />&#36;extAuthSource[&quot;extldap&quot;][&quot;newUser&quot;] =&#36;_configuration['root_sys'].&#36;_configuration['code_append'].&quot;auth/external_login/newUser.ldap.php&quot;;<br /><br />N.B. : LDAP users use same fields than platform users to login. <br />N.B. : LDAP activation adds a menu External authentication [LDAP] in &quot;add or modify&quot; user pages.</div>";
+$LdapDescriptionComment = "<div class=\"alert alert-info\">
+        <ul>
+            <li>Autentificación LDAP: <br>
+                Véase I. a continuación para configurar LDAP<br>
+                Véase II. a continuación para activar la autentificación LDAP
+            </li>
+            <li>Actualizar los atributos de usuario, con los datos de LDAP, después de la autentificación CAS (véase <a href=\"settings.php?category=CAS\">Configuración CAS</a>): <br>
+                Véase I. a continuación para configurar LDAP<br>
+                Para gestionar la autentificación de usuarios por CAS, no se requere la activación de LDAP.
+            </li>
+        </ul>
+    </div>
+    <h4>I. Configuración de LDAP</h4>
+    <h5>Editar el archivo app/config/auth.conf.php </h5>
+    <p>-&gt; Editar los valores del array <code>\$extldap_config</code></p>
+    <ul>
+        <li>base domain string (p. ej.: 'base_dn' =&gt; 'DC=cblue,DC=be')</li>
+        <li>admin distinguished name (p. ej.: 'admin_dn' =&gt;'CN=admin,dc=cblue,dc=be')</li>
+        <li>admin password (p. ej.: 'admin_password' =&gt; '123456') </li>
+        <li>ldap host (p. ej.: 'host' =&gt; array('1.2.3.4', '2.3.4.5', '3.4.5.6'))</li>
+        <li>filter (p. ej.: 'filter' =&gt; '') </li>
+        <li>port (p. ej.: 'port' =&gt; 389) </li>
+        <li>protocol version (2 or 3) (p. ej.: 'protocol_version' =&gt; 3)</li>
+        <li>user_search (p. ej.: 'user_search' =&gt; 'sAMAccountName=%username%') </li>
+        <li>encoding (p. ej.: 'encoding' =&gt; 'UTF-8')</li>
+        <li>update_userinfo (p. ej.: 'update_userinfo' =&gt; true) </li>
+    </ul>
+    <p>-&gt; Para actualizar las correspondencias entre los atributos de usuario y LDAP, editar el array <code>\$extldap_user_correspondance</code></p>
+    <p>Los valores del Array son &lt;chamilo_field&gt; =&gt; &gt;ldap_field&gt;</p><p>
+    </p>
+    <h4>II. Activar la atenticación LDAP</h4>
+    <h5>Editar el archivo main/inc/conf/configuration.php </h5>
+    <p>-&gt; Descomentar las líneas:</p>
+    <ul>
+        <li>
+    \$extAuthSource[\"extldap\"][\"login\"] = \$_configuration['root_sys'].\"main/auth/external_login/login.ldap.php\";</li>
+        <li>\$extAuthSource[\"extldap\"][\"newUser\"] = \$_configuration['root_sys'].\"main/auth/external_login/newUser.ldap.php\";</li>
+    </ul>
+    <p>N.B.: Los usuarios de LDAP usan los mismos campos que los usuarios de la plataforma para iniciar sesión.<br>
+    N.B.: La activación LDAP agrega un menú \"Autentificación externa\" [LDAP] en las páginas de \"agregar o modificar\" usuarios.</p>";
 $ShibbolethMainActivateTitle = "<h3>Autenticación Shibboleth</h3>";
 $ShibbolethMainActivateComment = "En primer lugar, tiene que configurar Shibboleth para su servidor web.
 
@@ -7037,13 +7076,7 @@ Modificar valores de \$result con el nombre de los atributos de Shibboleth
 Ir a Plug-in para añadir el botón 'Shibboleth Login' en su campus de Chamilo.";
 $LdapDescriptionTitle = "<h3>Autentificacion LDAP</h3>";
 $FacebookMainActivateTitle = "Autenticación con Facebook";
-$FacebookMainActivateComment = "En primer lugar, se tiene que crear una aplicación de Facebook (ver https://developers.facebook.com/apps) con una cuenta de Facebook. En los parámetros de aplicaciones de Facebook, el valor de dirección URL del sitio debe tener \"una acción = fbconnect\" un parámetro GET (http://mychamilo.com/?action=fbconnect, por ejemplo).
-
-Entonces, editar el archivo <strong> main/auth/external_login/facebook.conf.php </strong>
-
-e ingresar en \"appId\" y \"secret\" los valores de \$facebook_config.
-
-Ir a Plug-in para añadir un botón configurable \"Facebook Login\" para el campus de Chamilo.";
+$FacebookMainActivateComment = "<p>En primer lugar, ustede tiene que crear una Aplicación Facebook (ver <a href='https://developers.facebook.com/apps'>https://developers.facebook.com/apps</a>) con su cuenta de Facebook. En la configuración de Aplicaciones de Facebook, el valor de la URL del sitio debe ser la URL de este campus.</p><p>Luego, edite el archivo <code>/app/config/auth.conf.php</code> e ingresa los valores de '<code>appId</code>' y '<code>secret</code>' para <code>&#36;facebook_config</code>.</p><p>Ir a <a href='settings.php?category=Plugins'>Plugins</a> para agregar un botón configurable de <em>Incio de sesión con Facebook</em> para su campus Chamilo.</p>";
 $AnnouncementForGroup = "Anuncios para un grupo";
 $AllGroups = "Todos los grupos";
 $LanguagePriority1Title = "Prioridad del idioma 1";
@@ -7588,7 +7621,7 @@ $IssuedBadgeInformation = "Información de la insignia emitida";
 $RecipientDetails = "Datos del beneficiario";
 $SkillAcquiredAt = "Competencia adquirida el";
 $BasicSkills = "Competencias simples";
-$TimeXThroughCourseY = "%s en el curso %s";
+$TimeXThroughCourseY = "%s en el curso <b>%s</b>";
 $ExportBadge = "Exportar la insignia";
 $SelectToSearch = "Seleccionar para buscar";
 $PlaceOnTheWheel = "Ubicar en la rueda";
@@ -7653,4 +7686,49 @@ $CurrentLogo = "Logo activo";
 $UpdateLogo = "Cambiar el logo";
 $FollowedStudentBosses = "Superiores de estudiante seguidos";
 $LoginSuccess = "Login exitoso";
+$DatabaseManager = "Gestor de base de datos";
+$CourseTemplate = "Plantilla de curso";
+$PickACourseAsATemplateForThisNewCourse = "Elegir un curso como plantilla para este nuevo curso";
+$TeacherCanSelectCourseTemplateTitle = "El profesor puede seleccionar un curso como plantilla";
+$TeacherCanSelectCourseTemplateComment = "Permitir elegir un curso como plantilla para el nuevo curso que el profesor está creando";
+$TheForumAutoLaunchSettingIsOnStudentsWillBeRedirectToTheForumTool = "El parámetro de arranque automático del foro está activado. Los estudiantes serán redirigidos directamente a la herramienta de foro cuando entren a este curso.";
+$RedirectToForumList = "Redirigir a la lista de foros";
+$EnableForumAutoLaunch = "Activar auto-arranque de foro";
+$NowDownloadYourCertificateClickHere = "Puedes descargar tu certificado haciendo clic aquí";
+$AdditionallyYouHaveObtainedTheFollowingSkills = "Adicionalmente, has obtenido las competencias siguientes";
+$IHaveObtainedSkillXOnY = "He logrado la competencia %s en %s";
+$AnotherAttempt = "Realizar otro intento";
+$RemainingXAttempts = "%s intentos restantes";
+$Map = "Mapa";
+$MyLocation = "Mi ubicación";
+$ShowCourseInUserLanguage = "Mostrar el curso en el idioma del usuario";
+$AccessData = "Datos de acceso";
+$InvalidImageDimensions = "Las dimensiones de la imagen no corresponden a los requerimientos. Por favor verifique las sugerencias cerca del campo de imagen.";
+$CouldNotResetPasswordBecauseLDAP = "No se pudo reiniciar la contraseña LDAP, por favor contacte su equipo de soporte.";
+$Quote = "Citar";
+$ValueTooSmall = "Valor demasiado bajo.";
+$ValueTooBig = "Valor demasiado alto.";
+$YouAreATeacherOfThisCourse = "Usted es profesor en este curso";
+$StudentBossList = "Lista de superiores";
+$ShowScoreEveryAttemptShowAnswersLastAttempt = "Mostrar la nota a cada intento, mostrar las respuestas correctas solo en el último intento (solo funciona si hay un límite de intentos)";
+$MissingChartLibraryPleaseCheckLog = "Falta una librería para generar el gráfico. Consulte el registro de errores para mayor información.";
+$UserXIndicated = "El usuario %s ha indicado:";
+$AcquiredLevel = "Nivel adquirido";
+$ManageSkillsLevels = "Administrar niveles de competencias";
+$AddProfile = "Añadir perfil";
+$AddLevel = "Añadir nivel";
+$ChangeAcquiredLevel = "Cambiar nivel adquirido";
+$NoLevelAcquiredYet = "Ningún nivel adquirido todavía";
+$RecordAudio = "Grabar audio";
+$StartRecordingAudio = "Lanzar la grabación";
+$StopRecordingAudio = "Finalizar la grabación";
+$SaveRecordedAudio = "Guardar el audio grabado";
+$GradeFromX = "Libreta de notas del curso: %s";
+$TitleMandatory = "Título obligatorio";
+$NoCourseCategorySupplied = "No se ha proporcionado una categoría de curso";
+$ForumStartDate = "Fecha de publicación";
+$ForumEndDate = "Fecha de cierre";
+$ForumStartDateComment = "El foro será visible a partir de esta fecha";
+$ForumEndDateComment = "Pasada esta fecha, el foro será automáticamente cerrado";
+$ModeratedForum = "Foro moderado";
 

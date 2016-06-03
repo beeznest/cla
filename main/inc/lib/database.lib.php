@@ -66,7 +66,7 @@ class Database
      *
      * @param string $table
      *
-     * @return mixed
+     * @return string
      */
     public static function get_main_table($table)
     {
@@ -175,7 +175,7 @@ class Database
         $listener = new \Gedmo\Sortable\SortableListener();
         $entityManager->getEventManager()->addEventSubscriber($listener);
         $connection = $entityManager->getConnection();
-
+$connection->executeQuery('set sql_mode=""');
         $this->setConnection($connection);
         $this->setManager($entityManager);
     }
@@ -265,7 +265,7 @@ class Database
 
     /**
      * Frees all the memory associated with the provided result identifier.
-     * @return bool     Returns TRUE on success or FALSE on failure.
+     * @return boolean|null     Returns TRUE on success or FALSE on failure.
      * Notes: Use this method if you are concerned about how much memory is being used for queries that return large result sets.
      * Anyway, all associated result memory is automatically freed at the end of the script's execution.
      */
@@ -381,7 +381,7 @@ class Database
      * @param array     $attributes
      * @param bool      $show_query
      *
-     * @return bool|int
+     * @return false|string
      */
     public static function insert($table_name, $attributes, $show_query = false)
     {
@@ -662,5 +662,24 @@ class Database
             $cache,
             $isSimpleMode
         );
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return bool
+     */
+    public static function tableExists($table)
+    {
+        return self::getManager()->getConnection()->getSchemaManager()->tablesExist($table);
+    }
+
+    /**
+     * @param string $table
+     * @return \Doctrine\DBAL\Schema\Column[]
+     */
+    public static function listTableColumns($table) 
+    {
+        return self::getManager()->getConnection()->getSchemaManager()->listTableColumns($table);
     }
 }

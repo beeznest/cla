@@ -718,8 +718,8 @@ function display_requirements(
                 <td class="requirements-value">'.checkExtension('session', get_lang('Yes'), get_lang('ExtensionSessionsNotAvailable')).'</td>
             </tr>
             <tr>
-                <td class="requirements-item"><a href="http://php.net/manual/en/book.mysql.php" target="_blank">MySQL</a> '.get_lang('support').'</td>
-                <td class="requirements-value">'.checkExtension('mysql', get_lang('Yes'), get_lang('ExtensionMySQLNotAvailable')).'</td>
+                <td class="requirements-item"><a href="http://php.net/manual/en/ref.pdo-mysql.php" target="_blank">pdo_mysql</a> '.get_lang('support').'</td>
+                <td class="requirements-value">'.checkExtension('pdo_mysql', get_lang('Yes'), get_lang('ExtensionMySQLNotAvailable')).'</td>
             </tr>
             <tr>
                 <td class="requirements-item"><a href="http://php.net/manual/en/book.zlib.php" target="_blank">Zlib</a> '.get_lang('support').'</td>
@@ -940,7 +940,7 @@ function display_requirements(
             </tr>
             <tr>
                 <td class="requirements-item">'.api_get_path(SYS_CODE_PATH).'lang/</td>
-                <td class="requirements-value">'.check_writable(api_get_path(SYS_CODE_PATH).'lang/', true).' <br />('.get_lang('SuggestionOnlyToEnableSubLanguageFeature').')</td>
+                <td class="requirements-value">'.check_writable(api_get_path(SYS_CODE_PATH).'lang/', true).' <br />('.get_lang('SuggestionOnlyToEnableSubLanguageFeatureOrUpgradeProcess').')</td>
             </tr>
             <tr>
                 <td class="requirements-item">'.api_get_path(SYS_PATH).'vendor/</td>
@@ -1439,26 +1439,19 @@ function display_database_settings_form(
             $database_exists_text = $e->getMessage();
         }
 
-        if ($manager->getConnection()->isConnected()): ?>
-
-            <?php echo $database_exists_text ?>
-            <div id="db_status" class="alert alert-success">
-                Database host: <strong><?php echo $manager->getConnection()->getHost(); ?></strong><br />
-                Database port: <strong><?php echo $manager->getConnection()->getPort(); ?></strong><br />
-                Database driver: <strong><?php echo $manager->getConnection()->getDriver()->getName(); ?></strong><br />
-
-            </div>
-
-        <?php else: ?>
-
-            <?php echo $database_exists_text ?>
-            <div id="db_status" style="float:left;" class="alert alert-danger">
-                <div style="float:left;">
-                    <?php echo get_lang('FailedConectionDatabase'); ?></strong>
-                </div>
-            </div>
-
-        <?php endif; ?>
+    if ($manager && $manager->getConnection()->isConnected()): ?>
+        <?php echo $database_exists_text ?>
+        <div id="db_status" class="alert alert-success">
+            Database host: <strong><?php echo $manager->getConnection()->getHost(); ?></strong><br/>
+            Database port: <strong><?php echo $manager->getConnection()->getPort(); ?></strong><br/>
+            Database driver: <strong><?php echo $manager->getConnection()->getDriver()->getName(); ?></strong><br/>
+        </div>
+    <?php else: ?>
+        <div id="db_status" class="alert alert-danger">
+            <p><?php echo get_lang('FailedConectionDatabase'); ?></strong></p>
+            <code><?php echo $database_exists_text ?></code>
+        </div>
+    <?php endif; ?>
    <div class="form-group">
        <div class="col-sm-6">
            <button type="submit" name="step2" class="btn btn-default pull-right" value="&lt; <?php echo get_lang('Previous'); ?>" >

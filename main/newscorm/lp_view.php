@@ -25,7 +25,6 @@ if ($lp_controller_touched != 1) {
 }
 
 require_once '../inc/global.inc.php';
-
 //To prevent the template class
 $show_learnpath = true;
 
@@ -155,6 +154,7 @@ if (!isset($src)) {
             $_SESSION['oLP']->stop_previous_item();
             $htmlHeadXtra[] = '<script src="scorm_api.php" type="text/javascript" language="javascript"></script>';
             $preReqCheck = $_SESSION['oLP']->prerequisites_match($lp_item_id);
+
             if ($preReqCheck === true) {
                 $src = $_SESSION['oLP']->get_link(
                     'http',
@@ -253,7 +253,7 @@ if (
         $time_start_date = api_strtotime($row_dates['start_date'], 'UTC');
         $time_exe_date = api_strtotime($row_dates['exe_date'], 'UTC');
 
-        $mytime = ((int) $time_exe_date - (int) $time_start_date);
+        $mytime = (int) $time_exe_date - (int) $time_start_date;
         $score = (float) $row_dates['exe_result'];
         $max_score = (float) $row_dates['exe_weighting'];
 

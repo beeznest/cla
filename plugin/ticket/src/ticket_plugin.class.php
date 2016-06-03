@@ -36,7 +36,6 @@ class TicketPlugin extends Plugin
     {
         // Create database tables and insert a Tab
         require_once api_get_path(SYS_PLUGIN_PATH) . PLUGIN_NAME . '/database.php';
-
     }
 
     /**
@@ -58,7 +57,7 @@ class TicketPlugin extends Plugin
         $settings = $this->get_settings();
         $plugSetting = current($settings);
 
-        //Delete settings
+        // Delete settings
         $sql = "DELETE FROM $tblSettings WHERE variable = 'ticket_tool_enable'";
         Database::query($sql);
 

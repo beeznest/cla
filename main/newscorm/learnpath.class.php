@@ -1594,7 +1594,8 @@ class learnpath
             error_log('New LP - In learnpath::get_brother_chapters()', 0);
         }
 
-        if (empty($id)|| $id != strval(intval($id))) {
+        if (empty($id) || $id != strval(intval($id))) {
+
             return array ();
         }
 
@@ -1605,21 +1606,24 @@ class learnpath
         if (Database :: num_rows($res_parent) > 0) {
             $row_parent = Database :: fetch_array($res_parent);
             $parent = $row_parent['parent_item_id'];
-            $sql_bros = "SELECT * FROM $lp_item
-                        WHERE
-                            c_id = ".$course_id." AND
-                            parent_item_id = $parent AND
-                            id = $id AND
-                            item_type='dokeos_chapter'
-                        ORDER BY display_order";
-            $res_bros = Database::query($sql_bros);
-            $list = array ();
+            $sql = "SELECT * FROM $lp_item
+                    WHERE
+                        c_id = ".$course_id." AND
+                        parent_item_id = $parent AND
+                        id = $id AND
+                        item_type='dokeos_chapter'
+                    ORDER BY display_order";
+            $res_bros = Database::query($sql);
+
+            $list = array();
             while ($row_bro = Database :: fetch_array($res_bros)) {
                 $list[] = $row_bro;
             }
+
             return $list;
         }
-        return array ();
+
+        return array();
     }
 
     /**
@@ -1682,9 +1686,10 @@ class learnpath
 
     /**
      * Gets the number of items currently completed
+     * @param bool $failedStatusException flag to determine the failed status is not considered progressed
      * @return integer The number of items currently completed
      */
-    public function get_complete_items_count()
+    public function get_complete_items_count($failedStatusException = false)
     {
         if ($this->debug > 0) {
             error_log('New LP - In learnpath::get_complete_items_count()', 0);
@@ -1694,9 +1699,12 @@ class learnpath
             'completed',
             'passed',
             'succeeded',
-            'browsed',
-            'failed'
+            'browsed'
         );
+
+        if (!$failedStatusException) {
+            $completedStatusList[] = 'failed';
+        }
 
         foreach ($this->items as $id => $dummy) {
             // Trying failed and browsed considered "progressed" as well.
@@ -1946,7 +1954,7 @@ class learnpath
             error_log('New LP - In learnpath::get_last()', 0);
         }
         //This is just in case the lesson doesn't cointain a valid scheme, just to avoid "Notices"
-        if ($this->index > 0) {
+        if (count($this->ordered_items) > 0) {
             $this->index = count($this->ordered_items) - 1;
             return $this->ordered_items[$this->index];
         }
@@ -1958,7 +1966,7 @@ class learnpath
      * Gets the navigation bar for the learnpath display screen
      * @return	string	The HTML string to use as a navigation bar
      */
-    public function get_navigation_bar($idBar = null, $display=null) {
+    public function get_navigation_bar($idBar = null, $display = null) {
         if ($this->debug > 0) {
             error_log('New LP - In learnpath::get_navigation_bar()', 0);
         }
@@ -3296,6 +3304,7 @@ class learnpath
                 $html .= '</div>';
             }
         }
+
         return $html;
 
     }
@@ -3400,7 +3409,7 @@ class learnpath
             }
 
             // Fixed issue BT#1272 - If the item type is a Chamilo Item (quiz, link, etc), then change the lp type to thread it as a normal Chamilo LP not a SCO.
-            if (in_array($lp_item_type, array('quiz', 'document', 'link', 'forum', 'thread', 'student_publication'))) {
+            if (in_array($lp_item_type, array('quiz', 'document', 'final_item', 'link', 'forum', 'thread', 'student_publication'))) {
                 $lp_type = 1;
             }
 
@@ -4072,7 +4081,7 @@ class learnpath
 
     /**
      * Check that all prerequisites are fulfilled. Returns true and an
-     * empty string on succes, returns false
+     * empty string on success, returns false
      * and the prerequisite string on error.
      * This function is based on the rules for aicc_script language as
      * described in the SCORM 1.2 CAM documentation page 108.
@@ -5598,6 +5607,11 @@ class learnpath
                 );
             }
 
+            // Detect if type is FINAL_ITEM to set path_id to SESSION
+            if ($arrLP[$i]['item_type'] == TOOL_LP_FINAL_ITEM) {
+                $_SESSION['pathItem'] = $arrLP[$i]['path'];
+            }
+
             if (($i % 2) == 0) {
                 $oddClass = 'row_odd';
             } else {
@@ -5613,7 +5627,11 @@ class learnpath
                 if (file_exists('../img/lp_' . $icon_name . '.gif')) {
                     $icon = Display::return_icon('lp_'.$icon_name.'.gif');
                 } else {
-                    $icon = Display::return_icon('folder_document.gif');
+                    if ($arrLP[$i]['item_type'] === TOOL_LP_FINAL_ITEM) {
+                        $icon = Display::return_icon('certificate.png');
+                    } else {
+                        $icon = Display::return_icon('folder_document.gif');
+                    }
                 }
             }
 
@@ -5648,13 +5666,15 @@ class learnpath
 
             if ($is_allowed_to_edit) {
                 if (!$update_audio || $update_audio <> 'true') {
-                    $move_icon .= '<a class="moved" href="#">';
-                    $move_icon .= Display::return_icon('move_everywhere.png', get_lang('Move'), array(), ICON_SIZE_TINY);
-                    $move_icon .= '</a>';
+                    if ($arrLP[$i]['item_type'] !== TOOL_LP_FINAL_ITEM) {
+                        $move_icon .= '<a class="moved" href="#">';
+                        $move_icon .= Display::return_icon('move_everywhere.png', get_lang('Move'), array(), ICON_SIZE_TINY);
+                        $move_icon .= '</a>';
+                    }
                 }
 
                 // No edit for this item types
-                if (!in_array($arrLP[$i]['item_type'], array('sco', 'asset'))) {
+                if (!in_array($arrLP[$i]['item_type'], array('sco', 'asset', 'final_item'))) {
                     if (!in_array($arrLP[$i]['item_type'], array('dokeos_chapter', 'dokeos_module'))) {
                         $edit_icon .= '<a href="'.api_get_self().'?'.api_get_cidreq().'&action=edit_item&view=build&id=' . $arrLP[$i]['id'] . '&lp_id=' . $this->lp_id . '&path_item=' . $arrLP[$i]['path'] . '" class="btn btn-default">';
                         $edit_icon .= Display::return_icon('edit.png', get_lang('LearnpathEditModule'), array(), ICON_SIZE_TINY);
@@ -6146,7 +6166,6 @@ class learnpath
 
         if (!is_dir($filepath)) {
             $filepath = api_get_path(SYS_COURSE_PATH) . $_course['path'] . '/document/';
-            $dir = '/';
         }
 
         $table_doc = Database :: get_course_table(TABLE_DOCUMENT);
@@ -6263,20 +6282,19 @@ class learnpath
                     WHERE c_id = ".$course_id." AND id = " . intval($item_id);
             $res = Database::query($sql);
             $row = Database::fetch_array($res);
-
             switch ($row['item_type']) {
-                case 'dokeos_chapter' :
-                case 'dir' :
-                case 'asset' :
-                case 'sco' :
-                    if (isset ($_GET['view']) && $_GET['view'] == 'build') {
+                case 'dokeos_chapter':
+                case 'dir':
+                case 'asset':
+                case 'sco':
+                    if (isset($_GET['view']) && $_GET['view'] == 'build') {
                         $return .= $this->display_manipulate($item_id, $row['item_type']);
                         $return .= $this->display_item_form($row['item_type'], get_lang('EditCurrentChapter') . ' :', 'edit', $item_id, $row);
                     } else {
                         $return .= $this->display_item_small_form($row['item_type'], get_lang('EditCurrentChapter') . ' :', $row);
                     }
                     break;
-                case TOOL_DOCUMENT :
+                case TOOL_DOCUMENT:
                     $tbl_doc = Database :: get_course_table(TABLE_DOCUMENT);
                     $sql = "SELECT lp.*, doc.path as dir
                             FROM " . $tbl_lp_item . " as lp
@@ -6287,11 +6305,11 @@ class learnpath
                                 doc.c_id = $course_id AND
                                 lp.id = " . intval($item_id);
                     $res_step = Database::query($sql);
-                    $row_step = Database :: fetch_array($res_step);
+                    $row_step = Database :: fetch_array($res_step, 'ASSOC');
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_document_form('edit', $item_id, $row_step);
                     break;
-                case TOOL_LINK :
+                case TOOL_LINK:
                     $link_id = (string) $row['path'];
                     if (ctype_digit($link_id)) {
                         $tbl_link = Database :: get_course_table(TABLE_LINK);
@@ -6306,7 +6324,23 @@ class learnpath
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_link_form('edit', $item_id, $row);
                     break;
-                case 'dokeos_module' :
+                case TOOL_LP_FINAL_ITEM:
+                    $_SESSION['finalItem'] = true;
+                    $tbl_doc = Database :: get_course_table(TABLE_DOCUMENT);
+                    $sql = "SELECT lp.*, doc.path as dir
+                            FROM " . $tbl_lp_item . " as lp
+                            LEFT JOIN " . $tbl_doc . " as doc
+                            ON doc.id = lp.path
+                            WHERE
+                                lp.c_id = $course_id AND
+                                doc.c_id = $course_id AND
+                                lp.id = " . intval($item_id);
+                    $res_step = Database::query($sql);
+                    $row_step = Database :: fetch_array($res_step, 'ASSOC');
+                    $return .= $this->display_manipulate($item_id, $row['item_type']);
+                    $return .= $this->display_document_form('edit', $item_id, $row_step);
+                    break;
+                case 'dokeos_module':
                     if (isset ($_GET['view']) && $_GET['view'] == 'build') {
                         $return .= $this->display_manipulate($item_id, $row['item_type']);
                         $return .= $this->display_item_form($row['item_type'], get_lang('EditCurrentModule') . ' :', 'edit', $item_id, $row);
@@ -6314,23 +6348,23 @@ class learnpath
                         $return .= $this->display_item_small_form($row['item_type'], get_lang('EditCurrentModule') . ' :', $row);
                     }
                     break;
-                case TOOL_QUIZ :
+                case TOOL_QUIZ:
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_quiz_form('edit', $item_id, $row);
                     break;
-                case TOOL_HOTPOTATOES :
+                case TOOL_HOTPOTATOES:
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_hotpotatoes_form('edit', $item_id, $row);
                     break;
-                case TOOL_STUDENTPUBLICATION :
+                case TOOL_STUDENTPUBLICATION:
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_student_publication_form('edit', $item_id, $row);
                     break;
-                case TOOL_FORUM :
+                case TOOL_FORUM:
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_forum_form('edit', $item_id, $row);
                     break;
-                case TOOL_THREAD :
+                case TOOL_THREAD:
                     $return .= $this->display_manipulate($item_id, $row['item_type']);
                     $return .= $this->display_thread_form('edit', $item_id, $row);
                     break;
@@ -6358,11 +6392,14 @@ class learnpath
         // Get all the links.
         $links = $this->get_links();
 
-        // Get al the student publications.
+        // Get all the student publications.
         $works = $this->get_student_publications();
 
-        // Get al the forums.
+        // Get all the forums.
         $forums = $this->get_forums(null, $course_code);
+
+        // Get the final item form (see BT#11048) .
+        $finish = $this->getFinalItemForm();
 
         $headers = array(
             Display::return_icon('folder_document.png', get_lang('Documents'), array(), ICON_SIZE_BIG),
@@ -6370,14 +6407,15 @@ class learnpath
             Display::return_icon('links.png', get_lang('Links'), array(), ICON_SIZE_BIG),
             Display::return_icon('works.png', get_lang('Works'), array(), ICON_SIZE_BIG),
             Display::return_icon('forum.png', get_lang('Forums'), array(), ICON_SIZE_BIG),
-            Display::return_icon('add_learnpath_section.png', get_lang('NewChapter'), array(), ICON_SIZE_BIG)
+            Display::return_icon('add_learnpath_section.png', get_lang('NewChapter'), array(), ICON_SIZE_BIG),
+            Display::return_icon('certificate.png', get_lang('Certificate'), [], ICON_SIZE_BIG),
         );
 
         echo Display::display_normal_message(get_lang('ClickOnTheLearnerViewToSeeYourLearningPath'));
         $chapter = $_SESSION['oLP']->display_item_form('chapter', get_lang('EnterDataNewChapter'), 'add_item');
         echo Display::tabs(
             $headers,
-            array($documents, $exercises, $links, $works, $forums, $chapter), 'resource_tab'
+            array($documents, $exercises, $links, $works, $forums, $chapter, $finish), 'resource_tab'
         );
 
         return true;
@@ -6453,7 +6491,6 @@ class learnpath
         $item_title			= Security::remove_XSS($item_title);
         $item_description 	= Security::remove_XSS($item_description);
 
-        $legend = '<legend>';
         if ($id != 0 && is_array($extra_info))
             $parent = $extra_info['parent_item_id'];
         else
@@ -6487,90 +6524,101 @@ class learnpath
         $arrLP = isset($this->arrMenu) ? $this->arrMenu : null;
         unset ($this->arrMenu);
 
+        $form = new FormValidator('quiz_form', 'POST', api_get_self() . '?' .$_SERVER['QUERY_STRING']);
+        $defaults = [];
+
         if ($action == 'add') {
-            $legend .= get_lang('CreateTheExercise') . '&nbsp;:';
+            $legend = get_lang('CreateTheExercise');
         } elseif ($action == 'move') {
-            $legend .= get_lang('MoveTheCurrentExercise') . '&nbsp;:';
+            $legend = get_lang('MoveTheCurrentExercise');
         } else {
-            $legend .= get_lang('EditCurrentExecice') . '&nbsp;:';
+            $legend = get_lang('EditCurrentExecice');
         }
 
         if (isset ($_GET['edit']) && $_GET['edit'] == 'true') {
             $legend .= Display :: return_warning_message(get_lang('Warning') . ' ! ' . get_lang('WarningEditingDocument'));
         }
 
-        $legend .= '</legend>';
-        $return = '';
-        $return .= '<div class="sectioncomment">';
-
-        $return .= '<form method="POST">';
-        $return .= $legend;
-        $return .= '<table class="lp_form">';
+        $form->addHeader($legend);
 
         if ($action != 'move') {
-            $return .= '<tr>';
-            $return .= '<td class="label"><label for="idTitle">' . get_lang('Title') . '</label></td>';
-            $return .= '<td class="input"><input id="idTitle" name="title" size="44" type="text" value="' . $item_title . '" /></td>';
-            $return .= '</tr>';
+            $form->addText('title', get_lang('Title'), true, ['id' => 'idTitle']);
+            $defaults['title'] = $item_title;
         }
 
-        $return .= '<tr>';
-
-        $return .= '<td class="label"><label for="idParent">' . get_lang('Parent') . '</label></td>';
-        $return .= '<td class="input">';
-
         // Select for Parent item, root or chapter
-        $return .= '<select id="idParent" style="width:100%;" name="parent" onChange="javascript: load_cbo(this.value);" size="1">';
-
-        $return .= '<option class="top" value="0">' . $this->name . '</option>';
+        $selectParent = $form->addSelect(
+            'parent',
+            get_lang('Parent'),
+            [],
+            ['id' => 'idParent', 'onchange' => 'load_cbo(this.value);']
+        );
+        $selectParent->addOption($this->name, 0);
 
         $arrHide = array (
             $id
         );
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($action != 'add') {
-                if (($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') && !in_array($arrLP[$i]['id'], $arrHide) && !in_array($arrLP[$i]['parent_item_id'], $arrHide)) {
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if (
+                    (
+                        $arrLP[$i]['item_type'] == 'dokeos_module' ||
+                        $arrLP[$i]['item_type'] == 'dokeos_chapter' ||
+                        $arrLP[$i]['item_type'] == 'dir'
+                    ) &&
+                    !in_array($arrLP[$i]['id'], $arrHide) &&
+                    !in_array($arrLP[$i]['parent_item_id'], $arrHide)
+                ) {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
                 } else {
                     $arrHide[] = $arrLP[$i]['id'];
                 }
             } else {
-                if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir')
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if (
+                    $arrLP[$i]['item_type'] == 'dokeos_module' ||
+                    $arrLP[$i]['item_type'] == 'dokeos_chapter' ||
+                    $arrLP[$i]['item_type'] == 'dir'
+                ) {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'], ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
+                }
             }
         }
         if (is_array($arrLP)) {
             reset($arrLP);
         }
 
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
-        $return .= '<tr>';
+        $selectPrevious = $form->addSelect('previous', get_lang('Position'), [], ['id' => 'previous']);
+        $selectPrevious->addOption(get_lang('FirstPosition'), 0);
 
-        $return .= '<td class="label"><label for="previous">' . get_lang('Position') . '</label></td>';
-        $return .= '<td class="input">';
-
-        $return .= '<select class="learnpath_item_form" style="width:100%;" id="previous" name="previous" size="1">';
-        $return .= '<option class="top" value="0">' . get_lang('FirstPosition') . '</option>';
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($arrLP[$i]['parent_item_id'] == $parent && $arrLP[$i]['id'] != $id) {
+                $selectPrevious->addOption(get_lang('After') . ' "' . $arrLP[$i]['title'] . '"', $arrLP[$i]['id']);
+
                 if (is_array($extra_info)) {
                     if ($extra_info['previous_item_id'] == $arrLP[$i]['id']) {
-                        $selected = 'selected="selected" ';
+                        $selectPrevious->setSelected($arrLP[$i]['id']);
                     }
                 } elseif ($action == 'add') {
-                    $selected = 'selected="selected" ';
-                } else {
-                    $selected = '';
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
                 }
-                $return .= '<option ' . $selected . 'value="' . $arrLP[$i]['id'] . '">' . get_lang('After') . ' "' . $arrLP[$i]['title'] . '"</option>';
             }
         }
-        $return .= '</select>';
 
-        $return .= '</td>';
-        $return .= '</tr>';
         if ($action != 'move') {
             $id_prerequisite = 0;
             if (is_array($arrLP)) {
@@ -6613,7 +6661,6 @@ class learnpath
 
             $return .= "</select></td>";
             */
-            $return .= '</tr>';
             /*$return .= '<tr>';
             $return .= '<td class="label"><label for="maxTimeAllowed">' . get_lang('MaxTimeAllowed') . '</label></td>';
             $return .= '<td class="input"><input name="maxTimeAllowed" style="width:98%;" id="maxTimeAllowed" value="' . $extra_info['max_time_allowed'] . '" /></td>';
@@ -6625,34 +6672,29 @@ class learnpath
             $return .= '</tr>'; */
         }
 
-        $return .= '<tr>';
         if ($action == 'add') {
-            $return .= '<td>&nbsp;</td><td><button class="save" name="submit_button" type="submit">' . get_lang('AddExercise') . '</button></td>';
+            $form->addButtonSave(get_lang('AddExercise'), 'submit_button');
         } else {
-            $return .= '<td>&nbsp;</td><td><button class="save" name="submit_button" type="submit">' . get_lang('EditCurrentExecice') . '</button></td>';
+            $form->addButtonSave(get_lang('EditCurrentExecice'), 'submit_button');
         }
 
-        $return .= '</tr>';
-        $return .= '</table>';
-
         if ($action == 'move') {
-            $return .= '<input name="title" type="hidden" value="' . $item_title . '" />';
-            $return .= '<input name="description" type="hidden" value="' . $item_description . '" />';
+            $form->addHidden('title', $item_title);
+            $form->addHidden('description', $item_description);
         }
 
         if (is_numeric($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info . '" />';
+            $form->addHidden('path', $extra_info);
         } elseif (is_array($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info['path'] . '" />';
+            $form->addHidden('path', $extra_info['path']);
         }
 
-        $return .= '<input name="type" type="hidden" value="' . TOOL_QUIZ . '" />';
-        $return .= '<input name="post_time" type="hidden" value="' . time() . '" />';
+        $form->addHidden('type', TOOL_QUIZ);
+        $form->addHidden('post_time', time());
 
-        $return .= '</form>';
-        $return .= '</div>';
+        $form->setDefaults($defaults);
 
-        return $return;
+        return '<div class="sectioncomment">' . $form->returnForm() . '</div>';
     }
 
     /**
@@ -6868,8 +6910,6 @@ class learnpath
             $item_description = '';
         }
 
-        $legend = '<legend>';
-
         if ($id != 0 && is_array($extra_info)) {
             $parent = $extra_info['parent_item_id'];
         } else {
@@ -6905,30 +6945,32 @@ class learnpath
         $arrLP = isset($this->arrMenu) ? $this->arrMenu : null;
         unset($this->arrMenu);
 
-        if ($action == 'add')
-            $legend .= get_lang('CreateTheForum') . '&nbsp;:';
-        elseif ($action == 'move') $legend .= get_lang('MoveTheCurrentForum') . '&nbsp;:';
-        else
-            $legend .= get_lang('EditCurrentForum') . '&nbsp;:';
-
-        $legend .= '</legend>';
-        $return = '<div class="sectioncomment">';
-        $return .= '<form method="POST">';
-        $return .= $legend;
-        $return .= '<table class="lp_form">';
-
-        if ($action != 'move') {
-            $return .= '<tr>';
-            $return .= '<td class="label"><label for="idTitle">' . get_lang('Title') . '</label></td>';
-            $return .= '<td class="input"><input id="idTitle" size="44" name="title" type="text" value="' . $item_title . '" class="learnpath_item_form" /></td>';
-            $return .= '</tr>';
+        if ($action == 'add') {
+            $legend = get_lang('CreateTheForum');
+        } elseif ($action == 'move') {
+            $legend = get_lang('MoveTheCurrentForum');
+        } else {
+            $legend = get_lang('EditCurrentForum');
         }
 
-        $return .= '<tr>';
-        $return .= '<td class="label"><label for="idParent">' . get_lang('Parent') . '</label></td>';
-        $return .= '<td class="input">';
-        $return .= '<select id="idParent" style="width:100%;" name="parent" onChange="javascript: load_cbo(this.value);" class="learnpath_item_form" size="1">';
-        $return .= '<option class="top" value="0">' . $this->name . '</option>';
+        $form = new FormValidator('forum_form', 'POST', api_get_self() . '?' .$_SERVER['QUERY_STRING']);
+        $defaults = [];
+
+        $form->addHeader($legend);
+
+        if ($action != 'move') {
+            $form->addText('title', get_lang('Title'), true, ['id' => 'idTitle', 'class' => 'learnpath_item_form']);
+            $defaults['title'] = $item_title;
+        }
+
+        $selectParent = $form->addSelect(
+            'parent',
+            get_lang('Parent'),
+            [],
+            ['id' => 'idParent', 'onchange' => 'load_cbo(this.value);', 'class' => 'learnpath_item_form']
+        );
+        $selectParent->addOption($this->name, 0);
+
         $arrHide = array(
             $id
         );
@@ -6937,47 +6979,61 @@ class learnpath
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($action != 'add') {
                 if (($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') && !in_array($arrLP[$i]['id'], $arrHide) && !in_array($arrLP[$i]['parent_item_id'], $arrHide)) {
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
                 } else {
                     $arrHide[] = $arrLP[$i]['id'];
                 }
             } else {
-                if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir')
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if (
+                    $arrLP[$i]['item_type'] == 'dokeos_module' ||
+                    $arrLP[$i]['item_type'] == 'dokeos_chapter' ||
+                    $arrLP[$i]['item_type'] == 'dir'
+                ) {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
+                }
             }
         }
         if (is_array($arrLP)) {
             reset($arrLP);
         }
 
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
-        $return .= '<tr>';
-        $return .= '<td class="label"><label for="previous">' . get_lang('Position') . '</label></td>';
-        $return .= '<td class="input">';
-        $return .= '<select id="previous" name="previous" style="width:100%;" size="1" class="learnpath_item_form">';
-        $return .= '<option class="top" value="0">' . get_lang('FirstPosition') . '</option>';
+        $selectPrevious = $form->addSelect(
+            'previous',
+            get_lang('Position'),
+            [],
+            ['id' => 'previous', 'class' => 'learnpath_item_form']
+        );
+        $selectPrevious->addOption(get_lang('FirstPosition'), 0);
 
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($arrLP[$i]['parent_item_id'] == $parent && $arrLP[$i]['id'] != $id) {
-                if ($extra_info['previous_item_id'] == $arrLP[$i]['id'])
-                    $selected = 'selected="selected" ';
-                elseif ($action == 'add') $selected = 'selected="selected" ';
-                else
-                    $selected = '';
+                $selectPrevious->addOption(get_lang('After') . ' "' . $arrLP[$i]['title'] . '"', $arrLP[$i]['id']);
 
-                $return .= '<option ' . $selected . 'value="' . $arrLP[$i]['id'] . '">' .
-                    get_lang('After') . ' "' . $arrLP[$i]['title'] . '"</option>';
+                if (isset($extra_info['previous_item_id']) && $extra_info['previous_item_id'] == $arrLP[$i]['id']) {
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
+                } elseif ($action == 'add') {
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
+                }
             }
         }
 
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
         if ($action != 'move') {
-            $return .= '<tr>';
-            $return .= '</tr>';
             $id_prerequisite = 0;
             if (is_array($arrLP)) {
                 foreach ($arrLP as $key => $value) {
@@ -6991,40 +7047,35 @@ class learnpath
             $arrHide = array();
             for ($i = 0; $i < count($arrLP); $i++) {
                 if ($arrLP[$i]['id'] != $id && $arrLP[$i]['item_type'] != 'dokeos_chapter') {
-                    if ($extra_info['previous_item_id'] == $arrLP[$i]['id'])
+                    if (isset($extra_info['previous_item_id']) && $extra_info['previous_item_id'] == $arrLP[$i]['id'])
                         $s_selected_position = $arrLP[$i]['id'];
                     elseif ($action == 'add') $s_selected_position = 0;
                     $arrHide[$arrLP[$i]['id']]['value'] = $arrLP[$i]['title'];
                 }
             }
-            $return .= '</tr>';
         }
-        $return .= '<tr>';
 
         if ($action == 'add') {
-            $return .= '<td>&nbsp;</td><td><button class="save" name="submit_button" type="submit"> ' . get_lang('AddForumToCourse') . ' </button></td>';
+            $form->addButtonSave(get_lang('AddForumToCourse'), 'submit_button');
         } else {
-            $return .= '<td>&nbsp;</td><td><button class="save" name="submit_button" type="submit"> ' . get_lang('EditCurrentForum') . ' </button></td>';
+            $form->addButtonSave(get_lang('EditCurrentForum'), 'submit_button');
         }
-        $return .= '</tr>';
-        $return .= '</table>';
 
         if ($action == 'move') {
-            $return .= '<input name="title" type="hidden" value="' . $item_title . '" />';
-            $return .= '<input name="description" type="hidden" value="' . $item_description . '" />';
+            $form->addHidden('title', $item_title);
+            $form->addHidden('description', $item_description);
         }
 
         if (is_numeric($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info . '" />';
+            $form->addHidden('path', $extra_info);
         } elseif (is_array($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info['path'] . '" />';
+            $form->addHidden('path', $extra_info['path']);
         }
-        $return .= '<input name="type" type="hidden" value="' . TOOL_FORUM . '" />';
-        $return .= '<input name="post_time" type="hidden" value="' . time() . '" />';
-        $return .= '</form>';
-        $return .= '</div>';
+        $form->addHidden('type', TOOL_FORUM);
+        $form->addHidden('post_time', time());
+        $form->setDefaults($defaults);
 
-        return $return;
+        return '<div class="sectioncomment">' . $form->returnForm() . '</div>';
     }
 
     /**
@@ -7058,8 +7109,6 @@ class learnpath
             $item_title = '';
             $item_description = '';
         }
-
-        $return = null;
 
         if ($id != 0 && is_array($extra_info)) {
             $parent = $extra_info['parent_item_id'];
@@ -7096,33 +7145,69 @@ class learnpath
         $arrLP = isset($this->arrMenu) ? $this->arrMenu : null;
         unset ($this->arrMenu);
 
-        $return .= '<form method="POST">';
-        if ($action == 'add')
-            $return .= '<legend>' . get_lang('CreateTheForum') . '</legend>';
-        elseif ($action == 'move') $return .= '<p class="lp_title">' . get_lang('MoveTheCurrentForum') . '&nbsp;:</p>';
-        else
-            $return .= '<legend>' . get_lang('EditCurrentForum') . '</legend>';
+        $form = new FormValidator('thread_form', 'POST', api_get_self() . '?' .$_SERVER['QUERY_STRING']);
+        $defaults = [];
 
-        $return .= '<table cellpadding="0" cellspacing="0" class="lp_form">';
-        $return .= '<tr>';
-        $return .= '<td class="label"><label for="idParent">' . get_lang('Parent') . '</label></td>';
-        $return .= '<td class="input">';
-        $return .= '<select id="idParent" name="parent" onChange="javascript: load_cbo(this.value);" size="1">';
-        $return .= '<option class="top" value="0">' . $this->name . '</option>';
+        if ($action == 'add') {
+            $legend = get_lang('CreateTheForum');
+        } elseif ($action == 'move') {
+            $legend = get_lang('MoveTheCurrentForum');
+        } else {
+            $legend = get_lang('EditCurrentForum');
+        }
+
+        $form->addHeader($legend);
+        $selectParent = $form->addSelect(
+            'parent',
+            get_lang('Parent'),
+            [],
+            ['id' => 'idParent', 'onchange' => 'load_cbo(this.value);']
+        );
+        $selectParent->addOption($this->name, 0);
+
         $arrHide = array (
             $id
         );
 
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($action != 'add') {
-                if (($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') && !in_array($arrLP[$i]['id'], $arrHide) && !in_array($arrLP[$i]['parent_item_id'], $arrHide)) {
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if (
+                    (
+                        $arrLP[$i]['item_type'] == 'dokeos_module' ||
+                        $arrLP[$i]['item_type'] == 'dokeos_chapter' ||
+                        $arrLP[$i]['item_type'] == 'dir'
+                    ) &&
+                    !in_array($arrLP[$i]['id'], $arrHide) &&
+                    !in_array($arrLP[$i]['parent_item_id'], $arrHide)
+                ) {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
                 } else {
                     $arrHide[] = $arrLP[$i]['id'];
                 }
             } else {
-                if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir')
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if (
+                    $arrLP[$i]['item_type'] == 'dokeos_module' ||
+                    $arrLP[$i]['item_type'] == 'dokeos_chapter' ||
+                    $arrLP[$i]['item_type'] == 'dir'
+                ) {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
+                }
             }
         }
 
@@ -7130,35 +7215,27 @@ class learnpath
             reset($arrLP);
         }
 
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
-        $return .= '<tr>';
-        $return .= '<td class="label"><label for="previous">' . get_lang('Position') . '</label></td>';
-        $return .= '<td class="input">';
-        $return .= '<select id="previous" name="previous" size="1">';
-        $return .= '<option class="top" value="0">' . get_lang('FirstPosition') . '</option>';
+        $selectPrevious = $form->addSelect('previous', get_lang('Position'), [], ['id' => 'previous']);
+        $selectPrevious->addOption(get_lang('FirstPosition'), 0);
+
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($arrLP[$i]['parent_item_id'] == $parent && $arrLP[$i]['id'] != $id) {
-                if ($extra_info['previous_item_id'] == $arrLP[$i]['id'])
-                    $selected = 'selected="selected" ';
-                elseif ($action == 'add') $selected = 'selected="selected" ';
-                else
-                    $selected = '';
+                $selectPrevious->addOption(
+                    get_lang('After')  . ' "' . $arrLP[$i]['title'] . '"',
+                    $arrLP[$i]['id']
+                );
 
-                $return .= '<option ' . $selected . 'value="' . $arrLP[$i]['id'] . '">' . get_lang('After') . ' "' . $arrLP[$i]['title'] . '"</option>';
+                if ($extra_info['previous_item_id'] == $arrLP[$i]['id']) {
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
+                } elseif ($action == 'add') {
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
+                }
             }
         }
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
+
         if ($action != 'move') {
-            $return .= '<tr>';
-            $return .= '<td class="label"><label for="idTitle">' . get_lang('Title') . '</label></td>';
-            $return .= '<td class="input"><input id="idTitle" name="title" type="text" value="' . $item_title . '" /></td>';
-            $return .= '</tr>';
-            $return .= '<tr>';
-            $return .= '</tr>';
+            $form->addText('title', get_lang('Title'), true, ['id' => 'idTitle']);
+            $defaults['title'] = $item_title;
 
             $id_prerequisite = 0;
             if ($arrLP != null) {
@@ -7171,6 +7248,8 @@ class learnpath
             }
 
             $arrHide = array();
+            $s_selected_position = 0;
+
             for ($i = 0; $i < count($arrLP); $i++) {
                 if ($arrLP[$i]['id'] != $id && $arrLP[$i]['item_type'] != 'dokeos_chapter') {
                     if ($extra_info['previous_item_id'] == $arrLP[$i]['id'])
@@ -7181,48 +7260,44 @@ class learnpath
                 }
             }
 
-            $return .= '<tr>';
-            $return .= '<td class="label"><label for="idPrerequisites">' . get_lang('LearnpathPrerequisites') . '</label></td>';
-            $return .= '<td class="input"><select name="prerequisites" id="prerequisites"><option value="0">' . get_lang('NoPrerequisites') . '</option>';
+            $selectPrerequisites = $form->addSelect(
+                'prerequisites',
+                get_lang('LearnpathPrerequisites'),
+                [],
+                ['id' => 'prerequisites']
+            );
+            $selectPrerequisites->addOption(get_lang('NoPrerequisites'), 0);
 
             foreach ($arrHide as $key => $value) {
+                $selectPrerequisites->addOption($value['value'], $key);
+
                 if ($key == $s_selected_position && $action == 'add') {
-                    $return .= '<option value="' . $key . '" selected="selected">' . $value['value'] . '</option>';
-                }
-                elseif ($key == $id_prerequisite && $action == 'edit') {
-                    $return .= '<option value="' . $key . '" selected="selected">' . $value['value'] . '</option>';
-                } else {
-                    $return .= '<option value="' . $key . '">' . $value['value'] . '</option>';
+                    $selectPrerequisites->setSelected($key);
+                } elseif ($key == $id_prerequisite && $action == 'edit') {
+                    $selectPrerequisites->setSelected($key);
                 }
             }
-            $return .= "</select></td>";
-            $return .= '</tr>';
-
         }
-        $return .= '<tr>';
-        $return .= '<td></td><td>
-                    <button class="save" name="submit_button" type="submit" value="'.get_lang('Ok').'" />'.get_lang('Ok').'</button></td>';
-        $return .= '</tr>';
-        $return .= '</table>';
+
+        $form->addButtonSave(get_lang('Ok'), 'submit_button');
 
         if ($action == 'move') {
-            $return .= '<input name="title" type="hidden" value="' . $item_title . '" />';
-            $return .= '<input name="description" type="hidden" value="' . $item_description . '" />';
+            $form->addHidden('title', $item_title);
+            $form->addHidden('description', $item_description);
         }
 
         if (is_numeric($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info . '" />';
+            $form->addHidden('path', $extra_info);
         }
         elseif (is_array($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info['path'] . '" />';
+            $form->addHidden('path', $extra_info['path']);
         }
 
-        $return .= '<input name="type" type="hidden" value="' . TOOL_THREAD . '" />';
-        $return .= '<input name="post_time" type="hidden" value="' . time() . '" />';
-        $return .= '</form>';
-        $return .= '</div>';
+        $form->addHidden('type', TOOL_THREAD);
+        $form->addHidden('post_time', time());
+        $form->setDefaults($defaults);
 
-        return $return;
+        return $form->returnForm();
     }
 
     /**
@@ -7310,7 +7385,7 @@ class learnpath
 
         //$arrHide = array($id);
         $arrHide[0]['value'] = Security :: remove_XSS($this->name);
-        $arrHide[0]['padding'] = 3;
+        $arrHide[0]['padding'] = 20;
         $charset = api_get_system_encoding();
 
         if ($item_type != 'module' && $item_type != 'dokeos_module') {
@@ -7318,7 +7393,7 @@ class learnpath
                 if ($action != 'add') {
                     if (($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') && !in_array($arrLP[$i]['id'], $arrHide) && !in_array($arrLP[$i]['parent_item_id'], $arrHide)) {
                         $arrHide[$arrLP[$i]['id']]['value'] = $arrLP[$i]['title'];
-                        $arrHide[$arrLP[$i]['id']]['padding'] = 3 + $arrLP[$i]['depth'] * 10;
+                        $arrHide[$arrLP[$i]['id']]['padding'] = 20 + $arrLP[$i]['depth'] * 20;
                         if ($parent == $arrLP[$i]['id']) {
                             $s_selected_parent = $arrHide[$arrLP[$i]['id']];
                         }
@@ -7326,7 +7401,7 @@ class learnpath
                 } else {
                     if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') {
                         $arrHide[$arrLP[$i]['id']]['value'] = $arrLP[$i]['title'];
-                        $arrHide[$arrLP[$i]['id']]['padding'] = 3 + $arrLP[$i]['depth'] * 10;
+                        $arrHide[$arrLP[$i]['id']]['padding'] = 20 + $arrLP[$i]['depth'] * 20;
                         if ($parent == $arrLP[$i]['id']) {
                             $s_selected_parent = $arrHide[$arrLP[$i]['id']];
                         }
@@ -7565,13 +7640,13 @@ class learnpath
         }
 
         $arrHide[0]['value'] = $this->name;
-        $arrHide[0]['padding'] = 3;
+        $arrHide[0]['padding'] = 20;
 
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($action != 'add') {
                 if (($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') && !in_array($arrLP[$i]['id'], $arrHide) && !in_array($arrLP[$i]['parent_item_id'], $arrHide)) {
                     $arrHide[$arrLP[$i]['id']]['value'] = $arrLP[$i]['title'];
-                    $arrHide[$arrLP[$i]['id']]['padding'] = 3 + $arrLP[$i]['depth'] * 10;
+                    $arrHide[$arrLP[$i]['id']]['padding'] = 20 + $arrLP[$i]['depth'] * 20;
                     if ($parent == $arrLP[$i]['id']) {
                         $s_selected_parent = $arrHide[$arrLP[$i]['id']];
                     }
@@ -7579,7 +7654,7 @@ class learnpath
             } else {
                 if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') {
                     $arrHide[$arrLP[$i]['id']]['value'] = $arrLP[$i]['title'];
-                    $arrHide[$arrLP[$i]['id']]['padding'] = 3 + $arrLP[$i]['depth'] * 10;
+                    $arrHide[$arrLP[$i]['id']]['padding'] = 20 + $arrLP[$i]['depth'] * 20;
                     if ($parent == $arrLP[$i]['id']) {
                         $s_selected_parent = $arrHide[$arrLP[$i]['id']];
                     }
@@ -7587,7 +7662,7 @@ class learnpath
             }
         }
 
-        $parent_select = $form->addElement('select', 'parent', get_lang('Parent'), '', 'class="form-control" id="idParent" " onchange="javascript: load_cbo(this.value);"');
+        $parent_select = $form->addSelect('parent', get_lang('Parent'), [], ['id' => 'idParent', 'onchange' => 'javascript: load_cbo(this.value);']);
         $my_count=0;
         foreach ($arrHide as $key => $value) {
             if ($my_count!=0) {
@@ -7617,21 +7692,22 @@ class learnpath
 
         //POSITION
         for ($i = 0; $i < count($arrLP); $i++) {
-            if ($arrLP[$i]['parent_item_id'] == $parent && $arrLP[$i]['id'] != $id) {
-                if (isset($extra_info['previous_item_id']) && $extra_info['previous_item_id'] == $arrLP[$i]['id'])
+            if ($arrLP[$i]['parent_item_id'] == $parent && $arrLP[$i]['id'] != $id || $arrLP[$i]['item_type'] == TOOL_LP_FINAL_ITEM) {
+                if (isset($extra_info['previous_item_id']) && $extra_info['previous_item_id'] == $arrLP[$i]['id'] || $action == 'add') {
                     $s_selected_position = $arrLP[$i]['id'];
-                elseif ($action == 'add') $s_selected_position = $arrLP[$i]['id'];
+                }
                 $arrHide[$arrLP[$i]['id']]['value'] = get_lang('After') . ' "' . $arrLP[$i]['title'] . '"';
             }
         }
 
-        $position = $form->addElement('select', 'previous', get_lang('Position'), '', 'id="previous" class="form-control"');
+        $position = $form->addSelect('previous', get_lang('Position'), [], ['id' => 'previous']);
         $position->addOption(get_lang('FirstPosition'), 0);
 
         foreach ($arrHide as $key => $value) {
-            $padding = isset($value['padding']) ? $value['padding']: 0;
+            $padding = isset($value['padding']) ? $value['padding']: 20;
             $position->addOption($value['value'], $key, 'style="padding-left:' . $padding . 'px;"');
         }
+
         $position->setSelected($s_selected_position);
 
         if (is_array($arrLP)) {
@@ -7652,7 +7728,7 @@ class learnpath
             $arrHide = array();
 
             for ($i = 0; $i < count($arrLP); $i++) {
-                if ($arrLP[$i]['id'] != $id && $arrLP[$i]['item_type'] != 'dokeos_chapter') {
+                if ($arrLP[$i]['id'] != $id && $arrLP[$i]['item_type'] != 'dokeos_chapter' && $arrLP[$i]['item_type'] !== TOOL_LP_FINAL_ITEM) {
                     if (isset($extra_info['previous_item_id']) && $extra_info['previous_item_id'] == $arrLP[$i]['id'])
                         $s_selected_position = $arrLP[$i]['id'];
                     elseif ($action == 'add') $s_selected_position = $arrLP[$i]['id'];
@@ -7665,7 +7741,7 @@ class learnpath
             if (!$no_display_add) {
                 $item_type = isset($extra_info['item_type']) ? $extra_info['item_type'] : null;
                 $edit = isset($_GET['edit']) ? $_GET['edit'] : null;
-                if (($extra_info == 'new' || $item_type == TOOL_DOCUMENT || $edit == 'true')) {
+                if (($extra_info == 'new' || $item_type == TOOL_DOCUMENT || $item_type == TOOL_LP_FINAL_ITEM || $edit == 'true')) {
                     if (isset ($_POST['content']))
                         $content = stripslashes($_POST['content']);
                     elseif (is_array($extra_info)) {
@@ -7795,7 +7871,8 @@ class learnpath
             $item_url = '';
         }
 
-        $legend = '<legend>';
+        $form = new FormValidator('edit_link', 'POST', api_get_self() . '?' .$_SERVER['QUERY_STRING']);
+        $defaults = [];
 
         if ($id != 0 && is_array($extra_info)) {
             $parent = $extra_info['parent_item_id'];
@@ -7830,47 +7907,69 @@ class learnpath
         $arrLP = isset($this->arrMenu) ? $this->arrMenu : null;
         unset ($this->arrMenu);
 
-        if ($action == 'add')
-            $legend .= get_lang('CreateTheLink') . '&nbsp;:';
-        elseif ($action == 'move') $legend .= get_lang('MoveCurrentLink') . '&nbsp;:';
-        else
-            $legend .= get_lang('EditCurrentLink') . '&nbsp;:';
-
-        $legend .= '</legend>';
-
-        $return = '<div class="sectioncomment">';
-        $return .= '<form method="POST">';
-        $return .= $legend;
-        $return .= '<table>';
-
-        if ($action != 'move') {
-            $return .= '<tr>';
-            $return .= '<td class="label"><label for="idTitle">' . get_lang('Title') . '</label></td>';
-            $return .= '<td class="input"><input id="idTitle" name="title" size="44" type="text" value="' . $item_title . '" class="learnpath_item_form"/></td>';
-            $return .= '</tr>';
+        if ($action == 'add') {
+            $legend = get_lang('CreateTheLink');
+        } elseif ($action == 'move') {
+            $legend = get_lang('MoveCurrentLink');
+        } else {
+            $legend = get_lang('EditCurrentLink');
         }
 
-        $return .= '<tr>';
-        $return .= '<td class="label"><label for="idParent">' . get_lang('Parent') . '</label></td>';
-        $return .= '<td class="input">';
-        $return .= '<select id="idParent" style="width:100%;" name="parent" onChange="javascript: load_cbo(this.value);" class="learnpath_item_form" size="1">';
-        $return .= '<option class="top" value="0">' . $this->name . '</option>';
+        $form->addHeader($legend);
+
+        if ($action != 'move') {
+            $form->addText('title', get_lang('Title'), true, ['class' => 'learnpath_item_form']);
+            $defaults['title'] = $item_title;
+        }
+
+        $selectParent = $form->addSelect(
+            'parent',
+            get_lang('Parent'),
+            [],
+            ['id' => 'idParent', 'onchange' => 'load_cbo(this.value);', 'class' => 'learnpath_item_form']
+        );
+        $selectParent->addOption($this->name, 0);
         $arrHide = array(
             $id
         );
 
-        $parent_item_id = $_SESSION['parent_item_id'];
+        $parent_item_id = isset($_SESSION['parent_item_id']) ? $_SESSION['parent_item_id'] : 0;
 
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($action != 'add') {
-                if (($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') && !in_array($arrLP[$i]['id'], $arrHide) && !in_array($arrLP[$i]['parent_item_id'], $arrHide)) {
-                    $return .= '<option ' . (($parent == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if (
+                    (
+                        $arrLP[$i]['item_type'] == 'dokeos_module' ||
+                        $arrLP[$i]['item_type'] == 'dokeos_chapter' ||
+                        $arrLP[$i]['item_type'] == 'dir'
+                    ) &&
+                    !in_array($arrLP[$i]['id'], $arrHide) &&
+                    !in_array($arrLP[$i]['parent_item_id'], $arrHide)
+                ) {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px;']
+                    );
+
+                    if ($parent == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
                 } else {
                     $arrHide[] = $arrLP[$i]['id'];
                 }
             } else {
-                if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir')
-                    $return .= '<option ' . (($parent_item_id == $arrLP[$i]['id']) ? 'selected="selected" ' : '') . 'style="padding-left:' . ($arrLP[$i]['depth'] * 10) . 'px;" value="' . $arrLP[$i]['id'] . '">' . $arrLP[$i]['title'] . '</option>';
+                if ($arrLP[$i]['item_type'] == 'dokeos_module' || $arrLP[$i]['item_type'] == 'dokeos_chapter' || $arrLP[$i]['item_type'] == 'dir') {
+                    $selectParent->addOption(
+                        $arrLP[$i]['title'],
+                        $arrLP[$i]['id'],
+                        ['style' => 'padding-left: ' . (20 + $arrLP[$i]['depth'] * 20) . 'px']
+                    );
+
+                    if ($parent_item_id == $arrLP[$i]['id']) {
+                        $selectParent->setSelected($arrLP[$i]['id']);
+                    }
+                }
             }
         }
 
@@ -7878,36 +7977,36 @@ class learnpath
             reset($arrLP);
         }
 
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
-        $return .= '<tr>';
-        $return .= '<td class="label"><label for="previous">' . get_lang('Position') . '</label></td>';
-        $return .= '<td class="input">';
+        $selectPrevious = $form->addSelect(
+            'previous',
+            get_lang('Position'),
+            [],
+            ['id' => 'previous', 'class' => 'learnpath_item_form']
+        );
+        $selectPrevious->addOption(get_lang('FirstPosition'), 0);
 
-        $return .= '<select id="previous" name="previous" style="width:100%;" size="1" class="learnpath_item_form">';
-        $return .= '<option class="top" value="0">' . get_lang('FirstPosition') . '</option>';
         for ($i = 0; $i < count($arrLP); $i++) {
             if ($arrLP[$i]['parent_item_id'] == $parent && $arrLP[$i]['id'] != $id) {
-                if ($extra_info['previous_item_id'] == $arrLP[$i]['id'])
-                    $selected = 'selected="selected" ';
-                elseif ($action == 'add')
-                    $selected = 'selected="selected" ';
-                else
-                    $selected = '';
+                $selectPrevious->addOption($arrLP[$i]['title'], $arrLP[$i]['id']);
 
-                $return .= '<option ' . $selected . 'value="' . $arrLP[$i]['id'] . '">' . get_lang('After') . ' "' . $arrLP[$i]['title'] . '"</option>';
+                if ($extra_info['previous_item_id'] == $arrLP[$i]['id']) {
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
+                } elseif ($action == 'add') {
+                    $selectPrevious->setSelected($arrLP[$i]['id']);
+                }
             }
         }
-        $return .= '</select>';
-        $return .= '</td>';
-        $return .= '</tr>';
 
         if ($action != 'move') {
-            $return .= '<tr>';
-            $return .= '<td class="label"><label for="idURL">' . get_lang('Url') . '</label></td>';
-            $return .= '<td class="input"><input' . (is_numeric($extra_info) ? ' disabled="disabled"' : '') . ' id="idURL" name="url" style="width:99%;" type="text" value="' . $item_url . '" class="learnpath_item_form" /></td>';
-            $return .= '</tr>';
+            $urlAttributes = ['class' => 'learnpath_item_form'];
+
+            if (is_numeric($extra_info)) {
+                $urlAttributes['disabled'] = 'disabled';
+            }
+
+            $form->addElement('url', 'url', get_lang('Url'), $urlAttributes);
+            $defaults['url'] = $item_url;
+
             $id_prerequisite = 0;
             if (is_array($arrLP)) {
                 foreach ($arrLP as $key => $value) {
@@ -7928,34 +8027,30 @@ class learnpath
 
                 }
             }
-            $return .= '</tr>';
         }
 
-        $return .= '<tr>';
         if ($action == 'add') {
-            $return .= '<td>&nbsp;</td><td><button class="save" name="submit_button" type="submit">' . get_lang('AddLinkToCourse') . '</button></td>';
+            $form->addButtonSave(get_lang('AddLinkToCourse'), 'submit_button');
         } else {
-            $return .= '<td>&nbsp;</td><td><button class="save" name="submit_button" type="submit">' . get_lang('EditCurrentLink') . '</button></td>';
+            $form->addButtonSave(get_lang('EditCurrentLink'), 'submit_button');
         }
-        $return .= '</tr>';
-        $return .= '</table>';
 
         if ($action == 'move') {
-            $return .= '<input name="title" type="hidden" value="' . $item_title . '" />';
-            $return .= '<input name="description" type="hidden" value="' . $item_description . '" />';
+            $form->addHidden('title', $item_title);
+            $form->addHidden('description', $item_description);
         }
 
         if (is_numeric($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info . '" />';
+            $form->addHidden('path', $extra_info);
         } elseif (is_array($extra_info)) {
-            $return .= '<input name="path" type="hidden" value="' . $extra_info['path'] . '" />';
+            $form->addHidden('path', $extra_info['path']);
         }
-        $return .= '<input name="type" type="hidden" value="' . TOOL_LINK . '" />';
-        $return .= '<input name="post_time" type="hidden" value="' . time() . '" />';
-        $return .= '</form>';
-        $return .= '</div>';
+        $form->addHidden('type', TOOL_LINK);
+        $form->addHidden('post_time', time());
 
-        return $return;
+        $form->setDefaults($defaults);
+
+        return '<div class="sectioncomment">' . $form->returnForm() . '</div>';
     }
 
     /**
@@ -8194,7 +8289,7 @@ class learnpath
                 // Commented the message cause should not show it.
                 //$lang = get_lang('TitleManipulateModule');
                 break;
-
+            case TOOL_LP_FINAL_ITEM :
             case TOOL_DOCUMENT :
                 // Commented the message cause should not show it.
                 //$lang = get_lang('TitleManipulateDocument');
@@ -8268,7 +8363,7 @@ class learnpath
             $return .= get_lang('File').': '.$document_data['absolute_path_from_document'];
         }
 
-        if ($item_type == TOOL_DOCUMENT ) {
+        if ($item_type == TOOL_DOCUMENT || $item_type == TOOL_LP_FINAL_ITEM) {
             $document_data = DocumentManager::get_document_data_by_id($row['path'], $course_code);
             $return .= get_lang('File').': '.$document_data['absolute_path_from_document'];
         }
@@ -8301,12 +8396,14 @@ class learnpath
         $i = 0;
 
         while ($row_zero = Database :: fetch_array($res_zero)) {
-            if ($row_zero['item_type'] == TOOL_QUIZ) {
-                $row_zero['title'] = Exercise::get_formated_title_variable($row_zero['title']);
+            if ($row_zero['item_type'] !== TOOL_LP_FINAL_ITEM) {
+                if ($row_zero['item_type'] == TOOL_QUIZ) {
+                    $row_zero['title'] = Exercise::get_formated_title_variable($row_zero['title']);
+                }
+                $js_var = json_encode(get_lang('After').' '.$row_zero['title']);
+                $return .= 'child_name[0][' . $i . '] = '.$js_var.' ;' . "\n";
+                $return .= 'child_value[0][' . $i++ . '] = "' . $row_zero['id'] . '";' . "\n";
             }
-            $js_var = json_encode(get_lang('After').' '.$row_zero['title']);
-            $return .= 'child_name[0][' . $i . '] = '.$js_var.' ;' . "\n";
-            $return .= 'child_value[0][' . $i++ . '] = "' . $row_zero['id'] . '";' . "\n";
         }
         $return .= "\n";
         $sql = "SELECT * FROM " . $tbl_lp_item . "
@@ -8815,7 +8912,15 @@ class learnpath
         //First add link
         $return .= '<li class="lp_resource_element">';
         $return .= Display::return_icon('forum_new_small.gif');
-        $return .= '<a href="' . api_get_path(WEB_CODE_PATH) . 'forum/index.php?' . api_get_cidreq() . '&action=add&content=forum&origin=learnpath&lp_id=' . $this->lp_id . '" title="' . get_lang('CreateANewForum') . '">' . get_lang('CreateANewForum') . '</a>';
+        $return .= Display::url(
+            get_lang('CreateANewForum'),
+            api_get_path(WEB_CODE_PATH) . 'forum/index.php?' . api_get_cidreq() . '&' . http_build_query([
+                'action' => 'add',
+                'content' => 'forum',
+                'lp_id' => $this->lp_id
+            ]),
+            ['title' => get_lang('CreateANewForum')]
+        );
         $return .= '</li>';
 
         $return .= '<script>
@@ -10691,6 +10796,125 @@ EOD;
         return $forumId;
     }
 
+    /**
+     * Check and obtain the lp final item if exist
+     *
+     * @return array lp items
+     */
+    private function getFinalItem()
+    {
+
+        if (empty($this->items)) {
+            return null;
+        }
+
+        foreach ($this->items as $item) {
+            if ($item->type !== 'final_item') {
+                continue;
+            }
+
+            return $item;
+        }
+    }
+
+    /**
+     * Get the LP Final Item Template
+     *
+     * @return html
+     */
+    private function getFinalItemTemplate()
+    {
+        return file_get_contents(api_get_path(SYS_CODE_PATH) . 'newscorm/final_item_template/template.html');
+    }
+
+    /**
+     * Get the LP Final Item Url
+     *
+     * @return String
+     */
+    private function getSavedFinalItem()
+    {
+        $finalItem = $this->getFinalItem();
+        $doc = DocumentManager::get_document_data_by_id($finalItem->path, $this->cc);
+
+        return file_get_contents($doc['absolute_path']);
+    }
+
+    /**
+     * Get the LP Final Item form
+     *
+     * @return html
+     */
+    public function getFinalItemForm()
+    {
+        $finalItem = $this->getFinalItem();
+        $title = '';
+        $content = '';
+
+        if ($finalItem) {
+            $title = $finalItem->title;
+            $buttonText = get_lang('Save');
+            $content = $this->getSavedFinalItem();
+        } else {
+            $buttonText = get_lang('LPCreateDocument');
+            $content = $this->getFinalItemTemplate();
+        }
+
+        $courseInfo = api_get_course_info();
+        $result = $this->generate_lp_folder($courseInfo);
+        $relative_path = api_substr($result['dir'], 1, strlen($result['dir']));
+        $relative_prefix = '../../';
+
+        $editorConfig = [
+            'ToolbarSet' => 'LearningPathDocuments',
+            'Width' => '100%',
+            'Height' => '500',
+            'FullPage' => true,
+            'CreateDocumentDir' => $relative_prefix,
+            'CreateDocumentWebDir' => api_get_path(WEB_COURSE_PATH) . api_get_course_path() . '/document/',
+            'BaseHref' => api_get_path(WEB_COURSE_PATH) . api_get_course_path() . '/document/' . $relative_path
+        ];
+
+        $url = api_get_self() . '?' . api_get_cidreq() . '&' . http_build_query([
+            'type' => 'document',
+            'lp_id' => $this->lp_id
+        ]);
+
+        $form = new FormValidator('final_item', 'POST', $url);
+        $form->addText('title', get_lang('Title'));
+        $form->addButtonSave($buttonText);
+        $form->addHtml('<div class="alert alert-info">Variables :</br></br> <b>((certificate))</b> </br> <b>((skill))</b></div>');
+        $renderer = $form->defaultRenderer();
+        $renderer->setElementTemplate('<div class="editor-lp">&nbsp;{label}{element}</div>', 'content_lp');
+        $form->addHtmlEditor('content_lp', null, null, true, $editorConfig, true);
+        $form->addHidden('action', 'add_final_item');
+        $form->addHidden('path', isset($_SESSION['pathItem']) ? $_SESSION['pathItem'] : '');
+        $form->addHidden('previous', $this->get_last());
+
+        $form->setDefaults(['title' => $title, 'content_lp' => $content]);
+
+        if ($form->validate()) {
+            $values = $form->exportValues();
+
+            $lastItemId = $this->get_last();
+
+            if (!$finalItem) {
+                $documentId = $this->create_document($this->course_info, $values['content_lp'], $values['title']);
+                $this->add_item(
+                    0,
+                    $lastItemId,
+                    'final_item',
+                    $documentId,
+                    $values['title'],
+                    ''
+                );
+            } else {
+                $this->edit_document($this->course_info);
+            }
+        }
+
+        return $form->returnForm();
+    }
 }
 
 if (!function_exists('trim_value')) {

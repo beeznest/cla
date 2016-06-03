@@ -526,7 +526,7 @@ class UserManager
                         $url = api_get_access_url($access_url_id);
                     }
                 } else {
-                    $url = $_configuration['root_web'];
+                    $url = api_get_path(WEB_PATH);
                 }
                 $tplContent = new Template(null, false, false, false, false, false);
                 // variables for the default template
@@ -589,6 +589,7 @@ class UserManager
             ));
             $hook->notifyCreateUser(HOOK_EVENT_TYPE_POST);
         }
+
         return $return;
     }
 
@@ -779,9 +780,6 @@ class UserManager
                 WHERE lastedit_user_id = '".$user_id."'";
         Database::query($sql);
 
-
-
-
         // Delete user from database
         $sql = "DELETE FROM $table_user WHERE id = '".$user_id."'";
         Database::query($sql);
@@ -820,7 +818,7 @@ class UserManager
      * @assert (-1) === false
      * @assert (array(-1)) === false
      */
-    static function delete_users($ids = array())
+    public static function delete_users($ids = array())
     {
         $result = false;
         $ids = is_array($ids) ? $ids : func_get_args();
@@ -845,7 +843,7 @@ class UserManager
      * @assert (null) === false
      * @assert (array(-1)) === false
      */
-    static function deactivate_users($ids = array())
+    public static function deactivate_users($ids = array())
     {
         if (empty($ids)) {
             return false;
@@ -875,7 +873,7 @@ class UserManager
      * @assert (null) === false
      * @assert (array(-1)) === false
      */
-    static function activate_users($ids = array())
+    public static function activate_users($ids = array())
     {
         if (empty($ids)) {
             return false;
@@ -1076,6 +1074,8 @@ class UserManager
             } else {
                 $emailbody = get_lang('Dear')." ".stripslashes(api_get_person_name($firstname, $lastname)).",\n\n".get_lang('YouAreReg')." ".api_get_setting('siteName')." ".get_lang('WithTheFollowingSettings')."\n\n".get_lang('Username')." : ".$username.(($reset_password > 0) ? "\n".get_lang('Pass')." : ".stripslashes($original_password) : "")."\n\n".get_lang('Address')." ".api_get_setting('siteName')." ".get_lang('Is')." : ".$_configuration['root_web']."\n\n".get_lang('Problem')."\n\n".get_lang('SignatureFormula').",\n\n".api_get_person_name(api_get_setting('administratorName'), api_get_setting('administratorSurname'))."\n".get_lang('Manager')." ".api_get_setting('siteName')."\nT. ".api_get_setting('administratorTelephone')."\n".get_lang('Email')." : ".api_get_setting('emailAdministrator');
             }
+
+            $emailbody = nl2br($emailbody);
             api_mail_html(
                 $recipient_name,
                 $email,
@@ -1399,6 +1399,7 @@ class UserManager
         while ($row = Database::fetch_array($rs)) {
             $result[] = $row;
         }
+
         return $result;
     }
 
@@ -1410,8 +1411,12 @@ class UserManager
      * @todo optional course code parameter, optional sorting parameters...
      * @todo security filter order by
      */
-    public static function get_user_list($conditions = array(), $order_by = array(), $limit_from = false, $limit_to = false)
-    {
+    public static function get_user_list(
+        $conditions = array(),
+        $order_by = array(),
+        $limit_from = false,
+        $limit_to = false
+    ) {
         $user_table = Database :: get_main_table(TABLE_MAIN_USER);
         $return_array = array();
         $sql_query = "SELECT * FROM $user_table";
@@ -1447,8 +1452,12 @@ class UserManager
      * @todo optional course code parameter, optional sorting parameters...
      * @todo security filter order_by
      */
-    public static function get_user_list_like($conditions = array(), $order_by = array(), $simple_like = false, $condition = 'AND')
-    {
+    public static function get_user_list_like(
+        $conditions = array(),
+        $order_by = array(),
+        $simple_like = false,
+        $condition = 'AND'
+    ) {
         $user_table = Database :: get_main_table(TABLE_MAIN_USER);
         $return_array = array();
         $sql_query = "SELECT * FROM $user_table";
@@ -1570,7 +1579,7 @@ class UserManager
                 try {
                     mkdir($rootPath, $perm);
                 } catch (Exception $e) {
-                    //
+                    error_log($e->getMessage());
                 }
             }
         }
@@ -1639,7 +1648,6 @@ class UserManager
         }
 
         $gravatarEnabled = api_get_setting('gravatar_enabled');
-
         $anonymousPath = Display::returnIconPath('unknown.png', $pictureAnonymousSize);
 
         if ($pictureWebFile == 'unknown.jpg' || empty($pictureWebFile)) {
@@ -1932,8 +1940,8 @@ class UserManager
     /**
      * Remove a user production.
      *
-     * @param   int $user_id        User id
-     * @param   string $production    The production to remove
+     * @param int $user_id        User id
+     * @param string $production    The production to remove
      */
     public static function remove_user_production($user_id, $production)
     {
@@ -2181,6 +2189,7 @@ class UserManager
     {
         $extraField = new ExtraField('user');
         $data = $extraField->get_handler_field_info_by_field_variable($variable);
+
         return empty($data) ? true : false;
     }
 
@@ -2390,11 +2399,13 @@ class UserManager
     }
 
     /** Get extra user data by value
-     * @param string the internal variable name of the field
-     * @param string the internal value of the field
+     * @param string $field_variable the internal variable name of the field
+     * @param string $field_value the internal value of the field
+     * @param bool $all_visibility
+     *
      * @return array with extra data info of a user i.e array('field_variable'=>'value');
      */
-    public static function get_extra_user_data_by_value($field_variable, $field_value, $all_visibility = true)
+     public static function get_extra_user_data_by_value($field_variable, $field_value, $all_visibility = true)
     {
         $extraField = new ExtraFieldValue('user');
 
@@ -2864,7 +2875,8 @@ class UserManager
 
         $sql = "SELECT DISTINCT
                     c.visibility,
-                    c.id as real_id
+                    c.id as real_id,                    
+                    sc.position
                 FROM $tbl_session_course_user as scu
                 INNER JOIN $tbl_session_course sc
                 ON (scu.session_id = sc.session_id AND scu.c_id = sc.c_id)
@@ -2891,7 +2903,9 @@ class UserManager
 
         if (api_is_allowed_to_create_course()) {
             $sql = "SELECT DISTINCT
-                        c.visibility, c.id as real_id
+                        c.visibility, 
+                        c.id as real_id,
+                        sc.position
                     FROM $tbl_session_course_user as scu
                     INNER JOIN $tbl_session as s
                     ON (scu.session_id = s.id)
@@ -3137,7 +3151,7 @@ class UserManager
             self::delete_api_key($id_key['id']);
             $num = self::add_api_key($user_id, $api_service);
         } elseif ($num == 0) {
-            $num = self::add_api_key($user_id);
+            $num = self::add_api_key($user_id, $api_service);
         }
         return $num;
     }
@@ -3738,7 +3752,7 @@ class UserManager
             $finalResult = array();
             if (count($extraFieldResult)>1) {
                 for ($i=0; $i < count($extraFieldResult) -1; $i++) {
-                    if (is_array($extraFieldResult[$i+1])) {
+                if (is_array($extraFieldResult[$i]) && is_array($extraFieldResult[$i+1])) {
                         $finalResult  = array_intersect($extraFieldResult[$i], $extraFieldResult[$i+1]);
                     }
                 }
@@ -3762,7 +3776,7 @@ class UserManager
      * @param string $query the value of the search box
      * @return string HTML form
      */
-    public static function get_search_form($query)
+    public static function get_search_form($query, $defaultParams = [])
     {
         $searchType = isset($_GET['search_type']) ? $_GET['search_type'] : null;
         $form = new FormValidator(
@@ -3814,6 +3828,10 @@ class UserManager
 
         $defaults['search_type'] = intval($searchType);
         $defaults['q'] = api_htmlentities(Security::remove_XSS($query));
+
+        if (!empty($defaultParams)) {
+            $defaults = array_merge($defaults, $defaultParams);
+        }
         $form->setDefaults($defaults);
 
         $form->addButtonSearch(get_lang('Search'));
@@ -4262,7 +4280,7 @@ class UserManager
      * @param array $subscribedUsersId The id of suscribed users
      * @param action $relationType The relation type
      */
-    public static function subscribeUsersToUser($userId, $subscribedUsersId, $relationType)
+    public static function subscribeUsersToUser($userId, $subscribedUsersId, $relationType, $deleteUsersBeforeInsert = false)
     {
         $userRelUserTable = Database::get_main_table(TABLE_MAIN_USER_REL_USER);
         $userRelAccessUrlTable = Database::get_main_table(TABLE_MAIN_ACCESS_URL_REL_USER);
@@ -4272,28 +4290,37 @@ class UserManager
         $affectedRows = 0;
 
         if (api_get_multiple_access_url()) {
-            //Deleting assigned users to hrm_id
-            $sql = "SELECT s.user_id FROM $userRelUserTable s "
-                . "INNER JOIN $userRelAccessUrlTable a ON (a.user_id = s.user_id) "
-                . "WHERE friend_user_id = $userId "
-                . "AND relation_type = $relationType "
-                . "AND access_url_id = " . api_get_current_access_url_id() . "";
+            // Deleting assigned users to hrm_id
+            $sql = "SELECT s.user_id FROM $userRelUserTable s 
+                    INNER JOIN $userRelAccessUrlTable a ON (a.user_id = s.user_id) 
+                    WHERE 
+                        friend_user_id = $userId AND 
+                        relation_type = $relationType AND 
+                        access_url_id = " . api_get_current_access_url_id();
         } else {
-            $sql = "SELECT user_id FROM $userRelUserTable "
-                . "WHERE friend_user_id = $userId "
-                . "AND relation_type = $relationType";
+            $sql = "SELECT user_id FROM $userRelUserTable 
+                    WHERE friend_user_id = $userId 
+                    AND relation_type = $relationType";
         }
         $result = Database::query($sql);
 
         if (Database::num_rows($result) > 0) {
             while ($row = Database::fetch_array($result)) {
-                $sql = "DELETE FROM $userRelUserTable "
-                    . "WHERE user_id = {$row['user_id']} "
-                    . "AND friend_user_id = $userId "
-                    . "AND relation_type = $relationType";
-
+                $sql = "DELETE FROM $userRelUserTable 
+                        WHERE 
+                          user_id = {$row['user_id']} AND 
+                          friend_user_id = $userId AND 
+                          relation_type = $relationType";
                 Database::query($sql);
             }
+        }
+
+        if ($deleteUsersBeforeInsert) {
+            $sql = "DELETE FROM $userRelUserTable 
+                    WHERE 
+                        user_id = $userId AND
+                        relation_type = $relationType";
+            Database::query($sql);
         }
 
         // Inserting new user list
@@ -4301,11 +4328,10 @@ class UserManager
             foreach ($subscribedUsersId as $subscribedUserId) {
                 $subscribedUserId = intval($subscribedUserId);
 
-                $sql = "INSERT IGNORE INTO $userRelUserTable(user_id, friend_user_id, relation_type) "
-                    . "VALUES ($subscribedUserId, $userId, $relationType)";
+                $sql = "INSERT IGNORE INTO $userRelUserTable (user_id, friend_user_id, relation_type)
+                        VALUES ($subscribedUserId, $userId, $relationType)";
 
                 $result = Database::query($sql);
-
                 $affectedRows = Database::affected_rows($result);
             }
         }
@@ -4970,14 +4996,42 @@ EOF;
     }
 
     /**
-     * Subscribe users to student boss
+     * Subscribe boss to students
+     *
      * @param int $bossId The boss id
      * @param array $usersId The users array
      * @return int Affected rows
      */
-    public static function subscribeUsersToBoss($bossId, $usersId)
+    public static function subscribeBossToUsers($bossId, $usersId)
     {
         return self::subscribeUsersToUser($bossId, $usersId, USER_RELATION_TYPE_BOSS);
+    }
+
+    /**
+     * Subscribe boss to students
+     *
+     * @param int $studentId
+     * @param array $bossList
+     * @return int Affected rows
+     */
+    public static function subscribeUserToBossList($studentId, $bossList)
+    {
+        $count = 1;
+        if ($bossList) {
+            $studentId = (int) $studentId;
+            $userRelUserTable = Database::get_main_table(TABLE_MAIN_USER_REL_USER);
+            $userRelAccessUrlTable = Database::get_main_table(TABLE_MAIN_ACCESS_URL_REL_USER);
+            $sql = "DELETE FROM $userRelUserTable 
+                    WHERE user_id = $studentId AND relation_type = ".USER_RELATION_TYPE_BOSS;
+            Database::query($sql);
+
+            foreach ($bossList as $bossId) {
+                $sql = "INSERT IGNORE INTO $userRelUserTable (user_id, friend_user_id, relation_type)
+                        VALUES ($studentId, $bossId, ".USER_RELATION_TYPE_BOSS.")";
+
+                Database::query($sql);
+            }
+        }
     }
 
     /**
@@ -5009,8 +5063,18 @@ EOF;
         $lastConnectionDate = null
     ){
         return self::getUsersFollowedByUser(
-                $userId, $userStatus, $getOnlyUserId, $getSql, $getCount, $from, $numberItems, $column, $direction,
-                $active, $lastConnectionDate, STUDENT_BOSS
+            $userId,
+            $userStatus,
+            $getOnlyUserId,
+            $getSql,
+            $getCount,
+            $from,
+            $numberItems,
+            $column,
+            $direction,
+            $active,
+            $lastConnectionDate,
+            STUDENT_BOSS
         );
     }
 
@@ -5124,7 +5188,7 @@ EOF;
      * @param $userId
      * @return bool
      */
-    public static function getStudentBoss($userId)
+    public static function getFirstStudentBoss($userId)
     {
         $userId = intval($userId);
         if ($userId > 0) {
@@ -5145,6 +5209,36 @@ EOF;
 
                 return $row[0]['boss_id'];
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the boss user ID from a followed user id
+     * @param $userId
+     * @return bool
+     */
+    public static function getStudentBossList($userId)
+    {
+        $userId = intval($userId);
+        if ($userId > 0) {
+            $userRelTable = Database::get_main_table(TABLE_MAIN_USER_REL_USER);
+            $result = Database::select(
+                'DISTINCT friend_user_id AS boss_id',
+                $userRelTable,
+                array(
+                    'where' => array(
+                        'user_id = ? AND relation_type = ? ' => array(
+                            $userId,
+                            USER_RELATION_TYPE_BOSS,
+                        )
+                    )
+                ),
+                'all'
+            );
+
+            return $result;
         }
 
         return false;

@@ -19,6 +19,7 @@ class GradebookUtils
      * @param   int     Visibility (0 hidden, 1 shown)
      * @param   int     Session ID (optional or 0 if not defined)
      * @param   int
+     * @param integer $resource_type
      * @return  boolean True on success, false on failure
      */
     public static function add_resource_to_course_gradebook(
@@ -117,7 +118,6 @@ class GradebookUtils
 
     /**
      * Builds an img tag for a gradebook item
-     * @param string $type value returned by a gradebookitem's get_icon_name()
      */
     public static function build_type_icon_tag($kind, $attributes = array())
     {
@@ -369,11 +369,12 @@ class GradebookUtils
 
     /**
      * Checks if a resource is in the unique gradebook of a given course
-     * @param    string  Course code
-     * @param    int     Resource type (use constants defined in linkfactory.class.php)
-     * @param    int     Resource ID in the corresponding tool
-     * @param    int     Session ID (optional -  0 if not defined)
-     * @return   int     false on error or array of resource
+     * @param    string  $course_code Course code
+     * @param    int     $resource_type Resource type (use constants defined in linkfactory.class.php)
+     * @param    int     $resource_id Resource ID in the corresponding tool
+     * @param    int     $session_id Session ID (optional -  0 if not defined)
+     *
+     * @return   array     false on error or array of resource
      */
     public static function is_resource_in_course_gradebook($course_code, $resource_type, $resource_id, $session_id = 0)
     {
@@ -390,6 +391,7 @@ class GradebookUtils
             return false;
         }
         $row = Database::fetch_array($res, 'ASSOC');
+        
         return $row;
     }
 
@@ -570,6 +572,9 @@ class GradebookUtils
      * @param int The user id
      * @param float The score obtained for certified
      * @param Datetime The date when you obtained the certificate
+     * @param integer $cat_id
+     * @param integer $user_id
+     * @param string $date_certificate
      * @return void()
      */
     public static function register_user_info_about_certificate($cat_id, $user_id, $score_certificate, $date_certificate)
@@ -699,10 +704,11 @@ class GradebookUtils
         $path_image_in_default_course = api_get_path(WEB_CODE_PATH) . 'default_course_document';
         $new_content_html = str_replace('/main/default_course_document', $path_image_in_default_course, $new_content_html);
         $new_content_html = str_replace(SYS_CODE_PATH . 'img/', api_get_path(WEB_IMG_PATH), $new_content_html);
+        $print = '';
 
         //add print header
         if ($hide_print_button == false) {
-            $print = '<style media="print" type="text/css">#print_div {visibility:hidden;}</style>';
+            $print .= '<style media="print" type="text/css">#print_div {visibility:hidden;}</style>';
             $print .= '<a href="javascript:window.print();" style="float:right; padding:4px;" id="print_div">';
             $print .= Display::return_icon('printmgr.gif', get_lang('Print'));
             $print .= '</a>';
@@ -769,7 +775,7 @@ class GradebookUtils
                 $row = Database::fetch_array($res);
                 $category_id = $row['id'];
             }
-            
+
             return $category_id;
         }
 
@@ -948,7 +954,7 @@ class GradebookUtils
     }
 
     /**
-     * @param array $list_values
+     * @param string[] $list_values
      * @return string
      */
     public static function score_badges($list_values)
@@ -1008,7 +1014,7 @@ class GradebookUtils
     }
 
     /**
-     * @param $result
+     * @param Doctrine\DBAL\Driver\Statement|null $result
      * @return array
      */
     public static function get_user_array_from_sql_result($result)
@@ -1381,7 +1387,7 @@ class GradebookUtils
         $sessionName = !empty($sessionName) ? " - $sessionName" : '';
 
         $params = array(
-            'pdf_title' => sprintf(get_lang('GradeFromX'), $courseInfo['department_name']),
+            'pdf_title' => sprintf(get_lang('GradeFromX'), $courseInfo['name']),
             'session_info' => '',
             'course_info' => '',
             'pdf_date' => '',

@@ -256,6 +256,7 @@ class Event
         $sql = "INSERT INTO ".$TABLETRACK_UPLOADS."
                     ( upload_user_id,
                       c_id,
+                      upload_cours_id,
                       upload_work_id,
                       upload_date,
                       upload_session_id
@@ -263,6 +264,7 @@ class Event
                     VALUES (
                      ".$user_id.",
                      '".$courseId."',
+                     '',
                      '".$doc_id."',
                      '".$reallyNow."',
                      '".api_get_session_id()."'
@@ -1796,7 +1798,7 @@ class Event
      * @param array $values (passing by reference)
      * @return boolean True if everything is OK, false otherwise
      */
-    function event_send_mail_filter_func(&$values)
+    public function event_send_mail_filter_func(&$values)
     {
         return true;
     }
@@ -1806,7 +1808,7 @@ class Event
      * @param array $values (passing by reference)
      * @return boolean True if everything is OK, false otherwise
      */
-    function user_registration_event_send_mail_filter_func(&$values)
+    public function user_registration_event_send_mail_filter_func(&$values)
     {
         $res = self::event_send_mail_filter_func($values);
         // proper logic for this filter
@@ -1818,7 +1820,7 @@ class Event
      * @param array $values (passing by reference)
      * @return boolean True if everything is OK, false otherwise
      */
-    function portal_homepage_edited_event_send_mail_filter_func(&$values)
+    public function portal_homepage_edited_event_send_mail_filter_func(&$values)
     {
         $res = self::event_send_mail_filter_func($values);
         // proper logic for this filter
