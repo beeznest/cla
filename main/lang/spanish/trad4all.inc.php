@@ -7758,5 +7758,4 @@ $AllowShowSkypeAccountTitle = "Permitir mostrar la cuenta de usuario de Skype";
 $AllowShowSkypeAccountComment = "Añadir un enlace en el bloque social de usuario que permite iniciar una conversación por Skype";
 $AllowShowLinkedInUrlTitle = "Permitir mostrar la URL de LinkedIn del usuario";
 $AllowShowLinkedInUrlComment = "Añadir un enlace en el bloque social del usuario, lo que permite visitar el perfil del usuario en LinkedIn";
-?>
-
+$IAcceptPrivacyPolicy = "Acepto los términos y condiciones de uso";
