@@ -1,0 +1,159 @@
+@charset "UTF-8";
+/*!
+* Charmeleon Theme for Chamila Project
+* 2015 - Alex Aragón (alex.aragon@beeznest.com)
+*/
+@font-face {
+  font-family: "Roboto Condensed";
+  font-weight: 300;
+  font-style: "normal";
+  src: local("Roboto Condensed Ligth"), local("RobotoCondensed-Ligth"), url("fonts/RobotoCondensed-Ligth.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-weight: 400;
+  font-style: "normal";
+  src: local("Roboto Condensed Regular"), local("RobotoCondensed-Regular"), url("fonts/RobotoCondensed-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-weight: 700;
+  font-style: "normal";
+  src: local("Roboto Condensed Bold"), local("RobotoCondensed-Bold"), url("fonts/RobotoCondensed-Bold.woff2") format("woff2");
+}
+body {
+  margin: 0;
+  font-family: "Roboto Condensed", sans-serif;
+}
+ 
+a {
+  color: #0099FF;
+  text-decoration: none;
+}
+a:hover,
+a:focus {
+  color: #2E75A3;
+  text-decoration: none;
+}
+a:focus {
+  outline: none;
+}
+header{
+    padding: 0;
+    margin: 0;
+}
+.navbar{
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+}
+.navbar-collapse{
+  overflow: hidden !important;
+}
+.navbar-default {
+  background: #FFCC00;
+  box-shadow: none;
+  border: none;
+}
+.navbar-default .navbar-nav > li > a:focus,
+.navbar-default .navbar-nav > li > a:hover {
+  color: #FFFFFF;
+  background-color: #000000;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus{
+  color: #000000;
+  background-color:#E7E7E7;
+}
+.navbar-default .navbar-nav > li > a{
+  color: #000000;
+  font-weight: bold;
+  font-size: 20px;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus{
+  background: #000000;
+  color: #ffffff;
+}
+.navbar-nav > li > .dropdown-menu{
+  min-width: 100%;
+  margin-top: 2px;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+}
+.navbar-default .navbar-nav > .open > .dropdown-menu{
+  padding: 3px 4px;
+}
+.navbar-default .navbar-nav > .open > .dropdown-menu > li > a{
+  padding: 6px 9px;
+}
+.nav > li > a:hover, .nav > li > a:focus{
+   background-color: transparent;
+}
+.navbar-form .form-control{
+  height: 25px;
+  padding: 6px;
+}
+.navbar-default .navbar-brand {
+  color:white;
+}
+.navbar-default .navbar-collapse, .navbar-default .navbar-form{
+  border-color: #2C5B8E;
+}
+.navbar-default .navbar-toggle{
+  border-color: #00677C;
+}
+.navbar-default .navbar-toggle .icon-bar{
+  background-color: #ffffff;
+}
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover{
+  background-color: #2C5B8E;
+}
+.section-notifications{
+    text-align: right;
+}
+.section-notifications ul{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.badge-warning{
+  background-color: #FD6600;
+}
+.breadcrumb{
+  padding: 8px 15px;
+  margin-bottom: 21px;
+  list-style: outside none none;
+  background-color: #ECF0F1;
+}
+.breadcrumb > .active{
+  color: #95a5a6;
+}
+.panel-default{
+  border-color: #ECF0F1;
+}
+.panel-default .panel-heading{
+  color: #2c3e50;
+  background-color:#ECF0F1;
+  border-color: #ECF0F1;
+}
+/* Jquery UI */
+.ui-accordion .ui-accordion-icons{
+  padding-left: 0.2em;
+}
+/* End Jquery UI */
+.bgfooter{
+  background-color:#1A2226;
+}
+.bgfooter{
+  color: #ffffff;
+}
+.bgfooter a{
+  color: #ffffff;
+}
+.page-header{
+  margin: 10px 0 10px;
+}
