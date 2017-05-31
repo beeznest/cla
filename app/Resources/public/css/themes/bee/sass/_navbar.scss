@@ -1,0 +1,31 @@
+//Navbar
+.navbar-default{
+    background: $colorPrimary;
+    border: $noBorder;
+    border-radius: $radius - $radius;
+    margin-bottom: 0px;
+    .navbar-nav{
+        margin: 0px;
+        .active{
+            a{
+              background: #E7E7E7;
+              color: $colorSecundary;
+            }          
+        }
+    }
+    .nav{
+        li{
+            font-weight: 700;
+            font-size: $fontMenu;           
+            a{
+                color:$colorSecundary;
+                padding-left: 25px;
+                padding-right: 25px;
+            }
+        }
+    }
+}
+
+.navbar-brand{
+    padding: $padding + 5;
+}
