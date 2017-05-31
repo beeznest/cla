@@ -19,6 +19,9 @@
 {{ css_static_file_to_string }}
 {{ js_file_to_string }}
 {{ extra_headers }}
+<link rel="stylesheet" href="{{_p.web_css_theme}}js/vegas/vegas.min.css">
+<script src="{{_p.web_css_theme}}js/vegas/vegas.min.js"></script>
+<script src="{{_p.web_css_theme}}js/jquery-expander/jquery.expander.js"></script>
 <script>
 
 /* Global chat variables */

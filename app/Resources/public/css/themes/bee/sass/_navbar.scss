@@ -10,22 +10,24 @@
             a{
               background: #E7E7E7;
               color: $colorSecundary;
-            }          
+            }
         }
     }
     .nav{
         li{
             font-weight: 700;
-            font-size: $fontMenu;           
+            font-size: $fontMenu;
             a{
                 color:$colorSecundary;
-                padding-left: 25px;
-                padding-right: 25px;
+                padding-left: 15px;
+                padding-right: 15px;
             }
         }
     }
 }
-
 .navbar-brand{
     padding: $padding + 5;
+}
+.avatar-user .dropdown-menu li{
+    font-size: 14px;
 }

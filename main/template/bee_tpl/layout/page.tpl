@@ -42,7 +42,7 @@
         </div>
     {% endif %}
 	<section id="content-section">
-        <div class="container">
+        
             {% block breadcrumb %}
                 <div id="page-breadcrumb">
                     {{ breadcrumb }}
@@ -52,7 +52,7 @@
             {% block body %}
                 {{ content }}
             {% endblock %}
-        </div>
+
 	</section>
 
     {% if show_footer == true %}
