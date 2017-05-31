@@ -42,17 +42,16 @@
         </div>
     {% endif %}
 	<section id="content-section">
-        
+        <div class="container">
             {% block breadcrumb %}
                 <div id="page-breadcrumb">
                     {{ breadcrumb }}
                 </div>
             {% endblock %}
-
-            {% block body %}
-                {{ content }}
-            {% endblock %}
-
+        </div>
+        {% block body %}
+            {{ content }}
+        {% endblock %}
 	</section>
 
     {% if show_footer == true %}
