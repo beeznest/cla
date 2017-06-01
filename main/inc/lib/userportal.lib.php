@@ -55,7 +55,11 @@ class IndexManager
         global $loginFailed;
         $this->tpl->setLoginForm($setLoginForm);
     }
-
+    
+    function set_register_form($setRegisterForm = true)
+    {
+        $this->tpl->setRegisterForm($setRegisterForm);
+    }
     /**
      * @param array $personal_course_list
      */

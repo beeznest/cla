@@ -144,7 +144,8 @@ if (!isset($_REQUEST['include'])) {
     }
     $announcements_block = $controller->return_announcements();
 }
-
+$path = api_get_path(WEB_CODE_PATH).'inc/ajax/sign.ajax.php';
+$controller->tpl->assign('ajax_path',$path);
 $controller->tpl->assign('hot_courses', $hot_courses);
 $controller->tpl->assign('announcements_block', $announcements_block);
 $controller->tpl->assign('home_page_block', $controller->return_home_page());

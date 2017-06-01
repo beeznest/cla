@@ -1,3 +1,71 @@
+
+<script>
+$(document).ready(function() {
+
+    $("[name\=submitAuth\]").on("click", function() {
+        var login = $("#login").val();
+        var password = $("#password").val();
+        $.ajax({
+            contentType: "application/x-www-form-urlencoded",
+            type: "POST",
+            url: "{{ ajax_path }}" + "?a=signIn",
+            data: 'login=' + login + '&password=' + password,
+            beforeSend : function() {
+                $("#returnMessage").html('<div class="three-quarters-loader"></div>');
+            },
+            success: function(response) {
+                try {
+                    response = JSON.parse(response);
+                    $("#returnMessage").html(response['message']);
+                    $(location).attr('href',response['url']);
+                } catch (e) {
+                    $("#returnMessage").html(response);
+                }
+            }
+        });
+        return false;
+    });
+
+    $("[name\=submitReg\]").on("click", function() {
+        var firstname = $("#firstname").val();
+        var lastname = $("#lastname").val();
+        var username = $("#username").val();
+        var pass1 = $("#pass1").val();
+        var pass2 = $("#pass2").val();
+        $.ajax({
+            contentType: "application/x-www-form-urlencoded",
+            type: "POST",
+            url: "{{ ajax_path }}" + "?a=signUp",
+            data: 'firstname=' + firstname + '&lastname=' + lastname + '&username=' + username + '&pass1=' + pass1 + '&pass2=' + pass2,
+            beforeSend : function() {
+                $("#returnMessage2").html('<div class="three-quarters-loader"></div>');
+            },
+            success: function(response) {
+                try {
+                    response = JSON.parse(response);
+                    $("#returnMessage2").html(response['message']);
+                    $.ajax({
+                        contentType: "application/x-www-form-urlencoded",
+                        type: "POST",
+                        url: "{{ ajax_path }}" + "?a=signIn",
+                        data: 'login=' + username + '&password=' + pass1,
+                        success: function(authLogIn) {
+                            if (authLogIn) {
+                                $(location).attr('href',response['url']);
+                            }
+                        }
+                    });
+                } catch (e) {
+                    $("#returnMessage2").html(response);
+                }
+            }
+        });
+        return false;
+    });
+});
+</script>
+
+
 <div id="navigation" class="notification-panel">
     {{ help_content }}
     {{ bug_notification }}
@@ -19,6 +87,12 @@
                         </a>
                     </li>
                     {% include template ~ "/layout/login_form.tpl" %}
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#register_modal" aria-haspopup="true" aria-expanded="false">
+                              <i class="fa fa-pencil-square-o fa-lg"></i> {{ 'SignUp' | get_lang }}
+                        </a>
+                    </li>
+                    {% include template ~ "/layout/register_form.tpl" %}
                 </li>
                 {% endif %}
             </ul>

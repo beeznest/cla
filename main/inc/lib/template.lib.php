@@ -203,6 +203,7 @@ class Template
         $this->assign('login_class', null);
 
         $this->setLoginForm();
+        $this->setRegisterForm();
 
         // Chamilo plugins
         if ($this->show_header) {
@@ -1286,7 +1287,57 @@ class Template
     {
         $this->params[$variable] = $value;
     }
+    
+    /**
+     * @param bool|true $setRegisterForm
+     */
+    public function setRegisterForm($setRegisterForm = true)
+    {
+        $userId = api_get_user_id();
+        if (!($userId) || api_is_anonymous($userId)) {
+            
+            if ($setRegisterForm) {
+                $this->assign('register_form', $this->displayRegisterForm());
+            }
+        }
+    }
+    
+    public function displayRegisterForm()
+    {
+        $form = new FormValidator(
+            'formRegister',
+            'POST',
+            null,
+            null,
+            null,
+            FormValidator::LAYOUT_BOX_NO_LABEL
+        );
+        
+        if (api_is_western_name_order()) {
+            // FIRST NAME and LAST NAME
+            $form->addElement('text', 'firstname', get_lang('FirstName'), array('id' => 'firstname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('FirstName')));
+            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('LastName')));
+        } else {
+            // LAST NAME and FIRST NAME
+            $form->addElement('text', 'lastname', get_lang('LastName'), array('id' => 'lastname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('LastName')));
+            $form->addElement('text', 'firstname', get_lang('FirstName'),  array('id' => 'firstname', 'size' => 40, 'icon' => 'pencil', 'placeholder' => get_lang('FirstName')));
+        }
+        
+        $form->addElement('text', 'username', get_lang('Email'), array('id' => 'username', 'size' => USERNAME_MAX_LENGTH, 'autofocus' => 'autofocus', 'icon' => 'user fa-envelope', 'placeholder' => get_lang('Email')));        
+        $form->addElement('password', 'pass1', get_lang('Pass'), array('id' => 'pass1', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Pass')));
+        $form->addElement('password', 'pass2', get_lang('Confirmation'), array('id' => 'pass2', 'size' => 20, 'autocomplete' => 'off', 'icon' => 'lock fa-fw', 'placeholder' => get_lang('Confirmation')));
+        
+        $form->addCheckBox('privacy_policy', '', get_lang('IAcceptPrivacyPolicy'), ['id' => 'privacyPolicy']);
+        
+        $form->addCheckBox('terms_and_conditions', '', get_lang('IAcceptTermsAndConditions'), ['id' => 'termsAndConditions']);
+        
+        $form->addButton('submitReg', get_lang('SignUp'), null, 'primary', null, 'btn-lg btn-block');
 
+        $html = $form->returnForm();
+        
+        return $html;
+    }
+    
     /**
      * Render the template
      * @param string $template The template path
