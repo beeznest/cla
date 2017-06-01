@@ -181,7 +181,7 @@ class PDF
      * @param bool $complete_style show header and footer if true
      * @param bool $addStyle
      *
-     * @return bool
+     * @return false|null
      */
     public function html_to_pdf(
         $html_file_array,
@@ -520,6 +520,8 @@ class PDF
         if ($outputMode != 'F') {
             exit;
         }
+
+        return $output_file;
     }
 
     /**
@@ -677,7 +679,7 @@ class PDF
     }
 
     /**
-     * @param array $header html content
+     * @param string $header html content
      */
     public function set_custom_header($header)
     {
@@ -766,5 +768,79 @@ class PDF
                 $this->pdf->SetHTMLFooter($this->custom_footer);
             }
         }
+    }
+
+    /**
+     * Generate a PDF file from $html in SYS_APP_PATH
+     *
+     * @param string $html PDF content
+     * @param string $fileName File name
+     * @param string $dest Optional. Directory to move file
+     * @return string The PDF path
+     */
+    public function exportFromHtmlToFile($html, $fileName, $dest = null)
+    {
+        $this->template = $this->template ?: new Template('', false, false, false, false, false, false);
+
+        $cssFile = api_get_path(SYS_CSS_PATH).'themes/'.$this->template->theme.'/print.css';
+
+        if (!file_exists($cssFile)) {
+            $cssFile = api_get_path(SYS_CSS_PATH).'print.css';
+        }
+
+        $pdfPath = self::content_to_pdf(
+            $html,
+            file_get_contents($cssFile),
+            $fileName,
+            $this->params['course_code'],
+            'F'
+        );
+
+        if (!$dest) {
+            return $pdfPath;
+        }
+
+        move($pdfPath, $dest);
+
+        return $dest.basename($pdfPath);
+    }
+
+    /**
+     * Create a PDF and save it into the documents area
+     * @param string $htmlContent HTML Content
+     * @param string $fileName The file name
+     * @param integer $courseId The course ID
+     * @param int $sessionId Optional. The session ID
+     */
+    public function exportFromHtmlToDocumentsArea($htmlContent, $fileName, $courseId, $sessionId = 0)
+    {
+        $userId = api_get_user_id();
+        $courseInfo = api_get_course_info_by_id($courseId);
+
+        $courseDirectory = api_get_path(SYS_COURSE_PATH).$courseInfo['directory'].'/document/';
+
+        $docPath = $this->exportFromHtmlToFile(
+            $htmlContent,
+            $fileName,
+            $courseDirectory
+        );
+
+        $docId = add_document(
+            $courseInfo,
+            str_replace($courseDirectory, '/', $docPath),
+            'file',
+            filesize($docPath),
+            $fileName,
+            null,
+            false,
+            true,
+            null,
+            $sessionId,
+            $userId
+        );
+
+        api_item_property_update($courseInfo, TOOL_DOCUMENT, $docId, 'DocumentAdded', $userId);
+
+        Display::addFlash(Display::return_message(get_lang('ItemAdded')));
     }
 }
