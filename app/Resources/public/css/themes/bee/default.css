@@ -79,6 +79,33 @@ footer {
   margin-bottom: 5px;
   margin-top: 10px; }
 
+.top-header {
+  background-color: #000000; }
+
+.logo {
+  margin-bottom: 0; }
+
+.page-section {
+  padding-top: 10px; }
+
+.option-session {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+  font-weight: bold; }
+  .option-session li {
+    margin: 0;
+    padding: 0 10px;
+    display: inline-block; }
+    .option-session li a {
+      color: #FFFFFF; }
+    .option-session li a:hover {
+      text-decoration: none; }
+    .option-session li a:focus {
+      outline: none;
+      text-decoration: none; }
+
 #hero {
   min-height: 580px;
   padding-top: 70px;
