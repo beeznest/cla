@@ -134,6 +134,17 @@ footer {
 #course_tools .content visible {
   color: #AAA; }
 
+.grid-courses .items-courses {
+  min-height: 410px; }
+
+.hot-courses .hot-course-title {
+  font-weight: bold;
+  font-size: 18px; }
+.hot-courses .grid-courses .items-hotcourse {
+  min-height: 430px; }
+.hot-courses .grid-courses .items .title {
+  font-size: 18px; }
+
 .big_icon {
   padding: 10px; }
   .big_icon a {

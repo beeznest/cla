@@ -22,7 +22,7 @@ $(document).ready( function() {
 </script>
 <section class="hot-courses">
     <div class="hot-course-head">
-        <h4 class="hot-course-title">
+        <h2 class="hot-course-title">
             {{ "HottestCourses"|get_lang}}
             {% if _u.is_admin %}
             <span class="pull-right">
@@ -31,7 +31,7 @@ $(document).ready( function() {
                 </a>
             </span>
             {% endif %}
-        </h4>
+        </h2>
     </div>
     <div id="list-hot-courses" class="grid-courses">
         <div class="row">

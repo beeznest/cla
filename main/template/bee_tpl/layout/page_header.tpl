@@ -11,6 +11,17 @@
     <div class="row">
         <div class="col-md-6"></div>
         <div class="col-md-6">
+            <ul>
+                {% if _u.logged  == 0 %}
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#login_modal" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-sign-in fa-lg"></i>{{ "LoginAs"|get_lang }}
+                        </a>
+                    </li>
+                    {% include template ~ "/layout/login_form.tpl" %}
+                </li>
+                {% endif %}
+            </ul>
             <script>
                $(document).on('ready', function () {
                    $("#notifications").load("{{ _p.web_main }}inc/ajax/online.ajax.php?a=get_users_online");
@@ -34,7 +45,7 @@
                 </div>
             </div>
             <div class="col-md-9">
-               
+
             </div>
         </div>
     </div>

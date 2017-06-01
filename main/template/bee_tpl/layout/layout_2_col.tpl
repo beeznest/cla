@@ -41,7 +41,13 @@
         <a href="{{ _p.web_main }}auth/courses.php" class="btn btn-primary"><i class="fa fa-book"></i> Ver más cursos en Chamila</a>
     </div>
 </section>
+<section id="courses-hot">
+    <div class="container">
+        {% include template ~ "/layout/hot_courses.tpl" %}
+    </div>
+</section>
 {% endif %}
+{% if section_name != 'section-mycampus' %}
 <div class="container">
     <div class="row">
         <div class="col-md-3">
@@ -80,10 +86,11 @@
                     {{ announcements_block }}
                     </article>
                 {% endif %}
-                {% include template ~ "/layout/hot_courses.tpl" %}
+
             </div>
         </div>
     </div>
 </div>
+{% endif %}
 
 {% endblock %}
