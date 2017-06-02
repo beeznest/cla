@@ -2,6 +2,7 @@
 /* For licensing terms, see /license.txt */
 
 use ChamiloSession as Session;
+use Chamilo\CoreBundle\Component\Utils\ChamiloApi;
 
 /**
  *
@@ -309,7 +310,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                     Session::erase('_uid');
                     Session::write('loginFailed', '1');
 
-                    header('Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=wrong_captcha');
+                    echo ChamiloApi::loginAjaxErrorHandler('wrong_captcha');
                     exit;
                 }
 
@@ -325,7 +326,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                         Session::erase('_uid');
                         Session::write('loginFailed', '1');
 
-                        header('Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=blocked_by_captcha');
+                        echo ChamiloApi::loginAjaxErrorHandler('blocked_by_captcha');
                         exit;
                     }
                 }
@@ -400,7 +401,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                         if ($cas_login) {
                                             cas_logout(null, $location);
                                         } else {
-                                            header('Location: '.$location);
+                                            echo ChamiloApi::loginAjaxErrorHandler('access_url_inactive');
                                         }
                                         exit;
                                     }
@@ -426,10 +427,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                             $loginFailed = true;
                                             Session::erase('_uid');
                                             Session::write('loginFailed', '1');
-                                            header(
-                                                'Location: '.api_get_path(WEB_PATH)
-                                                .'index.php?loginFailed=1&error=access_url_inactive'
-                                            );
+                                            ChamiloApi::loginAjaxErrorHandler('access_url_inactive');
                                             exit;
                                         }
                                     }
@@ -448,20 +446,14 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                             $loginFailed = true;
                             Session::erase('_uid');
                             Session::write('loginFailed', '1');
-                            header(
-                                'Location: '.api_get_path(WEB_PATH)
-                                .'index.php?loginFailed=1&error=account_expired'
-                            );
+                            ChamiloApi::loginAjaxErrorHandler('account_expired');
                             exit;
                         }
                     } else {
                         $loginFailed = true;
                         Session::erase('_uid');
                         Session::write('loginFailed', '1');
-                        header(
-                            'Location: '.api_get_path(WEB_PATH)
-                            .'index.php?loginFailed=1&error=account_inactive'
-                        );
+                        ChamiloApi::loginAjaxErrorHandler('account_inactive');
                         exit;
                     }
                 } else {
@@ -486,9 +478,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                         }
                     }
 
-                    header(
-                        'Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=user_password_incorrect'
-                    );
+                    ChamiloApi::loginAjaxErrorHandler('user_password_incorrect');
                     exit;
                 }
 
@@ -605,10 +595,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
             if ($loginFailed && empty($checkUserInfo)) {
                 //If we are here username given is wrong
                 Session::write('loginFailed', '1');
-                header(
-                    'Location: '.api_get_path(WEB_PATH)
-                    .'index.php?loginFailed=1&error=user_password_incorrect'
-                );
+                ChamiloApi::loginAjaxErrorHandler('user_password_incorrect');
                 exit;
             }
         } //end else login failed
@@ -693,7 +680,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                     $loginFailed = true;
                     Session::erase('_uid');
                     Session::write('loginFailed', '1');
-                    header('Location: '.api_get_path(WEB_PATH).'index.php?loginFailed=1&error=unrecognize_sso_origin');
+                    ChamiloApi::loginAjaxErrorHandler('unrecognize_sso_origin');
                     exit;
                 }
             }
@@ -747,14 +734,14 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                     $loginFailed = true;
                                     Session::erase('_uid');
                                     Session::write('loginFailed', '1');
-                                    header('Location: index.php?loginFailed=1&error=account_expired');
+                                    ChamiloApi::loginAjaxErrorHandler('account_expired');
                                     exit;
                                 }
                             } else {
                                 $loginFailed = true;
                                 Session::erase('_uid');
                                 Session::write('loginFailed', '1');
-                                header('Location: index.php?loginFailed=1&error=account_inactive');
+                                ChamiloApi::loginAjaxErrorHandler('account_inactive');
                                 exit;
                             }
                             if (isset($uData['creator_id']) && $_user['user_id'] != $uData['creator_id']) {
@@ -1523,5 +1510,5 @@ if ((isset($cas_login) && $cas_login && exist_firstpage_parameter()) ||
     }
 }
 
-Redirect::session_request_uri($logging_in, $user_id);
+Redirect::session_request_uri($logging_in, $user_id, true);
 

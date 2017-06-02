@@ -193,4 +193,51 @@ class ChamiloApi
         }
         return Session::read('_real_cid', 0);
     }
+
+    /**
+     * @param string $error
+     * @return string
+     */
+    public static function loginAjaxErrorHandler($error)
+    {
+        if (!isset($error)) {
+            if (api_is_self_registration_allowed()) {
+                return \Display::return_message(get_lang('InvalidForSelfRegistration'), 'error');
+            }
+        }
+
+        if ($error == 'account_expired') {
+            return \Display::return_message(get_lang('AccountExpired'), 'error');
+        }
+
+        if ($error == 'account_inactive') {
+            return \Display::return_message(get_lang('AccountInactive'), 'error');
+        }
+
+        if ($error == 'user_password_incorrect') {
+            return \Display::return_message(get_lang('InvalidId'), 'error');
+        }
+
+        if ($error == 'access_url_inactive') {
+            return \Display::return_message(get_lang('AccountURLInactive'), 'error');
+        }
+
+        if ($error == 'wrong_captcha') {
+            return \Display::return_message(get_lang('TheTextYouEnteredDoesNotMatchThePicture'), 'error');
+        }
+
+        if ($error == 'blocked_by_captcha') {
+            return \Display::return_message(get_lang('AccountBlockedByCaptcha'), 'error');
+        }
+
+        if ($error == 'multiple_connection_not_allowed') {
+            return \Display::return_message(get_lang('MultipleConnectionsAreNotAllow'), 'error');
+        }
+
+        if ($error == 'unrecognize_sso_origin') {
+            return \Display::return_message(get_lang('SSOError'), 'error');
+        }
+
+        return \Display::return_message(get_lang('InvalidId'), 'error');
+    }
 }

@@ -42,10 +42,12 @@ class Redirect
      * Redirect to the current session's "request uri" if it is defined, or
      * check sso_referer, user's role and page_after_login settings to send
      * the user to some predefined URL
-     * @param bool Whether the user just logged in (in this case, use page_after_login rules)
+     * @param bool $logging_in
      * @param int  The user_id, if defined. Otherwise just send to where the page_after_login setting says
+     * @param bool $ajaxLogin
+     * @internal param Whether $bool the user just logged in (in this case, use page_after_login rules)
      */
-    public static function session_request_uri($logging_in = false, $user_id = null)
+    public static function session_request_uri($logging_in = false, $user_id = null, $ajaxLogin = false)
     {
         $no_redirection = isset($_SESSION['noredirection']) ? $_SESSION['noredirection'] : false;
 
@@ -66,30 +68,30 @@ class Redirect
                 switch ($user_status) {
                     case COURSEMANAGER:
                         $redir = api_get_setting('teacher_page_after_login');
-                        if (!empty($redir)) {
-                            self::navigate(api_get_path(WEB_PATH).$redir);
-                        }
                         break;
                     case STUDENT:
                         $redir = api_get_setting('student_page_after_login');
-                        if (!empty($redir)) {
-                            self::navigate(api_get_path(WEB_PATH).$redir);
-                        }
                         break;
                     case DRH:
                         $redir = api_get_setting('drh_page_after_login');
-                        if (!empty($redir)) {
-                            self::navigate(api_get_path(WEB_PATH).$redir);
-                        }
                         break;
                     case SESSIONADMIN:
                         $redir = api_get_setting('sessionadmin_page_after_login');
-                        if (!empty($redir)) {
-                            self::navigate(api_get_path(WEB_PATH).$redir);
-                        }
                         break;
                     default:
                         break;
+                }
+
+                if (!empty($redir)) {
+                    if ($ajaxLogin) {
+                        echo json_encode([
+                            'url' => $redir,
+                            'message' => Display::return_message(get_lang('LoginSuccess'), 'success')]
+                        );
+                        exit;
+                    }
+
+                    self::navigate(api_get_path(WEB_PATH).$redir);
                 }
             }
             $redirect = api_get_setting('redirect_admin_to_courses_list');
@@ -100,18 +102,45 @@ class Redirect
                     // current URL before redirecting
                     $url = api_get_current_access_url_id();
                     if (api_is_platform_admin_by_id($user_id, $url)) {
-                        self::navigate(api_get_path(WEB_CODE_PATH).'admin/index.php');
+                        $redirectUrl = api_get_path(WEB_CODE_PATH).'admin/index.php';
+
+                        if ($ajaxLogin) {
+                            echo json_encode([
+                                'url' => $redirectUrl,
+                                'message' => Display::return_message(get_lang('LoginSuccess'), 'success')]
+                            );
+                            exit;
+                        }
+                        self::navigate($redirectUrl);
                     }
                 } else {
                     // if no multiple URL, then it's enough to be platform admin
                     if (api_is_platform_admin_by_id($user_id)) {
-                        self::navigate(api_get_path(WEB_CODE_PATH).'admin/index.php');
+                        $redirectUrl = api_get_path(WEB_CODE_PATH).'admin/index.php';
+
+                        if ($ajaxLogin) {
+                            echo json_encode([
+                                'url' => $redirectUrl,
+                                'message' => Display::return_message(get_lang('LoginSuccess'), 'success')]
+                            );
+                            exit;
+                        }
+                        self::navigate($redirectUrl);
                     }
                 }
             }
             $page_after_login = api_get_setting('page_after_login');
             if (!empty($page_after_login)) {
-                self::navigate(api_get_path(WEB_PATH).$page_after_login);
+                $redirectUrl = api_get_path(WEB_PATH).$page_after_login;
+
+                if ($ajaxLogin) {
+                    echo json_encode([
+                        'url' => $redirectUrl,
+                        'message' => Display::return_message(get_lang('LoginSuccess'), 'success')]
+                    );
+                    exit;
+                }
+                self::navigate($redirectUrl);
             }
         }
     }
