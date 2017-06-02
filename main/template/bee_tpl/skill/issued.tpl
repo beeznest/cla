@@ -2,7 +2,8 @@
     <div class="col-md-5">
         <div class="thumbnail">
             <figure class="text-center">
-                <img class="img-responsive center-block" src="{{ issue_info.skill_badge_image }}" alt="{{ issue_info.skill_name }}">
+                <img class="img-responsive center-block" src="{{ issue_info.skill_badge_image }}"
+                     alt="{{ issue_info.skill_name }}">
                 <figcaption>
                     <p class="lead">{{ issue_info.skill_name }}</p>
                     {% if issue_info.skill_short_code %}
@@ -38,11 +39,12 @@
                 </a>
             </p>
             <div class='col-md-12 text-center'>
-                <h5><b> {{ 'ShareWithYourFriends' | get_lang }} </b></h5>
+                <h5><b> {{ 'ShareWithYourFriends'|get_lang }} </b></h5>
                 <a href="http://www.facebook.com/sharer.php?u={{ _p.web }}badge/{{ issue_info.id }}" target="_new">
                     <em class='fa fa-facebook-square fa-3x text-info' aria-hidden='true'></em>
                 </a>
-                <a href="https://twitter.com/home?status={{ 'IHaveObtainedSkillXOnY' | get_lang |format(skill_info.name, _s.site_name)}} - {{ _p.web }}badge/{{ issue_info.id }}" target="_new">
+                <a href="https://twitter.com/home?status={{ 'IHaveObtainedSkillXOnY'|get_lang |format(skill_info.name, _s.site_name) }} - {{ _p.web }}badge/{{ issue_info.id }}"
+                   target="_new">
                     <em class='fa fa-twitter-square fa-3x text-light' aria-hidden='true'></em>
                 </a>
             </div>
@@ -61,7 +63,9 @@
                 {% endif %}
                 {% if issue_info.argumentation %}
                     {% if issue_info.argumentation %}
-                        <b><p style="font-style: italic;">{{ 'UserXIndicated'|get_lang|format(issue_info.argumentation_author_name) }} </p></b>
+                        <b>
+                            <p style="font-style: italic;">{{ 'UserXIndicated'|get_lang|format(issue_info.argumentation_author_name) }} </p>
+                        </b>
                     {% endif %}
                     <p>{{ issue_info.argumentation }}</p>
                 {% endif %}
@@ -87,9 +91,11 @@
             <hr>
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <em class="fa fa-comment-o fa-fw" aria-hidden="true"></em> {{ 'XComments'|get_lang|format(issue_info.comments|length) }}
+                    <em class="fa fa-comment-o fa-fw"
+                        aria-hidden="true"></em> {{ 'XComments'|get_lang|format(issue_info.comments|length) }}
                     /
-                    <em class="fa fa-thumbs-o-up fa-fw" aria-hidden="true"></em> {{ 'AverageRatingX'|get_lang|format(issue_info.feedback_average) }}
+                    <em class="fa fa-thumbs-o-up fa-fw"
+                        aria-hidden="true"></em> {{ 'AverageRatingX'|get_lang|format(issue_info.feedback_average) }}
                 </div>
                 <div class="panel-body">
                     {{ comment_form }}
@@ -98,7 +104,9 @@
                         <article class="media">
                             <div class="media-body">
                                 <h4 class="media-heading">{{ comment.giver_complete_name }}</h4>
-                                <p><small>{{ comment.datetime }}</small></p>
+                                <p>
+                                    <small>{{ comment.datetime }}</small>
+                                </p>
                                 <p>{{ comment.text }}</p>
                             </div>
                             <div class="media-right text-right">
@@ -118,9 +126,11 @@
         {% else %}
             <hr>
             <p class="lead">
-                <em class="fa fa-comment-o fa-fw" aria-hidden="true"></em> {{ 'XComments'|get_lang|format(issue_info.comments|length) }}
+                <em class="fa fa-comment-o fa-fw"
+                    aria-hidden="true"></em> {{ 'XComments'|get_lang|format(issue_info.comments|length) }}
                 /
-                <em class="fa fa-thumbs-o-up fa-fw" aria-hidden="true"></em> {{ 'AverageRatingX'|get_lang|format(issue_info.feedback_average) }}
+                <em class="fa fa-thumbs-o-up fa-fw"
+                    aria-hidden="true"></em> {{ 'AverageRatingX'|get_lang|format(issue_info.feedback_average) }}
             </p>
         {% endif %}
     </div>

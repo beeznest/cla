@@ -17,11 +17,11 @@
         return (match && match.length > 1) ? match[1] : '';
     }
 
-    $().ready(function() {
+    $().ready(function () {
         var funcNum = getUrlParam('CKEditorFuncNum');
         var elf = $('#elfinder').elfinder({
-            url : '{{ _p.web_lib ~ 'elfinder/connectorAction.php?' }}{{ course_condition }}',  // connector URL (REQUIRED)
-            getFileCallback : function(file) {
+            url: '{{ _p.web_lib ~ 'elfinder/connectorAction.php?' }}{{ course_condition }}',  // connector URL (REQUIRED)
+            getFileCallback: function (file) {
                 window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
                 window.close();
             },

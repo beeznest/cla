@@ -65,7 +65,7 @@
                                 <div class="info-post">
                                     <span class="date"><i class="fa fa-clock-o"></i> {{ item.post_date }}</span>
                                     <span class='comments'>
-                                        <i class="fa fa-comment-o"></i> {{ item.n_comments }} {{ 'Comments' | get_lang }}
+                                        <i class="fa fa-comment-o"></i> {{ item.n_comments }} {{ 'Comments'|get_lang }}
                                     </span>
                                     <span class="autor"><i class="fa fa-user"></i> {{ item.autor }}</span>
                                     <span class="score"><i class="fa fa-star"></i> {{ item.score_ranking }}</span>
@@ -75,7 +75,8 @@
                                     <div id="post-extract-{{ item.id_post }}" class="show">
                                         <p>
                                             {{ item.extract }}
-                                            <button type="button" class="btn btn-link btn-read-more" data-id="{{ item.id_post }}">
+                                            <button type="button" class="btn btn-link btn-read-more"
+                                                    data-id="{{ item.id_post }}">
                                                 {{ 'ReadMore'|get_lang }}
                                             </button>
                                         </p>

@@ -1,6 +1,6 @@
 CKEDITOR.addTemplates("default",
 {
-    imagesPath: ' ',
-    templates:
-        {{ templates }}
+imagesPath: ' ',
+templates:
+{{ templates }}
 });

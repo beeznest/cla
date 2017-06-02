@@ -1,5 +1,6 @@
 <div class="fallback-message">
-    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified
+        version of this presentation.</p>
     <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
 </div>
 
@@ -11,14 +12,14 @@
     <p>Use a spacebar or arrow keys to navigate</p>
 </div>
 <script>
-if ("ontouchstart" in document.documentElement) { 
-    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
-}
+    if ("ontouchstart" in document.documentElement) {
+        document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+    }
 </script>
 
-<script>     
-$(document).ready(function() {
-    impress().init(); 
-});
+<script>
+    $(document).ready(function () {
+        impress().init();
+    });
 </script>
-<script type="text/javascript" src="{{_p.web_lib}}javascript/impress/impress.js"></script>
+<script type="text/javascript" src="{{ _p.web_lib }}javascript/impress/impress.js"></script>

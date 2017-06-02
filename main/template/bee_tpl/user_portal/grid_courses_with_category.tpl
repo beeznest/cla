@@ -71,25 +71,25 @@
                                                 <div class="student-info">
 
                                                     {% if (item.student_info.progress is not null) %}
-                                                    {{ "StudentCourseProgressX" | get_lang | format(item.student_info.progress) }}
+                                                        {{ "StudentCourseProgressX"|get_lang|format(item.student_info.progress) }}
                                                     {% endif %}
 
                                                     {% if (item.student_info.score is not null) %}
-                                                    {{ "StudentCourseScoreX" | get_lang | format(item.student_info.score) }}
+                                                        {{ "StudentCourseScoreX"|get_lang|format(item.student_info.score) }}
                                                     {% endif %}
 
                                                     {% if (item.student_info.certificate is not null) %}
-                                                        <span title="{{ "StudentCourseCertificateX" | get_lang | format(item.student_info.certificate) }}">
+                                                        <span title="{{ "StudentCourseCertificateX"|get_lang|format(item.student_info.certificate) }}">
                                                             <i class="fa fa-certificate" aria-hidden="true"></i>
                                                             {{ item.student_info.certificate }}
-                                                        </span> 
+                                                        </span>
                                                     {% endif %}
 
                                                 </div>
                                             </div>
                                         {% endif %}
                                     {% endif %}
-                                    
+
                                 </div>
                             </div>
                         </div>

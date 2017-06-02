@@ -1,21 +1,21 @@
 {% extends template ~ "/layout/page.tpl" %}
 
 {% block body %}
-<div class="container">
+    <div class="container">
         <div class="page-section">
-        <div class="row">
-            <div class="col-xs-12 col-md-12">
-                {% include template ~ "/layout/page_body.tpl" %}
-                {% block content %}
-                    {% if content is not null %}
-                        <section id="main_content">
-                        {{ content }}
-                        </section>
-                    {% endif %}
-                {% endblock %}
-                &nbsp;
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    {% include template ~ "/layout/page_body.tpl" %}
+                    {% block content %}
+                        {% if content is not null %}
+                            <section id="main_content">
+                                {{ content }}
+                            </section>
+                        {% endif %}
+                    {% endblock %}
+                    &nbsp;
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

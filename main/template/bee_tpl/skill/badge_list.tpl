@@ -2,10 +2,10 @@
     <div class="openbadges-tabs">
         <ul class="nav nav-tabs">
             <li>
-                <a href="{{ _p.web_main }}admin/skill_badge.php">{{ 'Home' | get_lang }}</a>
+                <a href="{{ _p.web_main }}admin/skill_badge.php">{{ 'Home'|get_lang }}</a>
             </li>
             <li class="active">
-                <a href="{{ _p.web_main }}admin/skill_badge_list.php">{{ "CurrentBadges" | get_lang }}</a>
+                <a href="{{ _p.web_main }}admin/skill_badge_list.php">{{ "CurrentBadges"|get_lang }}</a>
             </li>
         </ul>
     </div>
@@ -20,28 +20,32 @@
                 <div class="openbadges-tablet">
                     <table class="table">
                         <thead>
-                            <tr>
-                                <th>{{ 'Name' | get_lang }}</th>
-                                <th>{{ 'Description' | get_lang }}</th>
-                                <th>{{ 'Actions' | get_lang }}</th>
-                            </tr>
+                        <tr>
+                            <th>{{ 'Name'|get_lang }}</th>
+                            <th>{{ 'Description'|get_lang }}</th>
+                            <th>{{ 'Actions'|get_lang }}</th>
+                        </tr>
                         </thead>
                         <tbody>
                         {% for skill in skills %}
                             <tr>
                                 <td>
                                     {% if skill.icon is empty %}
-                                        <img src="{{ 'badges-default.png' | icon(128) }}" width="50" height="50" alt="{{ skill.name }}">
+                                        <img src="{{ 'badges-default.png'|icon(128) }}" width="50" height="50"
+                                             alt="{{ skill.name }}">
                                     {% else %}
-                                        <img src="{{ skill.web_icon_path }}" width="50" height="50" alt="{{ skill.name }}">
+                                        <img src="{{ skill.web_icon_path }}" width="50" height="50"
+                                             alt="{{ skill.name }}">
                                     {% endif %}
 
                                     {{ skill.name }}
                                 </td>
                                 <td>{{ skill.description }}</td>
                                 <td>
-                                    <a href="{{ _p.web_main }}admin/skill_badge_create.php?id={{ skill.id }}" title="{{ 'Edit' | get_lang }}">
-                                        <img src="{{ 'edit.png' | icon(22) }}" width="22" height="22" alt="{{ 'Edit' | get_lang }}">
+                                    <a href="{{ _p.web_main }}admin/skill_badge_create.php?id={{ skill.id }}"
+                                       title="{{ 'Edit'|get_lang }}">
+                                        <img src="{{ 'edit.png'|icon(22) }}" width="22" height="22"
+                                             alt="{{ 'Edit'|get_lang }}">
                                     </a>
                                 </td>
                             </tr>

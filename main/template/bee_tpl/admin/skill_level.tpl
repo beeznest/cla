@@ -2,11 +2,11 @@
 
 <table class="data_table">
     <tr>
-        <th>{{ 'Name' | get_lang }}</th>
-        <th>{{ 'ShortName' | get_lang }}</th>
+        <th>{{ 'Name'|get_lang }}</th>
+        <th>{{ 'ShortName'|get_lang }}</th>
 
-        <th>{{ 'Profile' | get_lang }}</th>
-        <th>{{ 'Actions' | get_lang }}</th>
+        <th>{{ 'Profile'|get_lang }}</th>
+        <th>{{ 'Actions'|get_lang }}</th>
     </tr>
     {% for item in list %}
         <tr>

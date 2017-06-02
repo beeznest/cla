@@ -1,57 +1,57 @@
 <script>
-(function () {
-    var designer = null;
-    $(document).on('ready', function () {
-        $('.help-badges').tooltip();
-        $('.help-badges-img').tooltip();
-    });
-
-    $(document).on('ready', function () {
-        $('#btn-open-designer').on('click', function (e) {
-            e.preventDefault();
-
-            var designerUrl = 'https://www.openbadges.me/designer.html?origin={{ _p.web }}';
-            designerUrl = designerUrl + '&email={{ platformAdminEmail }}';
-            designerUrl = designerUrl + '&close=true';
-            designerUrl = designerUrl + '&hidePublish=true';
-
-            var windowOptions = 'width=1200,height=680,location=0,menubar=0,status=0,toolbar=0';
-            designer = window.open(designerUrl, '', windowOptions);
+    (function () {
+        var designer = null;
+        $(document).on('ready', function () {
+            $('.help-badges').tooltip();
+            $('.help-badges-img').tooltip();
         });
 
-        $('#image').on('change', function () {
-            var self = this;
+        $(document).on('ready', function () {
+            $('#btn-open-designer').on('click', function (e) {
+                e.preventDefault();
 
-            if (self.files.length > 0) {
-                var image = self.files[0];
+                var designerUrl = 'https://www.openbadges.me/designer.html?origin={{ _p.web }}';
+                designerUrl = designerUrl + '&email={{ platformAdminEmail }}';
+                designerUrl = designerUrl + '&close=true';
+                designerUrl = designerUrl + '&hidePublish=true';
 
-                if (!image.type.match(/image.*/)) {
-                    return;
+                var windowOptions = 'width=1200,height=680,location=0,menubar=0,status=0,toolbar=0';
+                designer = window.open(designerUrl, '', windowOptions);
+            });
+
+            $('#image').on('change', function () {
+                var self = this;
+
+                if (self.files.length > 0) {
+                    var image = self.files[0];
+
+                    if (!image.type.match(/image.*/)) {
+                        return;
+                    }
+
+                    var fileReader = new FileReader();
+                    fileReader.onload = function (e) {
+                        $('#badge-preview').attr('src', e.target.result);
+                        $('#badge-container').removeClass('hide');
+                    };
+                    fileReader.readAsDataURL(image);
                 }
-
-                var fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    $('#badge-preview').attr('src', e.target.result);
-                    $('#badge-container').removeClass('hide');
-                };
-                fileReader.readAsDataURL(image);
-            }
+            });
         });
-    });
-})();
+    })();
 </script>
 <div class="col-md-12">
 
     <div class="openbadges-tabs">
         <ul class="nav nav-tabs">
             <li>
-                <a href="{{ _p.web_main }}admin/skill_badge.php">{{ 'Home' | get_lang }}</a>
+                <a href="{{ _p.web_main }}admin/skill_badge.php">{{ 'Home'|get_lang }}</a>
             </li>
             <li>
-                <a href="{{ _p.web_main }}admin/skill_badge_list.php">{{ "CurrentBadges" | get_lang }}</a>
+                <a href="{{ _p.web_main }}admin/skill_badge_list.php">{{ "CurrentBadges"|get_lang }}</a>
             </li>
             <li class="active">
-                <a href="#">{{ 'Edit' | get_lang }}</a>
+                <a href="#">{{ 'Edit'|get_lang }}</a>
             </li>
         </ul>
     </div>
@@ -62,31 +62,37 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="block-edit">
-                            <div class="block-title">{{ 'SkillInfo' | get_lang }}</div>
+                            <div class="block-title">{{ 'SkillInfo'|get_lang }}</div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-9">
-                        <form action="{{ _p.web_self_query_vars }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                        <form action="{{ _p.web_self_query_vars }}" class="form-horizontal" method="post"
+                              enctype="multipart/form-data">
                             <fieldset>
 
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="name">{{ 'Name' | get_lang }}</label>
+                                    <label class="col-sm-2 control-label" for="name">{{ 'Name'|get_lang }}</label>
                                     <div class="col-sm-10">
-                                        <input type="text" name="name" id="name" class="form-control" value="{{ skill.name }}">
+                                        <input type="text" name="name" id="name" class="form-control"
+                                               value="{{ skill.name }}">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="name">{{ 'Description' | get_lang }}</label>
+                                    <label class="col-sm-2 control-label"
+                                           for="name">{{ 'Description'|get_lang }}</label>
                                     <div class="col-sm-10">
-                                        <textarea name="description" id="description" class="form-control" rows="4">{{ skill.description }}</textarea>
+                                        <textarea name="description" id="description" class="form-control"
+                                                  rows="4">{{ skill.description }}</textarea>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="image">{{ 'Image' | get_lang }}</label>
+                                    <label class="col-sm-2 control-label" for="image">{{ 'Image'|get_lang }}</label>
                                     <div class="col-sm-10">
-                                        <input data-placement="left" data-toggle="tooltip" title="{{ "BadgeMeasuresXPixelsInPNG" | get_lang }}" type="file" name="image" id="image" class="help-badges-img" accept="image/*">
+                                        <input data-placement="left" data-toggle="tooltip"
+                                               title="{{ "BadgeMeasuresXPixelsInPNG"|get_lang }}" type="file"
+                                               name="image" id="image" class="help-badges-img" accept="image/*">
                                     </div>
                                 </div>
                                 <div class="form-group collapse" id="badge-studio-frame">
@@ -97,35 +103,49 @@
                                             <div id="input">
                                                 <div class="row">
                                                     <div class="col-md-4">
-                                                        <h3 class="label"><label for="studio-mask">{{ "Templates" | get_lang }}</label></h3>
-                                                        <select name="template" class="form-control" id="studio-template" data-path="{{ badge_studio.templates }}">
-                                                            <option value="template-1">{{ "Template" | get_lang }} 1</option>
-                                                            <option value="template-2">{{ "Template" | get_lang }} 2</option>
-                                                            <option value="template-3">{{ "Template" | get_lang }} 3</option>
+                                                        <h3 class="label"><label
+                                                                    for="studio-mask">{{ "Templates"|get_lang }}</label>
+                                                        </h3>
+                                                        <select name="template" class="form-control"
+                                                                id="studio-template"
+                                                                data-path="{{ badge_studio.templates }}">
+                                                            <option value="template-1">{{ "Template"|get_lang }}1
+                                                            </option>
+                                                            <option value="template-2">{{ "Template"|get_lang }}2
+                                                            </option>
+                                                            <option value="template-3">{{ "Template"|get_lang }}3
+                                                            </option>
                                                         </select>
-                                                        <h3 class="label"><label for="studio-mask">{{ "Palettes" | get_lang }}</label></h3>
+                                                        <h3 class="label"><label
+                                                                    for="studio-mask">{{ "Palettes"|get_lang }}</label>
+                                                        </h3>
                                                         <select name="palette" class="form-control" id="studio-palette">
                                                             <option value="palette-1"
                                                                     data-color-background="#CE001F"
                                                                     data-color-stitching="#FFF"
                                                                     data-color-border="#4C4F53"
                                                                     data-color-detail="#999"
-                                                                    data-color-glyph="#FFF">{{ "Palette" | get_lang }} 1</option>
+                                                                    data-color-glyph="#FFF">{{ "Palette"|get_lang }} 1
+                                                            </option>
                                                             <option value="palette-2"
                                                                     data-color-background="#04A"
                                                                     data-color-stitching="#0AE"
                                                                     data-color-border="#0AE"
                                                                     data-color-detail="#FFF"
-                                                                    data-color-glyph="#FFF">{{ "Palette" | get_lang }} 2</option>
+                                                                    data-color-glyph="#FFF">{{ "Palette"|get_lang }} 2
+                                                            </option>
                                                             <option value="palette-3"
                                                                     data-color-background="#11458B"
                                                                     data-color-stitching="#3EB48D"
                                                                     data-color-border="#3EB48D"
                                                                     data-color-detail="#FFF"
-                                                                    data-color-glyph="#FFF">{{ "Palette" | get_lang }} 3</option>
+                                                                    data-color-glyph="#FFF">{{ "Palette"|get_lang }} 3
+                                                            </option>
                                                         </select>
-                                                        <br />
-                                                        <h3 class="label"><label for="studio-mask">{{ "Colors" | get_lang }}</label></h3>
+                                                        <br/>
+                                                        <h3 class="label"><label
+                                                                    for="studio-mask">{{ "Colors"|get_lang }}</label>
+                                                        </h3>
                                                         <div id="custom-palette"></div>
                                                     </div>
                                                     <div class="col-md-8">
@@ -134,22 +154,29 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-3">
-                                                        <h3 class="label"><label for="studio-mask">{{ "Mask" | get_lang }}</label></h3>
+                                                        <h3 class="label"><label
+                                                                    for="studio-mask">{{ "Mask"|get_lang }}</label>
+                                                        </h3>
                                                         <p class="item">
-                                                            <select name="mask" class="form-control" id="studio-mask" data-path="{{ badge_studio.masks }}">
-                                                                <option value="">{{ "None" | get_lang }}</option>
-                                                                <option value="lines">{{ "Lines" | get_lang }}</option>
+                                                            <select name="mask" class="form-control" id="studio-mask"
+                                                                    data-path="{{ badge_studio.masks }}">
+                                                                <option value="">{{ "None"|get_lang }}</option>
+                                                                <option value="lines">{{ "Lines"|get_lang }}</option>
                                                             </select>
                                                         </p>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <h3 class="label"><label for="studio-options">{{ "Options" | get_lang }}</label></h3>
+                                                        <h3 class="label"><label
+                                                                    for="studio-options">{{ "Options"|get_lang }}</label>
+                                                        </h3>
                                                         <p class="item" id="options">
                                                             <i>None</i>
                                                         </p>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <h3 class="label"><label for="studio-glyph">{{ "Icon" | get_lang }}</label></h3>
+                                                        <h3 class="label"><label
+                                                                    for="studio-glyph">{{ "Icon"|get_lang }}</label>
+                                                        </h3>
                                                         <p class="item">
                                                             <select name="glyph" class="form-control" id="studio-glyph">
                                                                 <option value="">None</option>
@@ -157,27 +184,44 @@
                                                                 <option value="anchor">Anchor</option>
                                                                 <option value="android">Android</option>
                                                                 <option value="angle-down">Angle: Down</option>
-                                                                <option value="angle-double-down">Angle: Down (Double)</option>
+                                                                <option value="angle-double-down">Angle: Down (Double)
+                                                                </option>
                                                                 <option value="angle-left">Angle: Left</option>
-                                                                <option value="angle-double-left">Angle: Left (Double)</option>
+                                                                <option value="angle-double-left">Angle: Left (Double)
+                                                                </option>
                                                                 <option value="angle-right">Angle: Right</option>
-                                                                <option value="angle-double-right">Angle: Right (Double)</option>
+                                                                <option value="angle-double-right">Angle: Right
+                                                                    (Double)
+                                                                </option>
                                                                 <option value="angle-up">Angle: Up</option>
-                                                                <option value="angle-double-up">Angle: Up (Double)</option>
+                                                                <option value="angle-double-up">Angle: Up (Double)
+                                                                </option>
                                                                 <option value="apple">Apple</option>
                                                                 <option value="archive">Archive</option>
                                                                 <option value="arrow-down">Arrow: Down</option>
-                                                                <option value="arrow-circle-down">Arrow: Down (Circle)</option>
-                                                                <option value="arrow-circle-o-down">Arrow: Down (Circle-O)</option>
+                                                                <option value="arrow-circle-down">Arrow: Down (Circle)
+                                                                </option>
+                                                                <option value="arrow-circle-o-down">Arrow: Down
+                                                                    (Circle-O)
+                                                                </option>
                                                                 <option value="arrow-left">Arrow (Left)</option>
-                                                                <option value="arrow-circle-left">Arrow: Left (Circle)</option>
-                                                                <option value="arrow-circle-o-left">Arrow: Left (Circle-O)</option>
+                                                                <option value="arrow-circle-left">Arrow: Left (Circle)
+                                                                </option>
+                                                                <option value="arrow-circle-o-left">Arrow: Left
+                                                                    (Circle-O)
+                                                                </option>
                                                                 <option value="arrow-right">Arrow: Right</option>
-                                                                <option value="arrow-circle-right">Arrow: Right (Circle)</option>
-                                                                <option value="arrow-circle-o-right">Arrow: Right (Circle-O)</option>
+                                                                <option value="arrow-circle-right">Arrow: Right
+                                                                    (Circle)
+                                                                </option>
+                                                                <option value="arrow-circle-o-right">Arrow: Right
+                                                                    (Circle-O)
+                                                                </option>
                                                                 <option value="arrow-up">Arrow: Up</option>
-                                                                <option value="arrow-circle-up">Arrow: Up (Circle)</option>
-                                                                <option value="arrow-circle-o-up">Arrow: Up (Circle-O)</option>
+                                                                <option value="arrow-circle-up">Arrow: Up (Circle)
+                                                                </option>
+                                                                <option value="arrow-circle-o-up">Arrow: Up (Circle-O)
+                                                                </option>
                                                                 <option value="arrows">Arrows</option>
                                                                 <option value="arrows-alt">Arrows (Alt)</option>
                                                                 <option value="arrows-h">Arrows: Horizontal</option>
@@ -196,7 +240,8 @@
                                                                 <option value="bell">Bell</option>
                                                                 <option value="bell-o">Bell (O)</option>
                                                                 <option value="bitbucket">BitBucket</option>
-                                                                <option value="bitbucket-square">BitBucket (Square)</option>
+                                                                <option value="bitbucket-square">BitBucket (Square)
+                                                                </option>
                                                                 <option value="bitcoin">Bitcoin</option>
                                                                 <option value="bold">Bold</option>
                                                                 <option value="bolt">Bolt</option>
@@ -218,13 +263,20 @@
                                                                 <option value="camera-retro">Camera (Retro)</option>
                                                                 <option value="car">Car</option>
                                                                 <option value="caret-down">Caret: Down</option>
-                                                                <option value="caret-square-o-down">Caret: Down (Square-O)</option>
+                                                                <option value="caret-square-o-down">Caret: Down
+                                                                    (Square-O)
+                                                                </option>
                                                                 <option value="caret-left">Caret: Left</option>
-                                                                <option value="caret-square-o-left">Caret: Left (Square-O)</option>
+                                                                <option value="caret-square-o-left">Caret: Left
+                                                                    (Square-O)
+                                                                </option>
                                                                 <option value="caret-right">Caret: Right</option>
-                                                                <option value="caret-square-o-right">Caret: Right (Square-O)</option>
+                                                                <option value="caret-square-o-right">Caret: Right
+                                                                    (Square-O)
+                                                                </option>
                                                                 <option value="caret-up">Caret: Up</option>
-                                                                <option value="caret-square-o-up">Caret: Up (Square-O)</option>
+                                                                <option value="caret-square-o-up">Caret: Up (Square-O)
+                                                                </option>
                                                                 <option value="certificate">Certificate</option>
                                                                 <option value="chain">Chain</option>
                                                                 <option value="chain-broken">Chain (Broken)</option>
@@ -234,13 +286,20 @@
                                                                 <option value="check-square">Check (Square)</option>
                                                                 <option value="check-square-o">Check (Square-O)</option>
                                                                 <option value="chevron-down">Chevron: Down</option>
-                                                                <option value="chevron-circle-down">Chevron: Down (Circle)</option>
+                                                                <option value="chevron-circle-down">Chevron: Down
+                                                                    (Circle)
+                                                                </option>
                                                                 <option value="chevron-left">Chevron: Left</option>
-                                                                <option value="chevron-circle-left">Chevron: Left (Circle)</option>
+                                                                <option value="chevron-circle-left">Chevron: Left
+                                                                    (Circle)
+                                                                </option>
                                                                 <option value="chevron-right">Chevron: Right</option>
-                                                                <option value="chevron-circle-right">Chevron: Right (Circle)</option>
+                                                                <option value="chevron-circle-right">Chevron: Right
+                                                                    (Circle)
+                                                                </option>
                                                                 <option value="chevron-up">Chevron: Up</option>
-                                                                <option value="chevron-circle-up">Chevron: Up (Circle)</option>
+                                                                <option value="chevron-circle-up">Chevron: Up (Circle)
+                                                                </option>
                                                                 <option value="child">Child</option>
                                                                 <option value="circle">Circle</option>
                                                                 <option value="circle-o">Circle (O)</option>
@@ -289,26 +348,35 @@
                                                                 <option value="drupal">Drupal</option>
                                                                 <option value="edit">Edit</option>
                                                                 <option value="eject">Eject</option>
-                                                                <option value="ellipsis-h">Ellipsis (Horizontal)</option>
+                                                                <option value="ellipsis-h">Ellipsis (Horizontal)
+                                                                </option>
                                                                 <option value="ellipsis-v">Ellipsis (Vertical)</option>
                                                                 <option value="empire">Empire</option>
                                                                 <option value="envelope">Envelope</option>
                                                                 <option value="envelope-o">Envelope (O)</option>
-                                                                <option value="envelope-square">Envelope (Square)</option>
+                                                                <option value="envelope-square">Envelope (Square)
+                                                                </option>
                                                                 <option value="eraser">Eraser</option>
                                                                 <option value="eur">EUR</option>
                                                                 <option value="euro">Euro</option>
                                                                 <option value="exchange">Exchange</option>
                                                                 <option value="exclamation">Exclamation</option>
-                                                                <option value="exclamation-circle">Exclamation (Circle)</option>
-                                                                <option value="exclamation-triangle">Exclamation (Triangle)</option>
+                                                                <option value="exclamation-circle">Exclamation
+                                                                    (Circle)
+                                                                </option>
+                                                                <option value="exclamation-triangle">Exclamation
+                                                                    (Triangle)
+                                                                </option>
                                                                 <option value="expand">Expand</option>
                                                                 <option value="external-link">External Link</option>
-                                                                <option value="external-link-square">External Link (Square)</option>
+                                                                <option value="external-link-square">External Link
+                                                                    (Square)
+                                                                </option>
                                                                 <option value="eye">Eye</option>
                                                                 <option value="eye-slash">Eye (Slash)</option>
                                                                 <option value="facebook">Facebook</option>
-                                                                <option value="facebook-square">Facebook (Square)</option>
+                                                                <option value="facebook-square">Facebook (Square)
+                                                                </option>
                                                                 <option value="fast-backward">Fast Rewind</option>
                                                                 <option value="fast-forward">Fast Forward</option>
                                                                 <option value="fax">Fax</option>
@@ -317,7 +385,8 @@
                                                                 <option value="file">File</option>
                                                                 <option value="file-o">File (O)</option>
                                                                 <option value="files-o">Files (O)</option>
-                                                                <option value="file-archive-o">File: Archive (O)</option>
+                                                                <option value="file-archive-o">File: Archive (O)
+                                                                </option>
                                                                 <option value="file-audio-o">File: Audio (O)</option>
                                                                 <option value="file-code-o">File: Code (O)</option>
                                                                 <option value="file-excel-o">File: Excel (O)</option>
@@ -325,8 +394,10 @@
                                                                 <option value="file-movie-o">File: Movie (O)</option>
                                                                 <option value="file-pdf-o">File: PDF (O)</option>
                                                                 <option value="file-photo-o">File: Photo (O)</option>
-                                                                <option value="file-picture-o">File: Picture (O)</option>
-                                                                <option value="file-powerpoint-o">File: Powerpoint (O)</option>
+                                                                <option value="file-picture-o">File: Picture (O)
+                                                                </option>
+                                                                <option value="file-powerpoint-o">File: Powerpoint (O)
+                                                                </option>
                                                                 <option value="file-sound-o">File: Sound (O)</option>
                                                                 <option value="file-text">File: Text</option>
                                                                 <option value="file-text-o">File: Text (O)</option>
@@ -336,7 +407,8 @@
                                                                 <option value="film">Film</option>
                                                                 <option value="filter">Filter</option>
                                                                 <option value="fire">Fire</option>
-                                                                <option value="fire-extinguisher">Fire Extinguisher</option>
+                                                                <option value="fire-extinguisher">Fire Extinguisher
+                                                                </option>
                                                                 <option value="flag">Flag</option>
                                                                 <option value="flag-o">Flag (O)</option>
                                                                 <option value="flag-checkered">Flag: Checkered</option>
@@ -369,7 +441,9 @@
                                                                 <option value="globe">Globe</option>
                                                                 <option value="google">Google</option>
                                                                 <option value="google-plus">Google Plus</option>
-                                                                <option value="google-plus-square">Google Plus (Square)</option>
+                                                                <option value="google-plus-square">Google Plus
+                                                                    (Square)
+                                                                </option>
                                                                 <option value="graduation-cap">Graduation (Cap)</option>
                                                                 <option value="group">Group</option>
                                                                 <option value="h-square">H (Square)</option>
@@ -415,7 +489,8 @@
                                                                 <option value="lightbulb-o">Lightbulb (O)</option>
                                                                 <option value="link">Link</option>
                                                                 <option value="linkedin">LinkedIn</option>
-                                                                <option value="linkedin-square">LinkedIn (Square)</option>
+                                                                <option value="linkedin-square">LinkedIn (Square)
+                                                                </option>
                                                                 <option value="linux">Linux</option>
                                                                 <option value="list">List</option>
                                                                 <option value="list-alt">List (Alt)</option>
@@ -425,7 +500,8 @@
                                                                 <option value="lock">Lock</option>
                                                                 <option value="long-arrow-down">Long Arrow Down</option>
                                                                 <option value="long-arrow-left">Long Arrow Left</option>
-                                                                <option value="long-arrow-right">Long Arrow Right</option>
+                                                                <option value="long-arrow-right">Long Arrow Right
+                                                                </option>
                                                                 <option value="long-arrow-up">Long Arrow Up</option>
                                                                 <option value="magic">Magic</option>
                                                                 <option value="magnet">Magnet</option>
@@ -438,7 +514,8 @@
                                                                 <option value="medkit">Medkit</option>
                                                                 <option value="meh-o">Meh (O)</option>
                                                                 <option value="microphone">Microphone</option>
-                                                                <option value="microphone-slash">Microphone (Slash)</option>
+                                                                <option value="microphone-slash">Microphone (Slash)
+                                                                </option>
                                                                 <option value="minus">Minus</option>
                                                                 <option value="minus-circle">Minus (Circle)</option>
                                                                 <option value="minus-square">Minus (Square)</option>
@@ -462,16 +539,19 @@
                                                                 <option value="paw">Paw</option>
                                                                 <option value="pencil">Pencil</option>
                                                                 <option value="pencil-square">Pencil (Square)</option>
-                                                                <option value="pencil-square-o">Pencil (Square-O)</option>
+                                                                <option value="pencil-square-o">Pencil (Square-O)
+                                                                </option>
                                                                 <option value="phone">Phone</option>
                                                                 <option value="phone-square">Phone (Square)</option>
                                                                 <option value="photo">Photo</option>
                                                                 <option value="picture-o">Picture (O)</option>
                                                                 <option value="pied-piper">Pied Piper</option>
                                                                 <option value="pied-piper-alt">Pied Piper (Alt)</option>
-                                                                <option value="pied-piper-square">Pied Piper (Square)</option>
+                                                                <option value="pied-piper-square">Pied Piper (Square)
+                                                                </option>
                                                                 <option value="pinterest">Pinterest</option>
-                                                                <option value="pinterest-square">Pinterest (Square)</option>
+                                                                <option value="pinterest-square">Pinterest (Square)
+                                                                </option>
                                                                 <option value="plane">Plane</option>
                                                                 <option value="play">Play</option>
                                                                 <option value="play-circle">Play (Circle)</option>
@@ -486,7 +566,8 @@
                                                                 <option value="qq">Qq</option>
                                                                 <option value="qrcode">QR Code</option>
                                                                 <option value="question">Question</option>
-                                                                <option value="question-circle">Question (Circle)</option>
+                                                                <option value="question-circle">Question (Circle)
+                                                                </option>
                                                                 <option value="quote-left">Quote: Left</option>
                                                                 <option value="quote-right">Quote: Right</option>
                                                                 <option value="ra">Ra</option>
@@ -522,7 +603,8 @@
                                                                 <option value="send-o">Send (O)</option>
                                                                 <option value="share">Share</option>
                                                                 <option value="share-alt">Share (Alt)</option>
-                                                                <option value="share-alt-square">Share (Alt Square)</option>
+                                                                <option value="share-alt-square">Share (Alt Square)
+                                                                </option>
                                                                 <option value="share-square">Share (Square)</option>
                                                                 <option value="share-square-o">Share (Square-O)</option>
                                                                 <option value="shield">Shield</option>
@@ -541,11 +623,16 @@
                                                                 <option value="sort-down">Sort: Down</option>
                                                                 <option value="sort-up">Sort: Up</option>
                                                                 <option value="sort-alpha-asc">Sort: Alpha Asc</option>
-                                                                <option value="sort-alpha-desc">Sort: Alpha Desc</option>
-                                                                <option value="sort-amount-asc">Sort: Amount Asc</option>
-                                                                <option value="sort-amount-desc">Sort: Amount Desc</option>
-                                                                <option value="sort-numeric-asc">Sort: Numeric Asc</option>
-                                                                <option value="sort-numeric-desc">Sort: Numeric Desc</option>
+                                                                <option value="sort-alpha-desc">Sort: Alpha Desc
+                                                                </option>
+                                                                <option value="sort-amount-asc">Sort: Amount Asc
+                                                                </option>
+                                                                <option value="sort-amount-desc">Sort: Amount Desc
+                                                                </option>
+                                                                <option value="sort-numeric-asc">Sort: Numeric Asc
+                                                                </option>
+                                                                <option value="sort-numeric-desc">Sort: Numeric Desc
+                                                                </option>
                                                                 <option value="soundcloud">Soundcloud</option>
                                                                 <option value="space-shuttle">Space Shuttle</option>
                                                                 <option value="spinner">Spinner</option>
@@ -557,7 +644,8 @@
                                                                 <option value="stack-overflow">Stack Overflow</option>
                                                                 <option value="star">Star</option>
                                                                 <option value="star-half">Star (Half)</option>
-                                                                <option value="star-half-empty">Star (Half Empty)</option>
+                                                                <option value="star-half-empty">Star (Half Empty)
+                                                                </option>
                                                                 <option value="star-half-full">Star (Half Full)</option>
                                                                 <option value="star-half-o">Star (Half O)</option>
                                                                 <option value="star-o">Star (O)</option>
@@ -569,7 +657,9 @@
                                                                 <option value="stop">Stop</option>
                                                                 <option value="strikethrough">Strikethrough</option>
                                                                 <option value="stumbleupon">Stumbleupon</option>
-                                                                <option value="stumbleupon-circle">Stumbleupon (Circle)</option>
+                                                                <option value="stumbleupon-circle">Stumbleupon
+                                                                    (Circle)
+                                                                </option>
                                                                 <option value="subscript">Subscript</option>
                                                                 <option value="suitcase">Suitcase</option>
                                                                 <option value="sun-o">Sun (O)</option>
@@ -652,18 +742,25 @@
                                                                 <option value="youtube-square">Youtube (Square)</option>
                                                             </select>
                                                         </p>
-                                                        <h3 class="label"><label for="size-glyph">{{ "Size" | get_lang }}</label></h3>
+                                                        <h3 class="label"><label
+                                                                    for="size-glyph">{{ "Size"|get_lang }}</label>
+                                                        </h3>
                                                         <p class="item">
-                                                            <select name="size-glyph" class="form-control" id="size-glyph">
-                                                                <option value="big">{{ "Big" | get_lang }}</option>
-                                                                <option value="medium" selected>{{ "Medium" | get_lang }}</option>
-                                                                <option value="small">{{ "Small" | get_lang }}</option>
+                                                            <select name="size-glyph" class="form-control"
+                                                                    id="size-glyph">
+                                                                <option value="big">{{ "Big"|get_lang }}</option>
+                                                                <option value="medium"
+                                                                        selected>{{ "Medium"|get_lang }}</option>
+                                                                <option value="small">{{ "Small"|get_lang }}</option>
                                                             </select>
                                                         </p>
                                                     </div>
                                                     <div class="col-md-12 text-center">
-                                                        <a id="set-custom-badge" class="btn btn-primary"><em class="fa fa-check"></em> {{ 'UseThisBadge' | get_lang }}</a>
-                                                        <input type="hidden" id="badge_studio_image" name="badge_studio_image" >
+                                                        <a id="set-custom-badge" class="btn btn-primary"><em
+                                                                    class="fa fa-check"></em> {{ 'UseThisBadge'|get_lang }}
+                                                        </a>
+                                                        <input type="hidden" id="badge_studio_image"
+                                                               name="badge_studio_image">
                                                     </div>
                                                 </div>
                                             </div>
@@ -671,7 +768,8 @@
                                     </div>
 
                                     <template id="glyph-selector-template">
-                                        <div id="glyph-selector" role="dialog" class="overlay hidden" aria-label="Select a glyph" tabIndex="0">
+                                        <div id="glyph-selector" role="dialog" class="overlay hidden"
+                                             aria-label="Select a glyph" tabIndex="0">
                                             <div class="header">
                                                 <label class="title"></label>
                                             </div>
@@ -697,7 +795,8 @@
                                     </template>
 
                                     <template id="close-button-template">
-                                        <button type="button" class="close fa fa-times-circle-o" aria-label="Close"></button>
+                                        <button type="button" class="close fa fa-times-circle-o"
+                                                aria-label="Close"></button>
                                     </template>
 
                                     <template id="custom-color-template">
@@ -708,33 +807,42 @@
                                     </template>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="criteria">{{ 'CriteriaToEarnTheBadge' | get_lang }}</label>
+                                    <label class="col-sm-2 control-label"
+                                           for="criteria">{{ 'CriteriaToEarnTheBadge'|get_lang }}</label>
                                     <div class="col-sm-10">
-                                        <textarea name="criteria" id="criteria" class="form-control" rows="10">{{ skill.criteria }}</textarea>
+                                        <textarea name="criteria" id="criteria" class="form-control"
+                                                  rows="10">{{ skill.criteria }}</textarea>
                                     </div>
                                 </div>
                             </fieldset>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-primary btn-large"><em class="fa fa-floppy-o"></em> {{ 'SaveBadge'| get_lang }}</button>
+                                    <button type="submit" class="btn btn-primary btn-large"><em
+                                                class="fa fa-floppy-o"></em> {{ 'SaveBadge'| get_lang }}</button>
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="col-md-3">
                         <div class="create-openbadges">
-                            <button id="btn-open-designer" class="help-badges btn btn-primary btn-large btn-block" data-toggle="tooltip" data-placement="bottom" title="{{ 'DesignANewBadgeComment' | get_lang }}" type="button">
-                                <em class="fa fa-plus"></em> {{ 'DesignNewBadge' | get_lang }}
+                            <button id="btn-open-designer" class="help-badges btn btn-primary btn-large btn-block"
+                                    data-toggle="tooltip" data-placement="bottom"
+                                    title="{{ 'DesignANewBadgeComment'|get_lang }}" type="button">
+                                <em class="fa fa-plus"></em> {{ 'DesignNewBadge'|get_lang }}
                             </button>
                         </div>
                         <div class="create-openbadges">
-                            <button id="btn-open-badge-studio" class="help-badges btn btn-default btn-large btn-block" data-toggle="collapse" data-target="#badge-studio-frame" aria-expanded="false" aria-controls="badge-studio-frame" title="{{ 'DesignWithBadgeStudioComment' | get_lang }}" type="button">
-                                <em class="fa fa-cogs"></em> {{ 'DesignWithBadgeStudio' | get_lang }}
+                            <button id="btn-open-badge-studio" class="help-badges btn btn-default btn-large btn-block"
+                                    data-toggle="collapse" data-target="#badge-studio-frame" aria-expanded="false"
+                                    aria-controls="badge-studio-frame"
+                                    title="{{ 'DesignWithBadgeStudioComment'|get_lang }}" type="button">
+                                <em class="fa fa-cogs"></em> {{ 'DesignWithBadgeStudio'|get_lang }}
                             </button>
                         </div>
-                        <p class="openbadges-text">{{'BadgePreview' | get_lang }}</p>
+                        <p class="openbadges-text">{{ 'BadgePreview'|get_lang }}</p>
                         <div class="openbadges-img {{ skill.icon ? '' : 'hide' }}" id="badge-container">
-                            <img id="badge-preview" class="img-responsive" alt="{{ 'BadgePreview' | get_lang }}" src="{{ skill.icon ? skill.web_icon_path : '' }}">
+                            <img id="badge-preview" class="img-responsive" alt="{{ 'BadgePreview'|get_lang }}"
+                                 src="{{ skill.icon ? skill.web_icon_path : '' }}">
                         </div>
                     </div>
                 </div>
@@ -744,7 +852,7 @@
 </div>
 {{ badge_studio.script_js }}
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#set-custom-badge').click(function () {
             var data = $('#raster').attr('src');
             $('#badge_studio_image').val(data);

@@ -148,9 +148,9 @@
         $('#frm-course-info').on('', function () {
             $('#frm-course-info').find('.modal-body').html('');
         });
-        $(".facebook-auto").css("width","100%");
-        $(".facebook-auto ul").css("width","100%");
-        $("ul.holder").css("width","100%");
+        $(".facebook-auto").css("width", "100%");
+        $(".facebook-auto ul").css("width", "100%");
+        $("ul.holder").css("width", "100%");
     });
 
 </script>
@@ -170,15 +170,18 @@
                             <figcaption class="avatar-author">{{ user_info.complete_name }}</figcaption>
                         </figure>
                         <p class="text-center">
-                            <a href="{{ _p.web_main }}social/skills_ranking.php" class="btn btn-default" target="_blank">{{ 'YourSkillRankingX'|get_lang|format(ranking) }}</a>
+                            <a href="{{ _p.web_main }}social/skills_ranking.php" class="btn btn-default"
+                               target="_blank">{{ 'YourSkillRankingX'|get_lang|format(ranking) }}</a>
                         </p>
                         <div class="text-center">
                             {% if skills is not empty %}
                                 {% for skill in skills %}
                                     {% if skill.icon is empty %}
-                                        <img src="{{ 'badges.png'|icon(32) }}" width="32" height="32" alt="{{ skill.name }}" title="{{ skill.name }}">
+                                        <img src="{{ 'badges.png'|icon(32) }}" width="32" height="32"
+                                             alt="{{ skill.name }}" title="{{ skill.name }}">
                                     {% else %}
-                                        <img src="{{ skill.web_icon_thumb_path }}" width="32" height="32" alt="{{ skill.name }}" title="{{ skill.name }}">
+                                        <img src="{{ skill.web_icon_thumb_path }}" width="32" height="32"
+                                             alt="{{ skill.name }}" title="{{ skill.name }}">
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
@@ -226,12 +229,15 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="wheel-legend-heading">
                             <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#wheel-second-accordion" href="#wheel-legend-collapse" aria-expanded="true" aria-controls="wheel-legend-collapse">
+                                <a role="button" data-toggle="collapse" data-parent="#wheel-second-accordion"
+                                   href="#wheel-legend-collapse" aria-expanded="true"
+                                   aria-controls="wheel-legend-collapse">
                                     {{ "Legend"|get_lang }}
                                 </a>
                             </h4>
                         </div>
-                        <div id="wheel-legend-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="wheel-legend-heading">
+                        <div id="wheel-legend-collapse" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="wheel-legend-heading">
                             <div class="panel-body">
                                 <ul class="fa-ul">
                                     <li>
@@ -253,12 +259,15 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="wheel-display-heading">
                             <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#wheel-second-accordion" href="#wheel-display-collapse" aria-expanded="false" aria-controls="wheel-display-collapse">
+                                <a class="collapsed" role="button" data-toggle="collapse"
+                                   data-parent="#wheel-second-accordion" href="#wheel-display-collapse"
+                                   aria-expanded="false" aria-controls="wheel-display-collapse">
                                     {{ 'DisplayOptions'|get_lang }}
                                 </a>
                             </h4>
                         </div>
-                        <div id="wheel-display-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="wheel-display-heading">
+                        <div id="wheel-display-collapse" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="wheel-display-heading">
                             <div class="panel-body">
                                 <p>{{ 'ChooseABackgroundColor'|get_lang }}</p>
                                 <ul class="list-unstyled" id="skill-change-background-options">
@@ -283,39 +292,41 @@
     </div>
 </div>
 
-<div class="modal fade" id="frm-skill" tabindex="-1" role="dialog" aria-labelledby="form-skill-title" aria-hidden="true">
+<div class="modal fade" id="frm-skill" tabindex="-1" role="dialog" aria-labelledby="form-skill-title"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close" | get_lang }}">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|get_lang }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="form-skill-title">{{ "Skill" | get_lang }}</h4>
+                <h4 class="modal-title" id="form-skill-title">{{ "Skill"|get_lang }}</h4>
             </div>
             <div class="modal-body">
                 {{ dialogForm }}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">
-                    {{ "Close" | get_lang }}
+                    {{ "Close"|get_lang }}
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="frm-course-info" tabindex="-1" role="dialog" aria-labelledby="form-course-info-title" aria-hidden="true">
+<div class="modal fade" id="frm-course-info" tabindex="-1" role="dialog" aria-labelledby="form-course-info-title"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close" | get_lang }}">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|get_lang }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="form-course-info-title">{{ "ChooseCourse" | get_lang }}</h4>
+                <h4 class="modal-title" id="form-course-info-title">{{ "ChooseCourse"|get_lang }}</h4>
             </div>
             <div class="modal-body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">{{ "Close" | get_lang }}</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">{{ "Close"|get_lang }}</button>
             </div>
         </div>
     </div>

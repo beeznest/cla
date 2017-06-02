@@ -13,7 +13,7 @@
                             {{ 'EditGroup'|get_lang }}
                         </a>
                     </div>
-                    <br />
+                    <br/>
                 {% endif %}
             </div>
         {% elseif show_user %}

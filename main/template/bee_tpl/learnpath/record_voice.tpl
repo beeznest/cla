@@ -15,24 +15,24 @@
 
 <script>
     $(document).on('ready', function () {
-        function useRecordRTC(){
+        function useRecordRTC() {
             $('#record-audio-recordrtc').show();
 
             var mediaConstraints = {audio: true},
-                    recordRTC = null,
-                    btnStart = $('#btn-start-record'),
-                    btnStop = $('#btn-stop-record');
+                recordRTC = null,
+                btnStart = $('#btn-start-record'),
+                btnStop = $('#btn-stop-record');
 
             btnStart.on('click', function () {
                 navigator.getUserMedia = navigator.getUserMedia ||
-                        navigator.mozGetUserMedia ||
-                        navigator.webkitGetUserMedia;
+                    navigator.mozGetUserMedia ||
+                    navigator.webkitGetUserMedia;
 
                 if (navigator.getUserMedia) {
                     navigator.getUserMedia(mediaConstraints, successCallback, errorCallback);
                 } else if (navigator.mediaDevices.getUserMedia) {
                     navigator.mediaDevices.getUserMedia(mediaConstraints)
-                            .then(successCallback).error(errorCallback);
+                        .then(successCallback).error(errorCallback);
                 }
 
                 function successCallback(stream) {
@@ -58,8 +58,8 @@
 
                 recordRTC.stopRecording(function (audioURL) {
                     var recordedBlob = recordRTC.getBlob(),
-                            fileName = Math.round(Math.random() * 99999999) + 99999999,
-                            fileExtension = '.' + recordedBlob.type.split('/')[1];
+                        fileName = Math.round(Math.random() * 99999999) + 99999999,
+                        fileExtension = '.' + recordedBlob.type.split('/')[1];
 
                     var formData = new FormData();
                     formData.append('audio-filename', fileName + fileExtension);
@@ -86,22 +86,22 @@
             });
         }
 
-        function useWami(){
+        function useWami() {
             $('#record-audio-wami').show();
 
             function setupGUI() {
                 var gui = new Wami.GUI({
-                    id : 'record-audio-wami',
-                    singleButton : true,
-                    recordUrl : '{{ _p.web_ajax }}record_audio_wami.ajax.php?' + $.param({
+                    id: 'record-audio-wami',
+                    singleButton: true,
+                    recordUrl: '{{ _p.web_ajax }}record_audio_wami.ajax.php?' + $.param({
                         waminame: 'rec_' + (new Date()).getTime() + '.wav',
                         wamidir: '{{ cur_dir_path }}',
                         wamiuserid: {{ _u.user_id }},
                         lp_item_id: {{ lp_item_id }}
                     }),
-                    buttonUrl : '{{ _p.web_lib }}wami-recorder/buttons.png',
+                    buttonUrl: '{{ _p.web_lib }}wami-recorder/buttons.png',
                     buttonNoUrl: '{{ _p.web_img }}blank.gif',
-                    onRecordFinish: function() {
+                    onRecordFinish: function () {
                         $('#start-recording').hide();
                         window.location.reload();
                     }
@@ -111,8 +111,8 @@
             }
 
             Wami.setup({
-                id : "record-audio-wami",
-                onReady : setupGUI,
+                id: "record-audio-wami",
+                onReady: setupGUI,
                 swfUrl: '{{ _p.web_lib }}wami-recorder/Wami.swf'
             });
         }
@@ -120,7 +120,7 @@
         $('#record-audio-recordrtc, #record-audio-wami').hide();
 
         var webRTCIsEnabled = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia ||
-                navigator.mediaDevices.getUserMedia;
+            navigator.mediaDevices.getUserMedia;
 
         if (webRTCIsEnabled) {
             useRecordRTC();

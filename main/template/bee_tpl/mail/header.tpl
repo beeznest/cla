@@ -3,7 +3,7 @@
         <td width="245" {{ mail_header_style }}>
             {{ logo }}
         </td>
-        <td width="100%">            &nbsp;
+        <td width="100%"> &nbsp;
         </td>
     </tr>
 </table>
