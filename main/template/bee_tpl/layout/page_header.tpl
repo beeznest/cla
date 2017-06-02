@@ -94,7 +94,7 @@ $(document).ready(function() {
                 {% if _u.logged  == 0 %}
                     <li>
                         <a href="#" data-toggle="modal" data-target="#login_modal" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-sign-in fa-lg"></i> {{ "LoginAs"|get_lang }}
+                            <i class="fa fa-sign-in fa-lg"></i> {{ "Login"|get_lang }}
                         </a>
                     </li>
                     <li>
