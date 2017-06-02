@@ -3207,8 +3207,9 @@ class SessionManager
         $result = Database::query($sql);
         if (Database::num_rows($result) > 0) {
             while ($row = Database::fetch_array($result, 'ASSOC')) {
+                $row['avatar'] = UserManager::getUserPicture($row['id_coach'],USER_IMAGE_SIZE_SMALL);
                 $sessions[] = $row;
-            }
+            }           
             return $sessions;
         } else {
             return false;
