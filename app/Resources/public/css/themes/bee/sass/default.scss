@@ -189,7 +189,19 @@ footer{
 }
 .grid-courses{
     .items{
-
+        .title{
+            font-size: 18px;
+        }
+        .block-author{
+            .teachers-details{
+                h5{
+                    font-size: 14px;
+                }
+                p{
+                    font-size: 12px;
+                }
+            }
+        }
     }
     .items-courses{
         min-height: 410px;

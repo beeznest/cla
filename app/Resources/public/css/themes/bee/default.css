@@ -161,6 +161,12 @@ footer {
 #course_tools .content visible {
   color: #AAA; }
 
+.grid-courses .items .title {
+  font-size: 18px; }
+.grid-courses .items .block-author .teachers-details h5 {
+  font-size: 14px; }
+.grid-courses .items .block-author .teachers-details p {
+  font-size: 12px; }
 .grid-courses .items-courses {
   min-height: 410px; }
 
