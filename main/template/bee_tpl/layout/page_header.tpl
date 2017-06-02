@@ -79,6 +79,17 @@ $(document).ready(function() {
     <div class="row">
         <div class="col-md-6"></div>
         <div class="col-md-6">
+
+            {% include template ~ "/layout/login_form.tpl" %}
+            {% include template ~ "/layout/register_form.tpl" %}
+            <script>
+               $(document).on('ready', function () {
+                   $("#notifications").load("{{ _p.web_main }}inc/ajax/online.ajax.php?a=get_users_online");
+               });
+            </script>
+            <div class="section-notifications">
+            <ul id="notifications">
+            </ul>
             <ul class="option-session">
                 {% if _u.logged  == 0 %}
                     <li>
@@ -94,18 +105,8 @@ $(document).ready(function() {
                 </li>
                 {% endif %}
             </ul>
-            {% include template ~ "/layout/login_form.tpl" %}
-            {% include template ~ "/layout/register_form.tpl" %}
-            <script>
-               $(document).on('ready', function () {
-                   $("#notifications").load("{{ _p.web_main }}inc/ajax/online.ajax.php?a=get_users_online");
-               });
-            </script>
-            <div class="section-notifications">
-                <ul id="notifications">
-                </ul>
-            </div>
             {{ accessibility }}
+            </div>
         </div>
     </div>
     </div>
