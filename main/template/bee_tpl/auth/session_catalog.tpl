@@ -8,6 +8,7 @@
             });
         });
     </script>
+    <div class="container">
     <div class="row">
         <div class="col-md-12">
         <!-- header catalog session -->
@@ -214,4 +215,5 @@
     </div>
     <!-- end view session grib -->
     {{ catalog_pagination }}
+</div>
 {% endblock %}

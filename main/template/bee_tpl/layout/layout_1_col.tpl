@@ -1,7 +1,8 @@
 {% extends template ~ "/layout/page.tpl" %}
 
 {% block body %}
-    <div class="container">
+<div class="container">
+        <div class="page-section">
         <div class="row">
             <div class="col-xs-12 col-md-12">
                 {% include template ~ "/layout/page_body.tpl" %}
@@ -16,4 +17,5 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

@@ -79,23 +79,23 @@ $(document).ready(function() {
     <div class="row">
         <div class="col-md-6"></div>
         <div class="col-md-6">
-            <ul>
+            <ul class="option-session">
                 {% if _u.logged  == 0 %}
                     <li>
                         <a href="#" data-toggle="modal" data-target="#login_modal" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-sign-in fa-lg"></i>{{ "LoginAs"|get_lang }}
+                            <i class="fa fa-sign-in fa-lg"></i> {{ "LoginAs"|get_lang }}
                         </a>
                     </li>
-                    {% include template ~ "/layout/login_form.tpl" %}
                     <li>
                         <a href="#" data-toggle="modal" data-target="#register_modal" aria-haspopup="true" aria-expanded="false">
                               <i class="fa fa-pencil-square-o fa-lg"></i> {{ 'SignUp' | get_lang }}
                         </a>
                     </li>
-                    {% include template ~ "/layout/register_form.tpl" %}
                 </li>
                 {% endif %}
             </ul>
+            {% include template ~ "/layout/login_form.tpl" %}
+            {% include template ~ "/layout/register_form.tpl" %}
             <script>
                $(document).on('ready', function () {
                    $("#notifications").load("{{ _p.web_main }}inc/ajax/online.ajax.php?a=get_users_online");

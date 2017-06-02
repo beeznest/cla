@@ -46,6 +46,11 @@
         {% include template ~ "/layout/hot_courses.tpl" %}
     </div>
 </section>
+<section class="hot-session">
+    <div class="container">
+        {% include template ~ "/session/sessions_current.tpl" %}
+    </div>
+</section>
 {% endif %}
 {% if section_name != 'section-mycampus' %}
 <div class="container">
