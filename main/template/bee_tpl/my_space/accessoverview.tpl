@@ -17,7 +17,7 @@
                 .selectpicker('refresh');
         }
 
-        courseIdEl.on('change', function() {
+        courseIdEl.on('change', function () {
             var self = $(this);
 
             if (!this.value) {

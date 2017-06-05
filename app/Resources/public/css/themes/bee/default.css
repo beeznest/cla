@@ -496,9 +496,6 @@ footer {
   font-size: 16px;
   font-weight: bold; }
 
-.section-global .breadcrumb {
-  display: none; }
-
 @media (max-width: 480px) {
   .item-session {
     width: 290px;

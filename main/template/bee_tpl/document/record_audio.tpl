@@ -11,7 +11,8 @@
                     <span class="sr-only">{{ 'RecordAudio'|get_lang }}</span>
                 </div>
                 <div class="form-group">
-                    <input type="text" name="audio_title" id="audio-title-rtc" class="form-control" placeholder="{{ 'InputNameHere'|get_lang }}">
+                    <input type="text" name="audio_title" id="audio-title-rtc" class="form-control"
+                           placeholder="{{ 'InputNameHere'|get_lang }}">
                 </div>
             </div>
         </div>
@@ -39,7 +40,8 @@
         <br>
         <form>
             <div class="form-group">
-                <input type="text" name="audio_title" id="audio-title-wami" class="form-control" placeholder="{{ 'InputNameHere'|get_lang }}">
+                <input type="text" name="audio_title" id="audio-title-wami" class="form-control"
+                       placeholder="{{ 'InputNameHere'|get_lang }}">
             </div>
             <div class="form-group text-center">
                 <button class="btn btn-primary" type="button" id="btn-activate-wami">
@@ -54,7 +56,7 @@
 </div>
 
 <script>
-    $(document).on('ready', function() {
+    $(document).on('ready', function () {
         function useRecordRTC() {
             $('#record-audio-recordrtc').show();
 
@@ -114,9 +116,9 @@
                     btnStop.prop('disabled', true);
                     btnSave.prop('disabled', false);
                     tagAudio
-                            .removeClass('hidden')
-                            .addClass('show')
-                            .prop('src', audioURL);
+                        .removeClass('hidden')
+                        .addClass('show')
+                        .prop('src', audioURL);
                 });
             });
 
@@ -132,7 +134,7 @@
                 }
 
                 var fileName = audioTitle,
-                        fileExtension = '.' + recordedBlob.type.split('/')[1];
+                    fileExtension = '.' + recordedBlob.type.split('/')[1];
 
                 var formData = new FormData();
                 formData.append('audio_blob', recordedBlob, audioTitle + fileExtension);
@@ -178,24 +180,24 @@
                 $(this).prop('disabled', true);
 
                 Wami.setup({
-                    id : "record-audio-wami-container",
-                    onReady : setupGUI,
+                    id: "record-audio-wami-container",
+                    onReady: setupGUI,
                     swfUrl: '{{ _p.web_lib }}wami-recorder/Wami.swf'
                 });
             });
 
             function setupGUI() {
                 var gui = new Wami.GUI({
-                    id : 'record-audio-wami-container',
-                    singleButton : true,
-                    recordUrl : '{{ _p.web_ajax }}record_audio_wami.ajax.php?' + $.param({
+                    id: 'record-audio-wami-container',
+                    singleButton: true,
+                    recordUrl: '{{ _p.web_ajax }}record_audio_wami.ajax.php?' + $.param({
                         waminame: audioTitle + '.wav',
                         wamidir: '{{ directory }}',
                         wamiuserid: {{ user_id }}
                     }),
-                    buttonUrl : '{{ _p.web_lib }}wami-recorder/buttons.png',
+                    buttonUrl: '{{ _p.web_lib }}wami-recorder/buttons.png',
                     buttonNoUrl: '{{ _p.web_img }}blank.gif',
-                    onRecordFinish: function() {
+                    onRecordFinish: function () {
                         window.location.reload();
                     }
                 });
@@ -207,7 +209,7 @@
         $('#record-audio-recordrtc, #record-audio-wami').hide();
 
         var webRTCIsEnabled = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia ||
-                navigator.mediaDevices.getUserMedia;
+            navigator.mediaDevices.getUserMedia;
 
         if (webRTCIsEnabled) {
             useRecordRTC();

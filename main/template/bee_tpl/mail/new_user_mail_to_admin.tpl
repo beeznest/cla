@@ -3,7 +3,7 @@
     {% if is_western_name_order %}
         <li>{{ 'FirstName'|get_lang }}: {{ user.getFirstName() }}</li>
         <li>{{ 'LastName' }}: {{ user.getLastName() }}</li>
-    {% else  %}
+    {% else %}
         <li>{{ 'LastName' }}: {{ user.getLastName() }}</li>
         <li>{{ 'FirstName' }}: {{ user.getFirstName() }}</li>
     {% endif %}

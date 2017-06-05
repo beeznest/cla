@@ -1,4 +1,3 @@
-
 <nav id="menubar" class="navbar navbar-default">
     <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -24,9 +23,9 @@
             {% if _u.logged == 1 %}
                 <script>
                     $(document).ready(function () {
-                        $.get('{{ _p.web_main }}inc/ajax/message.ajax.php?a=get_count_message', function(data){
+                        $.get('{{ _p.web_main }}inc/ajax/message.ajax.php?a=get_count_message', function (data) {
                             var message = data;
-                            if( message === "0"){
+                            if (message === "0") {
                                 $("#count_message_li").addClass('hidden');
                             } else {
                                 $("#count_message_li").removeClass('hidden');
@@ -45,7 +44,7 @@
                         <li class="dropdown avatar-user">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                aria-expanded="false">
-                                
+
                                 <img class="img-circle" src="{{ _u.avatar_small }}" alt="{{ _u.complete_name }}"/>
                                 <span class="username-movil">{{ _u.complete_name }}</span>
                                 <span class="caret"></span>

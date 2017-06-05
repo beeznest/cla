@@ -5,23 +5,23 @@
 </div>
 
 {% if work.description %}
-<h3>
-    {{ 'Description' | get_lang }}
-</h3>
-<p>
-    {{ work.description }}
-</p>
+    <h3>
+        {{ 'Description'|get_lang }}
+    </h3>
+    <p>
+        {{ work.description }}
+    </p>
 {% endif %}
 
 {{ form }}
 
 {% if work.contains_file and work.show_content %}
-<h3>
-    {{ 'Content' | get_lang }}
-</h3>
-<p>
-    {{ work.show_content }}
-</p>
+    <h3>
+        {{ 'Content'|get_lang }}
+    </h3>
+    <p>
+        {{ work.show_content }}
+    </p>
 {% endif %}
 
 {% include template ~ '/work/comments.tpl' %}

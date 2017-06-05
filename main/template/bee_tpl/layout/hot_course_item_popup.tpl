@@ -1,9 +1,9 @@
-{% for hot_course in hot_courses %}               
-    {% if hot_course.extra_info.title %}        
+{% for hot_course in hot_courses %}
+    {% if hot_course.extra_info.title %}
         <div class="row">
             <div class="col-sm-3">
                 <div class="thumbnail">
-                    <img src="{{ hot_course.extra_info.course_image }}" alt="{{ hot_course.extra_info.title }}" />
+                    <img src="{{ hot_course.extra_info.course_image }}" alt="{{ hot_course.extra_info.title }}"/>
                 </div>
             </div>
             <div class="col-sm-9">

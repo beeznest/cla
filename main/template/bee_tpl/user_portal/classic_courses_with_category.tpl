@@ -15,7 +15,7 @@
                                             <img src="{{ item.thumbnails }}" title="{{ item.title }}"
                                                  alt="{{ item.title }}"/>
                                         {% else %}
-                                            {{ 'blackboard.png' | img(48, item.title ) }}
+                                            {{ 'blackboard.png'|img(48, item.title ) }}
                                         {% endif %}
                                     </span>
                                 {% else %}
@@ -24,7 +24,7 @@
                                             <img src="{{ item.thumbnails }}" title="{{ item.title }}"
                                                  alt="{{ item.title }}"/>
                                         {% else %}
-                                            {{ 'blackboard.png' | img(48, item.title ) }}
+                                            {{ 'blackboard.png'|img(48, item.title ) }}
                                         {% endif %}
                                     </a>
                                 {% endif %}
@@ -62,7 +62,7 @@
                                             <img src="{{ 'teacher.png'|icon(16) }}" width="16" height="16">&nbsp;
                                             {% for teacher in item.teachers %}
                                                 {% set counter = counter + 1 %}
-                                                {% if counter > 1 %} | {% endif %}
+                                                {% if counter > 1 %}|{% endif %}
                                                 <a href="{{ teacher.url }}" class="ajax"
                                                    data-title="{{ teacher.firstname }} {{ teacher.lastname }}">
                                                     {{ teacher.firstname }} {{ teacher.lastname }}
@@ -70,24 +70,24 @@
                                             {% endfor %}
                                         {% endif %}
                                     </div>
-                                    
+
                                     {% if item.student_info %}
                                         {% if (item.student_info.progress is not null) and (item.student_info.score is not null) %}
-                                        <div class="course-student-info">
-                                            <div class="student-info">
-                                                {% if (item.student_info.progress is not null) %}
-                                                {{ "StudentCourseProgressX" | get_lang | format(item.student_info.progress) }}
-                                                {% endif %}
+                                            <div class="course-student-info">
+                                                <div class="student-info">
+                                                    {% if (item.student_info.progress is not null) %}
+                                                        {{ "StudentCourseProgressX"|get_lang|format(item.student_info.progress) }}
+                                                    {% endif %}
 
-                                                {% if (item.student_info.score is not null) %}
-                                                {{ "StudentCourseScoreX" | get_lang | format(item.student_info.score) }}
-                                                {% endif %}
+                                                    {% if (item.student_info.score is not null) %}
+                                                        {{ "StudentCourseScoreX"|get_lang|format(item.student_info.score) }}
+                                                    {% endif %}
 
-                                                {% if (item.student_info.certificate is not null) %}
-                                                {{ "StudentCourseCertificateX" | get_lang | format(item.student_info.certificate) }}
-                                                {% endif %}
+                                                    {% if (item.student_info.certificate is not null) %}
+                                                        {{ "StudentCourseCertificateX"|get_lang|format(item.student_info.certificate) }}
+                                                    {% endif %}
+                                                </div>
                                             </div>
-                                        </div>
                                         {% endif %}
                                     {% endif %}
 

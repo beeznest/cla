@@ -427,7 +427,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                             $loginFailed = true;
                                             Session::erase('_uid');
                                             Session::write('loginFailed', '1');
-                                            ChamiloApi::loginAjaxErrorHandler('access_url_inactive');
+                                            echo ChamiloApi::loginAjaxErrorHandler('access_url_inactive');
                                             exit;
                                         }
                                     }
@@ -446,14 +446,14 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                             $loginFailed = true;
                             Session::erase('_uid');
                             Session::write('loginFailed', '1');
-                            ChamiloApi::loginAjaxErrorHandler('account_expired');
+                            echo ChamiloApi::loginAjaxErrorHandler('account_expired');
                             exit;
                         }
                     } else {
                         $loginFailed = true;
                         Session::erase('_uid');
                         Session::write('loginFailed', '1');
-                        ChamiloApi::loginAjaxErrorHandler('account_inactive');
+                        echo ChamiloApi::loginAjaxErrorHandler('account_inactive');
                         exit;
                     }
                 } else {
@@ -478,7 +478,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                         }
                     }
 
-                    ChamiloApi::loginAjaxErrorHandler('user_password_incorrect');
+                    echo ChamiloApi::loginAjaxErrorHandler('user_password_incorrect');
                     exit;
                 }
 
@@ -595,7 +595,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
             if ($loginFailed && empty($checkUserInfo)) {
                 //If we are here username given is wrong
                 Session::write('loginFailed', '1');
-                ChamiloApi::loginAjaxErrorHandler('user_password_incorrect');
+                echo ChamiloApi::loginAjaxErrorHandler('user_password_incorrect');
                 exit;
             }
         } //end else login failed
@@ -680,7 +680,7 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                     $loginFailed = true;
                     Session::erase('_uid');
                     Session::write('loginFailed', '1');
-                    ChamiloApi::loginAjaxErrorHandler('unrecognize_sso_origin');
+                    echo ChamiloApi::loginAjaxErrorHandler('unrecognize_sso_origin');
                     exit;
                 }
             }
@@ -734,14 +734,14 @@ if (!empty($_SESSION['_user']['user_id']) && !($login || $logout)) {
                                     $loginFailed = true;
                                     Session::erase('_uid');
                                     Session::write('loginFailed', '1');
-                                    ChamiloApi::loginAjaxErrorHandler('account_expired');
+                                    echo ChamiloApi::loginAjaxErrorHandler('account_expired');
                                     exit;
                                 }
                             } else {
                                 $loginFailed = true;
                                 Session::erase('_uid');
                                 Session::write('loginFailed', '1');
-                                ChamiloApi::loginAjaxErrorHandler('account_inactive');
+                                echo ChamiloApi::loginAjaxErrorHandler('account_inactive');
                                 exit;
                             }
                             if (isset($uData['creator_id']) && $_user['user_id'] != $uData['creator_id']) {

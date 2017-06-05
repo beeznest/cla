@@ -1,4 +1,4 @@
-<p>{{ 'UserXWithLangXRegisteredTheSite'| get_lang | format(user_added.completeName, user_added.language) }} </p>
+<p>{{ 'UserXWithLangXRegisteredTheSite'| get_lang|format(user_added.completeName, user_added.language) }} </p>
 
 <p>{{ 'HisProfileIs'| get_lang }} </p>
 
@@ -10,7 +10,7 @@
     </div>
 </div>
 
-<p>{{ 'YouCanAssignATutorInThisLinkX'|get_lang | format(link)}} </p>
+<p>{{ 'YouCanAssignATutorInThisLinkX'|get_lang|format(link) }} </p>
 <p>{{ 'SignatureFormula'|get_lang }}</p>
 <p>{{ _admin.name }}, {{ _admin.surname }}<br>
     {{ 'Manager'|get_lang }} {{ _s.site_name }}<br>

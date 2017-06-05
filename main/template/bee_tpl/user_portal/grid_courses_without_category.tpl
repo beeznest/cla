@@ -19,7 +19,7 @@
                                 <span class="category">{{ item.category }}</span>
                                 <div class="cribbon"></div>
                             {% endif %}
-                            
+
                             {% if item.edit_actions != '' %}
                                 <div class="admin-actions">
                                     {% if item.document == '' %}
@@ -43,13 +43,14 @@
                                     {% if item.visibility == constant('COURSE_VISIBILITY_CLOSED') and not item.current_user_is_teacher %}
                                         {{ item.title_cut }} {{ item.code_course }}
                                     {% else %}
-                                        <a title="{{ item.title }}" href="{{ item.link }}">{{ item.title_cut }} {{ item.code_course }}</a>
+                                        <a title="{{ item.title }}"
+                                           href="{{ item.link }}">{{ item.title_cut }} {{ item.code_course }}</a>
                                     {% endif %}
                                 </h4>
                             </div>
                             <div class="block-author">
                                 {% for teacher in item.teachers %}
-                                    {% if item.teachers | length > 2 %}
+                                    {% if item.teachers|length > 2 %}
                                         <a href="{{ teacher.url }}" class="ajax"
                                            data-title="{{ teacher.firstname }} {{ teacher.lastname }}">
                                             <img src="{{ teacher.avatar }}"/>
@@ -66,7 +67,7 @@
                                                     {{ teacher.firstname }} {{ teacher.lastname }}
                                                 </a>
                                             </h5>
-                                            <p>{{ 'Teacher' | get_lang }}</p>
+                                            <p>{{ 'Teacher'|get_lang }}</p>
                                         </div>
                                     {% endif %}
                                 {% endfor %}
@@ -79,15 +80,15 @@
                                         <div class="student-info">
 
                                             {% if (item.student_info.progress is not null) %}
-                                            {{ "StudentCourseProgressX" | get_lang | format(item.student_info.progress) }}
+                                                {{ "StudentCourseProgressX"|get_lang|format(item.student_info.progress) }}
                                             {% endif %}
 
                                             {% if (item.student_info.score is not null) %}
-                                            {{ "StudentCourseScoreX" | get_lang | format(item.student_info.score) }}
+                                                {{ "StudentCourseScoreX"|get_lang|format(item.student_info.score) }}
                                             {% endif %}
 
                                             {% if (item.student_info.certificate is not null) %}
-                                                <span title="{{ "StudentCourseCertificateX" | get_lang | format(item.student_info.certificate) }}">
+                                                <span title="{{ "StudentCourseCertificateX"|get_lang|format(item.student_info.certificate) }}">
                                                     <i class="fa fa-certificate" aria-hidden="true"></i>
                                                     {{ item.student_info.certificate }}
                                                 </span>

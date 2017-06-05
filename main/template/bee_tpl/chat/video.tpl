@@ -32,12 +32,14 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="headingOne">
                             <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#blocklistFriends" href="#listFriends" aria-expanded="true" aria-controls="listFriends">
-                                    {{ "SocialFriend" | get_lang }}
+                                <a role="button" data-toggle="collapse" data-parent="#blocklistFriends"
+                                   href="#listFriends" aria-expanded="true" aria-controls="listFriends">
+                                    {{ "SocialFriend"|get_lang }}
                                 </a>
                             </h4>
                         </div>
-                        <div id="listFriends" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                        <div id="listFriends" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="headingOne">
                             {{ block_friends }}
                         </div>
                     </div>
@@ -80,7 +82,7 @@
                         if (peer && peer.pc) {
                             peer.pc.on('iceConnectionStateChange', function () {
                                 var alertDiv = $('<div>')
-                                        .addClass('alert');
+                                    .addClass('alert');
 
                                 switch (peer.pc.iceConnectionState) {
                                     case 'checking':
@@ -89,7 +91,7 @@
                                             .html('<em class="fa fa-spinner fa-spin"></em> ' + "{{ 'ConnectingToPeer'|get_lang }}");
                                         break;
                                     case 'connected':
-                                        //no break
+                                    //no break
                                     case 'completed':
                                         alertDiv
                                             .addClass('alert-success')

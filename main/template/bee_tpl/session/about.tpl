@@ -11,7 +11,8 @@
             </p>
             {% if show_tutor %}
                 <p>
-                    <em class="fa fa-user"></em> {{ 'SessionGeneralCoach'|get_lang }}: <em>{{ session.generalCoach.getCompleteName() }}</em>
+                    <em class="fa fa-user"></em> {{ 'SessionGeneralCoach'|get_lang }}:
+                    <em>{{ session.generalCoach.getCompleteName() }}</em>
                 </p>
             {% endif %}
 
@@ -103,7 +104,8 @@
                     <div class="panel-body">
                         {% if course_data.objectives %}
                             <div class="objective-course">
-                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.objectives.getTitle }}</h4>
+                                <h4 class="title-info"><em
+                                            class="fa fa-book"></em> {{ course_data.objectives.getTitle }}</h4>
                                 <div class="content-info">
                                     {{ course_data.objectives.getContent }}
                                 </div>
@@ -112,7 +114,8 @@
 
                         {% if course_data.topics %}
                             <div class="topics">
-                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.topics.getTitle }}</h4>
+                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.topics.getTitle }}
+                                </h4>
                                 <div class="content-info">
                                     {{ course_data.topics.getContent }}
                                 </div>
@@ -121,7 +124,8 @@
 
                         {% if course_data.methodology %}
                             <div class="topics">
-                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.methodology.getTitle }}</h4>
+                                <h4 class="title-info"><em
+                                            class="fa fa-book"></em> {{ course_data.methodology.getTitle }}</h4>
                                 <div class="content-info">
                                     {{ course_data.methodology.getContent }}
                                 </div>
@@ -130,7 +134,8 @@
 
                         {% if course_data.material %}
                             <div class="topics">
-                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.material.getTitle }}</h4>
+                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.material.getTitle }}
+                                </h4>
                                 <div class="content-info">
                                     {{ course_data.material.getContent }}
                                 </div>
@@ -139,7 +144,8 @@
 
                         {% if course_data.resources %}
                             <div class="topics">
-                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.resources.getTitle }}</h4>
+                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.resources.getTitle }}
+                                </h4>
                                 <div class="content-info">
                                     {{ course_data.resources.getContent }}
                                 </div>
@@ -148,7 +154,8 @@
 
                         {% if course_data.assessment %}
                             <div class="topics">
-                                <h4 class="title-info"><em class="fa fa-book"></em> {{ course_data.assessment.getTitle }}</h4>
+                                <h4 class="title-info"><em
+                                            class="fa fa-book"></em> {{ course_data.assessment.getTitle }}</h4>
                                 <div class="content-info">
                                     {{ course_data.assessment.getContent }}
                                 </div>
@@ -189,7 +196,8 @@
                                     </div>
                                     <div class="col-xs-5 col-md-5">
                                         <div class="text-center">
-                                            <img class="img-circle" src="{{ coach.image }}" alt="{{ coach.complete_name }}">
+                                            <img class="img-circle" src="{{ coach.image }}"
+                                                 alt="{{ coach.complete_name }}">
                                         </div>
                                     </div>
                                 </div>
@@ -217,13 +225,16 @@
                     <div class="panel-heading">{{ "ShareWithYourFriends"|get_lang }}</div>
                     <div class="panel-body">
                         <div class="icons-social text-center">
-                            <a href="https://www.facebook.com/sharer/sharer.php?{{ {'u': page_url }|url_encode }}" target="_blank" class="btn bnt-link btn-lg">
+                            <a href="https://www.facebook.com/sharer/sharer.php?{{ {'u': page_url }|url_encode }}"
+                               target="_blank" class="btn bnt-link btn-lg">
                                 <em class="fa fa-facebook fa-2x"></em>
                             </a>
-                            <a href="https://twitter.com/home?{{ {'status': session.getName() ~ ' ' ~ page_url }|url_encode }}" target="_blank" class="btn bnt-link btn-lg">
+                            <a href="https://twitter.com/home?{{ {'status': session.getName() ~ ' ' ~ page_url }|url_encode }}"
+                               target="_blank" class="btn bnt-link btn-lg">
                                 <em class="fa fa-twitter fa-2x"></em>
                             </a>
-                            <a href="https://www.linkedin.com/shareArticle?{{ {'mini': 'true', 'url': page_url , 'title': session.getName() }|url_encode }}" target="_blank" class="btn bnt-link btn-lg">
+                            <a href="https://www.linkedin.com/shareArticle?{{ {'mini': 'true', 'url': page_url , 'title': session.getName() }|url_encode }}"
+                               target="_blank" class="btn bnt-link btn-lg">
                                 <em class="fa fa-linkedin fa-2x"></em>
                             </a>
                         </div>
@@ -236,15 +247,16 @@
     <div class="row">
         <div class="col-md-12">
             <div class="text-center">
-            {% if _u.logged and not is_subscribed %}
-                {{ subscribe_button }}
-            {% elseif not _u.logged %}
-                {% if 'allow_registration'|api_get_setting == 'true' %}
-                    <a href="{{ _p.web_main ~ 'auth/inscription.php' ~ redirect_to_session }}" class="btn btn-info btn-lg">
-                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'SignUp'|get_lang }}
-                    </a>
+                {% if _u.logged and not is_subscribed %}
+                    {{ subscribe_button }}
+                {% elseif not _u.logged %}
+                    {% if 'allow_registration'|api_get_setting == 'true' %}
+                        <a href="{{ _p.web_main ~ 'auth/inscription.php' ~ redirect_to_session }}"
+                           class="btn btn-info btn-lg">
+                            <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'SignUp'|get_lang }}
+                        </a>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
             </div>
         </div>
     </div>

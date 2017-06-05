@@ -8,33 +8,33 @@
         });
 
         {% if _u.is_admin %}
-            (function (CKEDITOR) {
-                CKEDITOR.replace('extra_content');
-    
-                var extraContentEditor = CKEDITOR.instances.extra_content;
-    
-                $('button.admin-edit-block').on('click', function (e) {
-                    e.preventDefault();
-    
-                    var $self = $(this);
-    
-                    var extraContent = $.ajax('{{ _p.web_ajax }}admin.ajax.php', {
-                        type: 'post',
-                        data: {
-                            a: 'get_extra_content',
-                            block: $self.data('id')
-                        }
-                    });
-    
-                    $.when(extraContent).done(function (content) {
-                        extraContentEditor.setData(content);
-                        $('#extra-block').val($self.data('id'));
-                        $('#modal-extra-title').text($self.data('label'));
-    
-                        $('#modal-extra').modal('show');
-                    });
+        (function (CKEDITOR) {
+            CKEDITOR.replace('extra_content');
+
+            var extraContentEditor = CKEDITOR.instances.extra_content;
+
+            $('button.admin-edit-block').on('click', function (e) {
+                e.preventDefault();
+
+                var $self = $(this);
+
+                var extraContent = $.ajax('{{ _p.web_ajax }}admin.ajax.php', {
+                    type: 'post',
+                    data: {
+                        a: 'get_extra_content',
+                        block: $self.data('id')
+                    }
                 });
-            })(window.CKEDITOR);
+
+                $.when(extraContent).done(function (content) {
+                    extraContentEditor.setData(content);
+                    $('#extra-block').val($self.data('id'));
+                    $('#modal-extra-title').text($self.data('label'));
+
+                    $('#modal-extra').modal('show');
+                });
+            });
+        })(window.CKEDITOR);
         {% endif %}
     });
 </script>

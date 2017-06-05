@@ -1,9 +1,9 @@
 {% extends template ~ "/layout/layout_1_col.tpl" %}
 
 {% block content %}
-{{ toolbar }}
+    {{ toolbar }}
 
-{{ wiki_page }}
+    {{ wiki_page }}
 
-{{ wiki_footer }}
+    {{ wiki_footer }}
 {% endblock %}

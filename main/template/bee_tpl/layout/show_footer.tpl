@@ -5,6 +5,6 @@
 {% else %}
     {% include template ~ '/layout/footer.js.tpl' %}
 {% endif %}
-    </div>
+</div>
 </body>
 </html>

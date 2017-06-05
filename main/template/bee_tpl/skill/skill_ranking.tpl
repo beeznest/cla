@@ -1,5 +1,5 @@
 <script>
-$(function() {
-    {{ jqgrid_html }}
-});
+    $(function () {
+        {{ jqgrid_html }}
+    });
 </script>

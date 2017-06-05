@@ -289,11 +289,11 @@
             var profileId = parseInt($('input[name="profile_id"]').val());
 
             var getProfileInfo = $.getJSON(
-                    '{{ url }}',
-                    {
-                        a: 'get_profile',
-                        profile_id: profileId
-                    }
+                '{{ url }}',
+                {
+                    a: 'get_profile',
+                    profile_id: profileId
+                }
             );
 
             $.when(getProfileInfo).done(function (profileInfo) {
@@ -475,17 +475,17 @@
                 if (parseInt(response) === 1) {
                     update_my_saved_profiles();
 
-                    alert("{{ "Saved" | get_lang }}");
+                    alert("{{ "Saved"|get_lang }}");
                 } else {
-                    alert("{{ "Error" | get_lang }}");
+                    alert("{{ "Error"|get_lang }}");
                 }
 
                 $('#frm-save-profile').modal('hide');
             });
         });
-        $(".facebook-auto").css("width","100%");
-        $(".facebook-auto ul").css("width","100%");
-        $("ul.holder").css("width","100%");
+        $(".facebook-auto").css("width", "100%");
+        $(".facebook-auto ul").css("width", "100%");
+        $("ul.holder").css("width", "100%");
     });
 </script>
 <div id="page-back" class="page-skill">
@@ -533,12 +533,15 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="wheel-legend-heading">
                             <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#wheel-second-accordion" href="#wheel-legend-collapse" aria-expanded="true" aria-controls="wheel-legend-collapse">
+                                <a role="button" data-toggle="collapse" data-parent="#wheel-second-accordion"
+                                   href="#wheel-legend-collapse" aria-expanded="true"
+                                   aria-controls="wheel-legend-collapse">
                                     {{ "Legend"|get_lang }}
                                 </a>
                             </h4>
                         </div>
-                        <div id="wheel-legend-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="wheel-legend-heading">
+                        <div id="wheel-legend-collapse" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="wheel-legend-heading">
                             <div class="panel-body">
                                 <ul class="fa-ul">
                                     <li>
@@ -557,20 +560,23 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="wheel-display-heading">
                             <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#wheel-second-accordion" href="#wheel-display-collapse" aria-expanded="false" aria-controls="wheel-display-collapse">
-                                    {{ 'DisplayOptions' | get_lang }}
+                                <a class="collapsed" role="button" data-toggle="collapse"
+                                   data-parent="#wheel-second-accordion" href="#wheel-display-collapse"
+                                   aria-expanded="false" aria-controls="wheel-display-collapse">
+                                    {{ 'DisplayOptions'|get_lang }}
                                 </a>
                             </h4>
                         </div>
-                        <div id="wheel-display-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="wheel-display-heading">
+                        <div id="wheel-display-collapse" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="wheel-display-heading">
                             <div class="panel-body">
-                                <p>{{ 'ChooseABackgroundColor' | get_lang }}</p>
+                                <p>{{ 'ChooseABackgroundColor'|get_lang }}</p>
                                 <ul class="list-unstyled" id="skill-change-background-options">
-                                    <li><a href="#" data-color="#FFFFFF">{{ 'White' | get_lang }}</a></li>
-                                    <li><a href="#" data-color="#000000">{{ 'Black' | get_lang }}</a></li>
+                                    <li><a href="#" data-color="#FFFFFF">{{ 'White'|get_lang }}</a></li>
+                                    <li><a href="#" data-color="#000000">{{ 'Black'|get_lang }}</a></li>
                                     <li><a href="#" data-color="#A9E2F3">{{ 'LightBlue' }}</a></li>
-                                    <li><a href="#" data-color="#848484">{{ 'Gray' | get_lang }}</a></li>
-                                    <li><a href="#" data-color="#F7F8E0">{{ 'Corn' | get_lang }}</a></li>
+                                    <li><a href="#" data-color="#848484">{{ 'Gray'|get_lang }}</a></li>
+                                    <li><a href="#" data-color="#F7F8E0">{{ 'Corn'|get_lang }}</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -586,54 +592,56 @@
     </div>
 </div>
 
-<div class="modal fade" id="frm-skill" tabindex="-1" role="dialog" aria-labelledby="form-skill-title" aria-hidden="true">
+<div class="modal fade" id="frm-skill" tabindex="-1" role="dialog" aria-labelledby="form-skill-title"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close" | get_lang }}">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|get_lang }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="form-skill-title">{{ "Skill" | get_lang }}</h4>
+                <h4 class="modal-title" id="form-skill-title">{{ "Skill"|get_lang }}</h4>
             </div>
             <div class="modal-body">
                 {{ dialogForm }}
             </div>
             <div class="modal-footer">
                 <button id="form-button-edit" class="btn btn-primary">
-                    <em class="fa fa-edit"></em> {{ "Edit" | get_lang }}
+                    <em class="fa fa-edit"></em> {{ "Edit"|get_lang }}
                 </button>
                 <button id="form-button-create-child" class="btn btn-primary">
-                    <em class="fa fa-plus"></em> {{ "CreateChildSkill" | get_lang }}
+                    <em class="fa fa-plus"></em> {{ "CreateChildSkill"|get_lang }}
                 </button>
                 <button id="form-button-add-to-profile" class="btn btn-primary">
-                    <em class="fa fa-check"></em> {{ "AddSkillToProfileSearch" | get_lang }}
+                    <em class="fa fa-check"></em> {{ "AddSkillToProfileSearch"|get_lang }}
                 </button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">
-                    <em class="fa fa-close"></em> {{ "Close" | get_lang }}
+                    <em class="fa fa-close"></em> {{ "Close"|get_lang }}
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="frm-save-profile" tabindex="-1" role="dialog" aria-labelledby="form-save-profile-title" aria-hidden="true">
+<div class="modal fade" id="frm-save-profile" tabindex="-1" role="dialog" aria-labelledby="form-save-profile-title"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close" | get_lang }}">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|get_lang }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="form-save-profile-title">{{ "SkillProfile" | get_lang }}</h4>
+                <h4 class="modal-title" id="form-save-profile-title">{{ "SkillProfile"|get_lang }}</h4>
             </div>
             <div class="modal-body">
                 {{ save_profile_form }}
             </div>
             <div class="modal-footer">
                 <button id="form-button-save-profile" class="btn btn-primary">
-                    <em class="fa fa-save"></em> {{ "Save" | get_lang }}
+                    <em class="fa fa-save"></em> {{ "Save"|get_lang }}
                 </button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">
-                    <em class="fa fa-close"></em> {{ "Close" | get_lang }}
+                    <em class="fa fa-close"></em> {{ "Close"|get_lang }}
                 </button>
             </div>
         </div>

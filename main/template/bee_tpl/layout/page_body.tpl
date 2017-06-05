@@ -12,6 +12,6 @@
 {% endif %}
 {% if message != '' %}
     <section id="messages">
-        {{ message}}
+        {{ message }}
     </section>
 {% endif %}

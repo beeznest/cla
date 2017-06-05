@@ -1,9 +1,8 @@
+{{ javascript }}
 
-{{javascript}}
-
-<div class="btn-toolbar actions-bar" >
+<div class="btn-toolbar actions-bar">
     <div class="btn-group">
-        <a href="{{root}}&amp;action=listing" class="btn">
+        <a href="{{ root }}&amp;action=listing" class="btn">
             <em class="size-32 icon-back"></em>
         </a>
     </div>
@@ -13,4 +12,4 @@
     {{ message }}
 {% endfor %}
 
-{{form.return_form()}}
+{{ form.return_form() }}

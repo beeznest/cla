@@ -1,16 +1,15 @@
-
-<h3>{{ 'Skills' | get_lang }}</h3>
+<h3>{{ 'Skills'|get_lang }}</h3>
 
 <ul>
     <li>
         <a href="{{ _p.web_main }}{{ 'admin/skill_profile.php' }}">
-            {{ 'AddProfile' | get_lang }}
+            {{ 'AddProfile'|get_lang }}
         </a>
     </li>
 
     <li>
         <a href="{{ _p.web_main }}{{ 'admin/skill_level.php' }}">
-            {{ 'AddLevel' | get_lang }}
+            {{ 'AddLevel'|get_lang }}
         </a>
     </li>
 </ul>
