@@ -34,6 +34,9 @@ header {
 .section-notifications {
   text-align: right; }
 
+.article-page {
+  padding: 20px 15px; }
+
 #notifications {
   padding: 0;
   margin: 0;
