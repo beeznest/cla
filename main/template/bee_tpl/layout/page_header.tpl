@@ -1,3 +1,4 @@
+
 <script>
     $(document).ready(function () {
 
@@ -109,7 +110,6 @@
                     {{ accessibility }}
                 </div>
             </div>
-        </div>
     </div>
 </div>
 <header id="header-section" class="header-movil">
