@@ -3,8 +3,19 @@
     $(document).ready(function () {
 
         $("[name\=submitAuth\]").on("click", function () {
-            var login = $("#login").val();
-            var password = $("#password").val();
+            var login;
+            var password;
+            var inside;
+            if($('#formLogin_login').length  && $('#formLogin_password').length ){
+                login = $("#formLogin_login").val();
+                password = $("#formLogin_password").val();
+                inside = true;
+            } else {
+                login = $("#login").val();
+                password = $("#password").val();
+                inside = false;
+            }
+            
             $.ajax({
                 contentType: "application/x-www-form-urlencoded",
                 type: "POST",
@@ -17,15 +28,18 @@
                     try {
                         response = JSON.parse(response);
                         $("#returnMessage").html(response['message']);
-                        $(location).attr('href', response['url']);
+                        $(location).attr('href', response['url']);    
                     } catch (e) {
                         $("#returnMessage").html(response);
                     }
                 }
             });
+            if(inside === true){
+               location.reload();
+            }
             return false;
         });
-
+        
         $("[name\=submitReg\]").on("click", function () {
             var firstname = $("#firstname").val();
             var lastname = $("#lastname").val();
