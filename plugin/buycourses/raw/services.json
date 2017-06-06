@@ -1,9 +1,26 @@
 [
   {
-    "name": "VideoConferencia 3x30",
+    "name": "[Curso] VideoConferencia 3x30",
     "description": "Videoconferencias por 30 días para 3 usuarios en simultáneo",
-    "price": 10,
-    "duration_days": 30,
-    "applies_to": 3
+    "price": 0,
+    "duration_days": 25,
+    "applies_to": 2,
+    "on_complete": {
+      "hook": "BuyCoursesPluginChangeExtraFieldValueHook",
+      "variable": "plugin_bbb_course_users_limit",
+      "new_value": "30"
+    }
+  },
+  {
+    "name": "[Sesión] VideoConferencia 3x30",
+    "description": "Videoconferencias por 30 días para 3 usuarios en simultáneo",
+    "price": 0,
+    "duration_days": 25,
+    "applies_to": 3,
+    "on_complete": {
+      "hook": "BuyCoursesPluginChangeExtraFieldValueHook",
+      "variable": "plugin_bbb_session_users_limit",
+      "new_value": "30"
+    }
   }
 ]

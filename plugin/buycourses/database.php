@@ -229,6 +229,7 @@ $servicesTable->addColumn('visibility', \Doctrine\DBAL\Types\Type::INTEGER);
 $servicesTable->addColumn('video_url', \Doctrine\DBAL\Types\Type::STRING);
 $servicesTable->addColumn('image', \Doctrine\DBAL\Types\Type::STRING);
 $servicesTable->addColumn('service_information', \Doctrine\DBAL\Types\Type::TEXT);
+$servicesTable->addColumn('on_complete', \Doctrine\DBAL\Types\Type::TEXT)->setNotnull(false);
 $servicesTable->setPrimaryKey(['id']);
 
 $servicesNodeTable = $pluginSchema->createTable(BuyCoursesPlugin::TABLE_SERVICES_SALE);

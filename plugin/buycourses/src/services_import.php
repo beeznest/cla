@@ -26,6 +26,7 @@ foreach ($services as $service) {
         'price' => $service['price'],
         'duration_days' => $service['duration_days'],
         'applies_to' => $service['applies_to'],
+        'on_complete' => $service['on_complete'],
         'owner_id' => $firstPlatformAdmin['user_id'],
         'visibility' => false,
         'image' => '',

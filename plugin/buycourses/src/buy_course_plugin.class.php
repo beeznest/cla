@@ -1765,6 +1765,7 @@ class BuyCoursesPlugin extends Plugin
                 'image' => '',
                 'video_url' => $service['video_url'],
                 'service_information' => $service['service_information'],
+                'on_complete' => isset($service['on_complete']) ? serialize($service['on_complete']) : null
             ]
         );
 
@@ -1986,7 +1987,7 @@ class BuyCoursesPlugin extends Plugin
         $currency = $this->getSelectedCurrency();
         $isoCode = $currency['iso_code'];
         $return = Database::select(
-            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.applies_to, s.owner_id, s.visibility, s.image, $hot '$isoCode' as currency",
+            "ss.*, s.name, s.description, s.price as service_price, s.duration_days, s.applies_to, s.owner_id, s.visibility, s.image, $hot '$isoCode' as currency, s.on_complete",
             "$servicesSaleTable ss $innerJoins",
             $conditions,
             $showData
@@ -2010,6 +2011,7 @@ class BuyCoursesPlugin extends Plugin
             $servicesSale['service']['owner']['name'] = api_get_person_name($owner['firstname'], $owner['lastname']);
             $servicesSale['service']['visibility'] = $return['visibility'];
             $servicesSale['service']['image'] = $return['image'];
+            $servicesSale['service']['on_complete'] = $return['on_complete'];
             $servicesSale['reference'] = $return['reference'];
             $servicesSale['currency_id'] = $return['currency_id'];
             $servicesSale['currency'] = $return['currency'];
@@ -2084,6 +2086,15 @@ class BuyCoursesPlugin extends Plugin
         $serviceSale = $this->getServiceSale($serviceSaleId);
         if ($serviceSale['status'] == self::SERVICE_STATUS_COMPLETED) {
             return true;
+        }
+
+        $onComplete = unserialize($serviceSale['service']['on_complete']);
+
+        if ($onComplete) {
+            $hook = $onComplete['hook'];
+            /** @var BuyCoursesPluginHookInterface $onCompleteHook */
+            $onCompleteHook = new $hook();
+            $onCompleteHook->completeSale($serviceSale);
         }
 
         $this->updateServiceSaleStatus($serviceSaleId, self::SERVICE_STATUS_COMPLETED);
