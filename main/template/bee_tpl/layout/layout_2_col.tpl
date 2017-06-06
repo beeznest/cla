@@ -1,6 +1,9 @@
 {% extends template ~ "/layout/page.tpl" %}
 
 {% block body %}
+
+{% set urlcurrent = _p.web_query_vars|slice(-5,7) %}
+{% if urlcurrent != '.html' %}
     <div class="page-home">
         {% if section_name == 'section-mycampus' and hide_special_search_block == 0 %}
             <section id="hero">
@@ -39,6 +42,7 @@
             </section>
         {% endif %}
     </div>
+
     {% if section_name == 'section-mycampus' %}
         <section id="extra-focus" class="text-center" style="padding-bottom: 30px;">
             <div class="container">
@@ -57,6 +61,15 @@
             </div>
         </section>
     {% endif %}
+{% else %}
+<div class="container">
+    {% if home_page_block %}
+        <article class="article-page">
+            {{ home_page_block }}
+        </article>
+    {% endif %}
+</div>
+{% endif %}
     {% if section_name != 'section-mycampus' %}
         <div class="container">
             <div class="row">
