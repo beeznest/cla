@@ -151,12 +151,15 @@
     {% endif %}
     {% if services_are_included %}
         <div role="tabpanel" class="tab-pane" id="services">
-            <div class="table-responsive">
+            <div class="btn-toolbar">
                 <a href="{{ _p.web_plugin ~ 'buycourses/src/services_add.php' }}" class="btn btn-primary">
                     <em class="fa fa-cart-plus fa-fw"></em> {{ 'NewService'| get_plugin_lang('BuyCoursesPlugin') }}
                 </a>
-                </br>
-                </br>
+                <a href="{{ _p.web_plugin ~ 'buycourses/src/services_import.php' }}" class="btn btn-primary">
+                    <span class="fa fa-upload fa-fw" aria-hidden="true"></span> {{ 'ImportServices'|get_plugin_lang('BuyCoursesPlugin') }}
+                </a>
+            </div>
+            <div class="table-responsive">
                 <table id="services_table" class="table">
                     <thead>
                     <tr>

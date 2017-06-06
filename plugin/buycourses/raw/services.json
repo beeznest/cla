@@ -1,0 +1,9 @@
+[
+  {
+    "name": "VideoConferencia 3x30",
+    "description": "Videoconferencias por 30 días para 3 usuarios en simultáneo",
+    "price": 10,
+    "duration_days": 30,
+    "applies_to": 3
+  }
+]
