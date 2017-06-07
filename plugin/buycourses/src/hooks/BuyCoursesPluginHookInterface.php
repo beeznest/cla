@@ -11,4 +11,10 @@ interface BuyCoursesPluginHookInterface
      * @return bool
      */
     public function completeSale(array $saleInfo);
+
+    /**
+     * @param array $saleInfo The service sale information
+     * @return mixed
+     */
+    public function expireSale(array $saleInfo);
 }
