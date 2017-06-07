@@ -20,7 +20,7 @@
   src: local("Roboto Condensed Bold"), local("RobotoCondensed-Bold"), url("fonts/RobotoCondensed-Bold.woff2") format("woff2"); }
 body {
   font-family: "Roboto Condensed";
-  font-size: 14px; }
+  font-size: 18px; }
 
 a {
   color: #000000; }
@@ -36,6 +36,11 @@ header {
 
 .article-page {
   padding: 20px 15px; }
+  .article-page h1, .article-page h2, .article-page h3, .article-page h4, .article-page h5, .article-page h6 {
+    font-weight: bold;
+    color: #000; }
+  .article-page p {
+    color: #666; }
 
 #notifications {
   padding: 0;
@@ -163,7 +168,7 @@ footer {
   padding-top: 5px; }
 
 #course_tools .content a {
-  font-size: 14px;
+  font-size: 18px;
   color: #808080; }
   #course_tools .content a:hover {
     color: #000000;
@@ -219,6 +224,12 @@ footer {
   border: none;
   border-radius: 0px;
   margin-bottom: 0; }
+  .navbar-default .navbar-toogle {
+    border-color: #000000; }
+    .navbar-default .navbar-toogle .icon-bar {
+      background-color: #FFFFFF; }
+  .navbar-default .navbar-toogle:hover {
+    background: #000000; }
   .navbar-default .navbar-nav {
     margin: 0px; }
     .navbar-default .navbar-nav .active a {
@@ -282,7 +293,7 @@ footer {
 
 .inner_lp_toc .scorm_item_section {
   background: #FFFFFF;
-  font-size: 14px;
+  font-size: 18px;
   border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
   padding-top: 8px;
@@ -400,16 +411,16 @@ footer {
         font-size: 16px;
         margin-top: 0px; }
     .item-session .description .teacher {
-      font-size: 14px; }
+      font-size: 18px; }
     .item-session .description .info {
-      font-size: 14px;
+      font-size: 18px;
       display: inline-block;
       width: 100%; }
     .item-session .description .text {
       min-height: 80px;
       padding-top: 10px; }
       .item-session .description .text p {
-        font-size: 14px;
+        font-size: 18px;
         display: block;
         display: -webkit-box;
         max-width: 400px;
@@ -454,7 +465,7 @@ footer {
   .list-session .session-description {
     color: #808080; }
     .list-session .session-description .text p {
-      font-size: 14px; }
+      font-size: 18px; }
 
 .sidebar .nav li a {
   padding: 5px; }
@@ -474,13 +485,13 @@ footer {
   margin-bottom: 20px;
   font-size: 22px; }
 #about-session .course-description {
-  font-size: 16px;
+  font-size: 20px;
   color: #808080; }
 #about-session .course-objetive {
-  font-size: 16px;
+  font-size: 20px;
   color: #808080; }
 #about-session .course-topics {
-  font-size: 16px;
+  font-size: 20px;
   color: #808080; }
 #about-session .suscriber {
   margin-top: 15px;
@@ -489,14 +500,14 @@ footer {
   text-align: center; }
 #about-session .sidebar .coaches-info .extra-field dd {
   color: #808080;
-  font-size: 16px; }
+  font-size: 20px; }
 #about-session .sidebar .coaches-info .extra-field p {
   color: #808080;
-  font-size: 16px; }
+  font-size: 20px; }
 #about-session .sidebar .list-inline .label-info {
   background-color: #FFCC00;
   color: #000000;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold; }
 
 @media (max-width: 480px) {
@@ -506,6 +517,15 @@ footer {
     margin-right: auto;
     position: relative; }
     .item-session .thumbnail .course-metadata {
-      left: 0px !important; } }
+      left: 0px !important; }
+
+  .navbar-default {
+    background: #FFCC00; }
+    .navbar-default .navbar-toogle {
+      border-color: #000000; }
+      .navbar-default .navbar-toogle .icon-bar {
+        background-color: #FFFFFF; }
+    .navbar-default .navbar-toogle:hover {
+      background: #000000; } }
 
 /*# sourceMappingURL=default.css.map */

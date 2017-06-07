@@ -38,6 +38,13 @@ header{
 }
 .article-page{
     padding: 20px 15px;
+    h1,h2,h3,h4,h5,h6{
+        font-weight: bold;
+        color: #000;
+    }
+    p{
+        color: #666;
+    }
 }
 #notifications{
     padding: 0;
@@ -636,6 +643,18 @@ footer{
             .course-metadata{
                left: 0px !important;
             }
+        }
+    }
+    .navbar-default{
+        background: $colorPrimary;
+        .navbar-toogle{
+            border-color: $colorSecundary;
+            .icon-bar{
+                background-color: $colorWhite;
+            }
+        }
+        .navbar-toogle:hover{
+            background: $colorSecundary;
         }
     }
 }

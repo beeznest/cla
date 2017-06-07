@@ -4,6 +4,15 @@
     border: $noBorder;
     border-radius: $radius - $radius;
     margin-bottom: 0;
+    .navbar-toogle{
+        border-color: $colorSecundary;
+        .icon-bar{
+            background-color: $colorWhite;
+        }
+    }
+    .navbar-toogle:hover{
+        background: $colorSecundary;
+    }
     .navbar-nav{
         margin: 0px;
         .active{
