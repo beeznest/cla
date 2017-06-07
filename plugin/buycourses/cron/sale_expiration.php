@@ -27,7 +27,7 @@ foreach ($salesId as $saleId) {
     $dateEnd = new DateTime($sale['date_end'], new DateTimeZone('UTC'));
 
     if ($dateEnd > $now) {
-//        continue;
+        continue;
     }
 
     $onComplete = unserialize($sale['service']['on_complete']);
