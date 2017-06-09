@@ -34,9 +34,6 @@
                                 </div>
 
                             </div>
-                            <div class="text">
-                                {{ session.description }}
-                            </div>
                             <div class="block-info">
                                 <i class="fa fa-user"></i> {{ session.users }} {{ "Users"|get_lang }}
                                 &nbsp;

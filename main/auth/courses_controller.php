@@ -718,7 +718,45 @@ class CoursesController
 
         $tpl->display($contentTemplate);
     }
+    /**
+     * Show the Session Catalogue with filtered session by course tags
+     * @param array $limit Limit info
+     */
+    public function sessionsListByTitleAndTags(array $limit)
+    {
+        $searchTitle = isset($_GET['title']) ? $_GET['title'] : null;
+        $searchTag = isset($_GET['tag']) ? $_GET['tag'] : null;
+        if(!empty($searchTag)){
+            $searchTag = $searchTitle;
+        }
+        $searchDate = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
+        $hiddenLinks = isset($_GET['hidden_links']) ? intval($_GET['hidden_links']) == 1 : false;
+        $courseUrl = CourseCategory::getCourseCategoryUrl(
+            1,
+            $limit['length'],
+            null,
+            0,
+            'subscribe'
+        );
+        $sessions = $this->model->browseSessionsByTitleAndTags($searchTitle, $limit);
+        $sessionsBlocks = $this->getFormattedSessionsBlock($sessions);
 
+        $tpl = new Template();
+        $tpl->assign('show_courses', CoursesAndSessionsCatalog::showCourses());
+        $tpl->assign('show_sessions', CoursesAndSessionsCatalog::showSessions());
+        $tpl->assign('show_tutor', (api_get_setting('show_session_coach') === 'true' ? true : false));
+        $tpl->assign('course_url', $courseUrl);
+        $tpl->assign('already_subscribed_label', $this->getAlreadyRegisteredInSessionLabel());
+        $tpl->assign('hidden_links', $hiddenLinks);
+        $tpl->assign('search_token', Security::get_token());
+        $tpl->assign('search_date', Security::remove_XSS($searchDate));
+        $tpl->assign('search_tag', Security::remove_XSS($searchTitle));
+        $tpl->assign('sessions', $sessionsBlocks);
+
+        $contentTemplate = $tpl->get_template('auth/session_catalog.tpl');
+
+        $tpl->display($contentTemplate);
+    }
     /**
      * Show the Session Catalogue with filtered session by a query term
      * @param array $limit
@@ -755,7 +793,7 @@ class CoursesController
 
         $tpl->display($contentTemplate);
     }
-
+    
     /**
      * Get the formatted data for sessions block to be displayed on Session Catalog page
      * @param array $sessions The session list

@@ -798,6 +798,72 @@ SQL;
 
         return $sessionsToBrowse;
     }
+    
+     /**
+     * Search sessions by the tags in their courses
+     * @param string $termTitle Term for search in title session
+     * @param string $termTags Term for search in tag
+     * @param array $limit Limit info
+     * @return array The sessions
+     */
+    public function browseSessionsByTitleAndTags($termTitle, array $limit)
+    {
+        $em = Database::getManager();
+        $qb = $em->createQueryBuilder();
+
+        $sessions = $qb->select('s')
+            ->distinct(true)
+            ->from('ChamiloCoreBundle:Session', 's')
+            ->innerJoin(
+                'ChamiloCoreBundle:SessionRelCourse',
+                'src',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                's.id = src.session'
+            )
+            ->innerJoin(
+                'ChamiloCoreBundle:ExtraFieldRelTag',
+                'frt',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'src.course = frt.itemId'
+            )
+            ->innerJoin(
+                'ChamiloCoreBundle:Tag',
+                't',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'frt.tagId = t.id'
+            )
+            ->innerJoin(
+                'ChamiloCoreBundle:ExtraField',
+                'f',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'frt.fieldId = f.id'
+            )
+            ->where(
+                $qb->expr()->like('s.name', ":name")
+            )
+            ->orWhere(
+                $qb->expr()->like('t.tag', ":tag")
+            )
+            ->andWhere(
+                $qb->expr()->eq('f.extraFieldType', ExtraField::COURSE_FIELD_TYPE)
+            )
+            ->setFirstResult($limit['start'])
+            ->setMaxResults($limit['length'])
+            ->setParameter('name', "%$termTitle%")
+            ->setParameter('tag', "$termTitle%")
+            ->getQuery()
+            ->getResult();
+
+        $sessionsToBrowse = [];
+        foreach ($sessions as $session) {
+            if ($session->getNbrCourses() === 0) {
+                continue;
+            }
+            $sessionsToBrowse[] = $session;
+        }
+
+        return $sessionsToBrowse;
+    }
 
     /**
      * Search sessions by searched term by session name

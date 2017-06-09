@@ -32,10 +32,11 @@
                             </form>
                         </div>
                         <div class="col-md-6">
-                            <form method="post" action="{{ _p.web_self }}?action=search_tag">
-                                <label>{{ "ByTag"|get_lang }}</label>
+                            <form method="get" action="{{ _p.web_self }}">
+                                <label>{{ "ByTitleAndTag"|get_lang }}</label>
                                 <div class="input-group">
-                                    <input type="text" name="search_tag" title="{{ 'ByTag'|get_lang }}"
+                                    <input type="hidden" name="action" value="search">
+                                    <input type="text" name="title" title="{{ 'ByTitleAndTag'|get_lang }}"
                                            class="form-control"
                                            value="{{ search_tag }}"/>
                                     <span class="input-group-btn">
