@@ -16,8 +16,10 @@ switch ($action) {
         $username = isset($_POST['username']) ? $_POST['username'] : null;
         $pass1 = isset($_POST['pass1']) ? $_POST['pass1'] : null;
         $pass2 = isset($_POST['pass2']) ? $_POST['pass2'] : null;
+        $privacy = isset($_POST['privacy']) ? $_POST['privacy'] : null;
+        $terms = isset($_POST['terms']) ? $_POST['terms'] : null;
         
-        if ($firstname && $lastname && $username && $pass1 && $pass2) {
+        if ($firstname && $lastname && $username && $pass1 && $pass2 && $privacy && $terms) {
             if ($pass1 === $pass2) {
                 if ($username !== $pass1) {
                     if (strlen($pass1) > 1) {

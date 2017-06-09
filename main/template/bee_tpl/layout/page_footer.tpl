@@ -139,34 +139,40 @@
             var username = $("#username").val();
             var pass1 = $("#pass1").val();
             var pass2 = $("#pass2").val();
-            $.ajax({
+            var privacy = $("#privacyPolicy").is(':checked');
+            var terms = $("#termsAndConditions").is(':checked');
+            if(privacy === true && terms === true){
+                $.ajax({
                 contentType: "application/x-www-form-urlencoded",
                 type: "POST",
                 url: "{{ ajax_path }}" + "?a=signUp",
-                data: 'firstname=' + firstname + '&lastname=' + lastname + '&username=' + username + '&pass1=' + pass1 + '&pass2=' + pass2,
+                data: 'firstname=' + firstname + '&lastname=' + lastname + '&username=' + username + '&pass1=' + pass1 + '&pass2=' + pass2 + '&privacy=' + privacy + '&terms=' + terms,
                 beforeSend: function () {
                     $("#returnMessage2").html('<div class="three-quarters-loader"></div>');
                 },
                 success: function (response) {
-                    try {
-                        response = JSON.parse(response);
-                        $("#returnMessage2").html(response['message']);
-                        $.ajax({
-                            contentType: "application/x-www-form-urlencoded",
-                            type: "POST",
-                            url: "{{ ajax_path }}" + "?a=signIn",
-                            data: 'login=' + username + '&password=' + pass1,
-                            success: function (authLogIn) {
-                                if (authLogIn) {
-                                    $(location).attr('href', response['url']);
+                        try {
+                            response = JSON.parse(response);
+                            $("#returnMessage2").html(response['message']);
+                            $.ajax({
+                                contentType: "application/x-www-form-urlencoded",
+                                type: "POST",
+                                url: "{{ ajax_path }}" + "?a=signIn",
+                                data: 'login=' + username + '&password=' + pass1,
+                                success: function (authLogIn) {
+                                    if (authLogIn) {
+                                        $(location).attr('href', response['url']);
+                                    }
                                 }
-                            }
-                        });
-                    } catch (e) {
-                        $("#returnMessage2").html(response);
+                            });
+                        } catch (e) {
+                            $("#returnMessage2").html(response);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                $("#returnMessage2").html('<div class="alert alert-danger" role="alert">{{ 'FormHasErrorsPleaseComplete'|get_lang }}</div>');
+            };
             return false;
         });
     });
