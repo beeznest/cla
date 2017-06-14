@@ -67,8 +67,7 @@
                             <div id="session-{{ item.id }}" class="items items-courses items-sessions">
                                 <div class="image">
                                     <a href="{{ _p.web ~ 'session/' ~ item.id ~ '/about/' }}" title="{{ item.name }}">
-                                        <img class="img-responsive"
-                                             src="{{ item.image ? _p.web_upload ~ item.image : 'session_default.png'|icon() }}">
+                                        <img class="img-responsive"  src="{{ item.image ? _p.web_upload ~ item.image : 'session_default.png'|icon() }}">
                                     </a>
                                     {% if item.category != '' %}
                                         <span class="category">{{ item.category }}</span>
