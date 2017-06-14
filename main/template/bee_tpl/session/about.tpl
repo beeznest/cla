@@ -63,7 +63,6 @@
             {{ 'YourSessionTimeIsExpired'|get_lang }}
         </div>
     {% endif %}
-
     {% for course_data in courses %}
         {% set course_video = '' %}
 
@@ -178,29 +177,23 @@
 
             <div class="col-xs-12 col-md-5">
                 {% if course_data.coaches %}
-                    <div class="panel panel-default teachers">
-                        <div class="panel-heading">
-                            <h4>{{ "Coaches"|get_lang }}</h4>
-                        </div>
-                        <div class="panel-body">
+                    <div class="panel-coaches">
+                        <h2 class="title">{{ "Coaches"|get_lang }}</h2>
+                        <div class="panel-teachers">
                             {% for coach in course_data.coaches %}
-                                <div class="row">
-                                    <div class="col-xs-7 col-md-7">
-                                        <h4>{{ coach.complete_name }}</h4>
-                                        {% for extra_field in coach.extra_fields %}
-                                            <dl>
-                                                <dt>{{ extra_field.value.getField().getDisplayText() }}</dt>
-                                                <dd>{{ extra_field.value.getValue() }}</dd>
-                                            </dl>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="col-xs-5 col-md-5">
-                                        <div class="text-center">
-                                            <img class="img-circle" src="{{ coach.image }}"
-                                                 alt="{{ coach.complete_name }}">
-                                        </div>
-                                    </div>
+                            <div class="media">
+                                <div class="media-left">
+                                    <img src="{{ coach.image }}" alt="{{ coach.complete_name }}">
                                 </div>
+                                <div class="media-body">
+                                  <h4 class="media-heading">{{ coach.complete_name }}</h4>
+                                  <div class="email">
+                                      <i class="fa fa-envelope" aria-hidden="true"></i> {{ coach.email }}
+                                  </div>
+                                    {{ coach.about }}
+                                </div>
+                            </div>                              
+                                
                             {% endfor %}
                         </div>
                     </div>

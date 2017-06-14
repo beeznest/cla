@@ -65,6 +65,8 @@ foreach ($sessionCourses as $sessionCourse) {
                 $courseCoach->getId(),
                 USER_IMAGE_SIZE_ORIGINAL
             ),
+            'email' => $courseCoach->getEmail(),
+            'about' => $courseCoach->getOpenArea(),
             'extra_fields' => $userValues->getAllValuesForAnItem(
                 $courseCoach->getId(),
                 null,

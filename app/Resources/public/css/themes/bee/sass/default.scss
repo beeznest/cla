@@ -22,6 +22,7 @@
 body{
     font-family: $fontsFamily;
     font-size: $fontBody;
+    line-height: 1.4em;
 }
 a{
     color: $colorSecundary;
@@ -585,6 +586,31 @@ footer{
     }
 }
 #about-session{
+    .title{
+        font-weight: bold;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+    .panel-teachers{
+        .media{
+            .media-left{
+                img{
+                    width: 100px;
+                }
+            }
+            .media-heading{
+                font-weight: bold;
+            }
+            .email{
+                margin-top: 5px;
+                margin-bottom: 10px;
+            }
+            p{
+                font-size: 14px;
+            }
+        }
+    }
     .title-info{
         color: $colorSecundary;
         margin-bottom: 20px;

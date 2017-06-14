@@ -20,7 +20,8 @@
   src: local("Roboto Condensed Bold"), local("RobotoCondensed-Bold"), url("fonts/RobotoCondensed-Bold.woff2") format("woff2"); }
 body {
   font-family: "Roboto Condensed";
-  font-size: 18px; }
+  font-size: 16px;
+  line-height: 1.4em; }
 
 a {
   color: #000000; }
@@ -168,7 +169,7 @@ footer {
   padding-top: 5px; }
 
 #course_tools .content a {
-  font-size: 18px;
+  font-size: 16px;
   color: #808080; }
   #course_tools .content a:hover {
     color: #000000;
@@ -293,7 +294,7 @@ footer {
 
 .inner_lp_toc .scorm_item_section {
   background: #FFFFFF;
-  font-size: 18px;
+  font-size: 16px;
   border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
   padding-top: 8px;
@@ -411,16 +412,16 @@ footer {
         font-size: 16px;
         margin-top: 0px; }
     .item-session .description .teacher {
-      font-size: 18px; }
+      font-size: 16px; }
     .item-session .description .info {
-      font-size: 18px;
+      font-size: 16px;
       display: inline-block;
       width: 100%; }
     .item-session .description .text {
       min-height: 80px;
       padding-top: 10px; }
       .item-session .description .text p {
-        font-size: 18px;
+        font-size: 16px;
         display: block;
         display: -webkit-box;
         max-width: 400px;
@@ -465,7 +466,7 @@ footer {
   .list-session .session-description {
     color: #808080; }
     .list-session .session-description .text p {
-      font-size: 18px; }
+      font-size: 16px; }
 
 .sidebar .nav li a {
   padding: 5px; }
@@ -480,18 +481,32 @@ footer {
     font-size: 34px;
     font-weight: bold; }
 
+#about-session .title {
+  font-weight: bold;
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 20px; }
+#about-session .panel-teachers .media .media-left img {
+  width: 100px; }
+#about-session .panel-teachers .media .media-heading {
+  font-weight: bold; }
+#about-session .panel-teachers .media .email {
+  margin-top: 5px;
+  margin-bottom: 10px; }
+#about-session .panel-teachers .media p {
+  font-size: 14px; }
 #about-session .title-info {
   color: #000000;
   margin-bottom: 20px;
   font-size: 22px; }
 #about-session .course-description {
-  font-size: 20px;
+  font-size: 18px;
   color: #808080; }
 #about-session .course-objetive {
-  font-size: 20px;
+  font-size: 18px;
   color: #808080; }
 #about-session .course-topics {
-  font-size: 20px;
+  font-size: 18px;
   color: #808080; }
 #about-session .suscriber {
   margin-top: 15px;
@@ -500,14 +515,14 @@ footer {
   text-align: center; }
 #about-session .sidebar .coaches-info .extra-field dd {
   color: #808080;
-  font-size: 20px; }
+  font-size: 18px; }
 #about-session .sidebar .coaches-info .extra-field p {
   color: #808080;
-  font-size: 20px; }
+  font-size: 18px; }
 #about-session .sidebar .list-inline .label-info {
   background-color: #FFCC00;
   color: #000000;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold; }
 
 @media (max-width: 480px) {
