@@ -7,8 +7,7 @@
                     <div class="items items-hotcourse">
                         <div class="image">
                             <a href="{{ _p.web }}session/{{ session.id }}/about/" title="title-session">
-                                <img class="img-responsive" src="{{ _p.web_upload }}{{ session.image }}"
-                                     id="session-idsession">
+                                <img class="img-responsive"  src="{{ session.image ? _p.web_upload ~ session.image : 'session_default.png'|icon() }}">
                             </a>
                             <span class="category">{{ session.category_name }}</span>
                             <div class="cribbon"></div>

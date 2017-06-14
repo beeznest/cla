@@ -739,7 +739,7 @@ class Display
         }
 
         $size_extra = $size.'/';
-
+        $icon = $w_code_path.'img/'.$image;
         // Checking the img/ folder
         $theme = 'themes/chamilo/icons/';
                
@@ -748,8 +748,6 @@ class Display
             
             if (is_file($alternateCssPath.$theme.$image)) {
                 $icon = $alternateWebCssPath.$theme.$image;
-            } else {
-                $icon = $w_code_path.'img/'.$image;
             }
             // Checking the theme icons folder example: app/Resources/public/css/themes/chamilo/icons/XXX
             if (is_file($alternateCssPath.$theme.$size_extra.$image)) {
