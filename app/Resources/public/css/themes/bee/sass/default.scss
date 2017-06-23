@@ -578,19 +578,60 @@ footer{
 //about
 .section-page{
     .page-header{
-        margin-top: 20px;
+        margin-top: 0;
         h3{
             font-size: 34px;
             font-weight: bold;
         }
     }
 }
+.shared-social{
+    padding: 10px;
+}
+.btn-facebook{
+    background-color: #3B5998;
+    border-color: #3B5998;
+    color: #FFF;
+    padding: 6px;
+}
+.btn-twitter{
+    background-color: #1DA1F2;
+    border-color: #1DA1F2;
+    color: #FFF;
+    padding: 6px;
+}
+.btn-linkedin{
+    background-color: #0177B5;
+    border-color: #0177B5;
+    color: #FFF;
+    padding: 6px;
+}
 #about-session{
+    .icons-social{
+        margin: 0;
+        padding: 5px 0;
+    }
+    .course-container{
+        padding: 15px;
+        box-shadow:0 0 11px #CDCDCD;
+        border-radius: 5px;
+    }
     .title{
         font-weight: bold;
         font-size: 24px;
         margin-top: 0;
         margin-bottom: 20px;
+        color: #454545;
+    }
+    .panel-coaches{
+        margin-top: 20px;
+        padding-top: 20px;
+    }
+    .info-course{
+        .title-info{
+            color: #454545;
+            font-weight: 500;
+        }
     }
     .panel-teachers{
         .media{

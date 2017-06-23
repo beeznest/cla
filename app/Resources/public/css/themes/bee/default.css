@@ -476,16 +476,51 @@ footer {
     margin-right: 5px; }
 
 .section-page .page-header {
-  margin-top: 20px; }
+  margin-top: 0; }
   .section-page .page-header h3 {
     font-size: 34px;
     font-weight: bold; }
 
+.shared-social {
+  padding: 10px; }
+
+.btn-facebook {
+  background-color: #3B5998;
+  border-color: #3B5998;
+  color: #FFF;
+  padding: 6px; }
+
+.btn-twitter {
+  background-color: #1DA1F2;
+  border-color: #1DA1F2;
+  color: #FFF;
+  padding: 6px; }
+
+.btn-linkedin {
+  background-color: #0177B5;
+  border-color: #0177B5;
+  color: #FFF;
+  padding: 6px; }
+
+#about-session .icons-social {
+  margin: 0;
+  padding: 5px 0; }
+#about-session .course-container {
+  padding: 15px;
+  box-shadow: 0 0 11px #CDCDCD;
+  border-radius: 5px; }
 #about-session .title {
   font-weight: bold;
   font-size: 24px;
   margin-top: 0;
-  margin-bottom: 20px; }
+  margin-bottom: 20px;
+  color: #454545; }
+#about-session .panel-coaches {
+  margin-top: 20px;
+  padding-top: 20px; }
+#about-session .info-course .title-info {
+  color: #454545;
+  font-weight: 500; }
 #about-session .panel-teachers .media .media-left img {
   width: 100px; }
 #about-session .panel-teachers .media .media-heading {
